@@ -2,14 +2,14 @@ package com.epam.lab.exception;
 
 public class UserNotFoundException extends RuntimeException {
 
-    public UserNotFoundException() {
-    }
+    private long userId;
 
-    public UserNotFoundException(String message) {
+    public UserNotFoundException(long userId, String message) {
         super(message);
+        this.userId = userId;
     }
 
-    public UserNotFoundException(String message, Throwable cause) {
-        super(message, cause);
+    public long getUserId() {
+        return userId;
     }
 }

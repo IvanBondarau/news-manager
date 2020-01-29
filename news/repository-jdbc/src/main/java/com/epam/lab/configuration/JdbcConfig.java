@@ -1,6 +1,5 @@
 package com.epam.lab.configuration;
 
-import com.epam.lab.dao.UserDao;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +11,6 @@ import javax.sql.DataSource;
 public class JdbcConfig {
 
     private DataSource dataSource;
-    private UserDao userDao;
 
     @Bean
     public DataSource getDataSource() {

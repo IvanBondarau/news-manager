@@ -8,24 +8,22 @@ import com.zaxxer.hikari.HikariDataSource;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import javax.sql.DataSource;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(JUnit4.class)
-public class UserDaoTest {
+public class UserDaoImplTest {
 
-    private UserDao userDao;
+    private UserDaoImpl userDaoImpl;
     private JdbcTemplate jdbcTemplate;
 
     @Before
@@ -35,7 +33,7 @@ public class UserDaoTest {
         DataSource dataSource = new HikariDataSource(hikariConfig);
 
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.userDao = new UserDao(dataSource);
+        this.userDaoImpl = new UserDaoImpl(dataSource);
 
         jdbcTemplate.execute("TRUNCATE TABLE public.\"user\"");
     }
@@ -44,7 +42,7 @@ public class UserDaoTest {
     public void createShouldBeValid() {
 
         User user = new User("name", "surname", "login", "password");
-        userDao.create(user);
+        userDaoImpl.create(user);
 
         List<User> users = jdbcTemplate.query("select * from public.\"user\"", new RowMapper<User>() {
             @Override
@@ -66,7 +64,7 @@ public class UserDaoTest {
     @Test(expected = Exception.class)
     public void createNullField() {
         User user = new User("name", null, "login", "password");
-        userDao.create(user);
+        userDaoImpl.create(user);
     }
 
     @Test
@@ -80,15 +78,14 @@ public class UserDaoTest {
                 user.getLogin(),
                 user.getPassword());
 
-        User loaded = userDao.read(user.getId());
+        User loaded = userDaoImpl.read(user.getId());
         assertEquals(user, loaded);
     }
 
     @Test(expected = UserNotFoundException.class)
     public void readUserNotExist() {
-        User user = userDao.read(11);
+        userDaoImpl.read(11);
     }
-
 
 
     @Test
@@ -107,7 +104,7 @@ public class UserDaoTest {
         user.setLogin("new login");
         user.setPassword("new password");
 
-        userDao.update(user);
+        userDaoImpl.update(user);
 
         List<User> users = jdbcTemplate.query("select * from public.\"user\"", (resultSet, i) -> {
             long id = resultSet.getLong(1);
@@ -125,7 +122,7 @@ public class UserDaoTest {
     @Test(expected = UserNotFoundException.class)
     public void updateUserNotExist() {
         User user = new User(11, "t", "t", "t", "t");
-        userDao.update(user);
+        userDaoImpl.update(user);
     }
 
     @Test(expected = Exception.class)
@@ -144,7 +141,7 @@ public class UserDaoTest {
         user.setLogin(null);
         user.setPassword("new password");
 
-        userDao.update(user);
+        userDaoImpl.update(user);
     }
 
     @Test
@@ -161,7 +158,7 @@ public class UserDaoTest {
                 user.getLogin(),
                 user.getPassword());
 
-        userDao.delete(userId);
+        userDaoImpl.delete(userId);
 
         List<User> users = jdbcTemplate.query("select * from public.\"user\"", (resultSet, i) -> {
             long id = resultSet.getLong(1);
@@ -178,7 +175,7 @@ public class UserDaoTest {
 
     @Test(expected = UserNotFoundException.class)
     public void deleteUserNotExist() {
-        userDao.delete(23);
+        userDaoImpl.delete(23);
     }
 
     @After
