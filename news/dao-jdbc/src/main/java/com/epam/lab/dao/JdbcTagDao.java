@@ -2,6 +2,7 @@ package com.epam.lab.dao;
 
 import com.epam.lab.exception.TagNotFoundException;
 import com.epam.lab.model.Tag;
+import org.graalvm.compiler.nodes.calc.IntegerDivRemNode;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -9,6 +10,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
+import java.util.Optional;
 
 public class JdbcTagDao extends AbstractDao implements TagDao {
 
@@ -17,6 +19,9 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
 
     private static final String SELECT_BY_ID_STATEMENT =
             "SELECT id, name FROM public.tag WHERE id = ?";
+
+    private static final String SELECT_BY_NAME_STATEMENT =
+            "SELECT id, name FROM public.tag WHERE name = ?";
 
     private static final String UPDATE_BY_ID_STATEMENT =
             "UPDATE public.tag " +
@@ -101,4 +106,18 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
         }
     }
 
+    @Override
+    public Optional<Tag> findByName(String name) {
+        List<Tag> loadedTags = jdbcTemplate.query(
+                SELECT_BY_ID_STATEMENT,
+                new Object[]{name},
+                new TagMapper()
+        );
+
+        if (loadedTags.size() == 0) {
+            return Optional.empty();
+        } else {
+            return Optional.of(loadedTags.get(0));
+        }
+    }
 }

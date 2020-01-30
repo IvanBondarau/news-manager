@@ -1,6 +1,6 @@
 package com.epam.lab.service;
 
-public interface NewsService {
+import com.epam.lab.dto.NewsDto;
 
-
+public interface NewsService extends CrudService<NewsDto> {
 }
