@@ -17,7 +17,8 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>repository-jdbc</module>
+        <module>dao-jdbc</module>
+        <module>service</module>
     </modules>
     <dependencies>
         <dependency>
