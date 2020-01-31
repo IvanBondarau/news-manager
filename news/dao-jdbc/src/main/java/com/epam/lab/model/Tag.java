@@ -18,7 +18,7 @@ public class Tag {
     public Tag() {
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 

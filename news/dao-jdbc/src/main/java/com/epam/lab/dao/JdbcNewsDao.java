@@ -119,71 +119,72 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     }
 
     @Override
-    public long getAuthorIdByNews(News news) {
+    public long getAuthorIdByNews(long newsId) {
         List<Long> authorId = jdbcTemplate.query(SELECT_NEWS_AUTHOR_ID_STATEMENT,
-                new Object[]{news.getId()},
+                new Object[]{newsId},
                 ((resultSet, i) -> resultSet.getLong(1)));
 
         if (authorId.size() != 1) {
-            throw new AuthorNotFoundException("Author for news with id " + news.getId() + " not found");
+            throw new AuthorNotFoundException("Author for news with id " + newsId + " not found");
         }
         return authorId.get(0);
     }
 
     @Override
-    public void setNewsAuthor(News news, long authorId) {
-        long authors = countNewsAuthors(news);
+    public void setNewsAuthor(long newsId, long authorId) {
+        long authors = countNewsAuthors(newsId);
         if (authors != 0) {
-            throw new AuthorAlreadyExistException("Author of news already exists", news.getId());
+            throw new AuthorAlreadyExistException("Author of news already exists", newsId);
         }
-        jdbcTemplate.update(INSERT_NEWS_AUTHOR_STATEMENT, news.getId(), authorId);
+        jdbcTemplate.update(INSERT_NEWS_AUTHOR_STATEMENT, newsId, authorId);
     }
 
     @Override
-    public void deleteNewsAuthor(News news) {
-        long numOfDeleted = jdbcTemplate.update(DELETE_NEWS_AUTHOR_STATEMENT, news.getId());
+    public void deleteNewsAuthor(long newsId) {
+        long numOfDeleted = jdbcTemplate.update(DELETE_NEWS_AUTHOR_STATEMENT, newsId);
         if (numOfDeleted != 1) {
-            throw new AuthorNotFoundException("News author (news id" + news.getId() + ") not found");
+            throw new AuthorNotFoundException("News author (news id" + newsId + ") not found");
         }
     }
 
     @Override
-    public List<Long> getTagsIdForNews(News news) {
+    public List<Long> getTagsIdForNews(long newsId) {
         return jdbcTemplate.query(SELECT_NEWS_TAGS_STATEMENT,
-                new Object[]{news.getId()},
+                new Object[]{newsId},
                 (resultSet, i) -> resultSet.getLong(1));
     }
 
 
     @Override
-    public void setNewsTag(News news, long tagId) {
-        long tags = countNewsTags(news, tagId);
+    public void setNewsTag(long newsId, long tagId) {
+        long tags = countNewsTags(newsId, tagId);
         if (tags != 0) {
-            throw new TagAlreadyExistException("News tag already exists", news.getId(), tagId);
+            throw new TagAlreadyExistException("News tag already exists", newsId, tagId);
         }
-        jdbcTemplate.update(INSERT_NEWS_TAG_STATEMENT, news.getId(), tagId);
+        jdbcTemplate.update(INSERT_NEWS_TAG_STATEMENT, newsId, tagId);
     }
 
     @Override
-    public void deleteNewsTag(News news, long tagId) {
-        long numOfDeleted = jdbcTemplate.update(DELETE_NEWS_TAG_STATEMENT, news.getId(), tagId);
+    public void deleteNewsTag(long newsId, long tagId) {
+        long numOfDeleted = jdbcTemplate.update(DELETE_NEWS_TAG_STATEMENT, newsId, tagId);
         if (numOfDeleted != 1) {
-            throw new TagNotFoundException("News author (news id" + news.getId() + ") not found", tagId);
+            throw new TagNotFoundException("News author (news id" + newsId + ") not found", tagId);
         }
     }
 
-    private long countNewsAuthors(News news) {
+    private long countNewsAuthors(long newsId) {
         return jdbcTemplate.query(
                 SELECT_COUNT_NEWS_AUTHORS_STATEMENT,
-                new Object[]{news.getId()},
+                new Object[]{newsId
+                },
                 ((resultSet, i) -> resultSet.getLong(1))
         ).get(0);
     }
 
-    private long countNewsTags(News news, long tagId) {
+    private long countNewsTags(long newsId, long tagId) {
         return jdbcTemplate.query(
                 SELECT_COUNT_NEWS_TAGS_STATEMENT,
-                new Object[]{news.getId(), tagId},
+                new Object[]{newsId, tagId},
                 ((resultSet, i) -> resultSet.getLong(1))
         ).get(0);
     }

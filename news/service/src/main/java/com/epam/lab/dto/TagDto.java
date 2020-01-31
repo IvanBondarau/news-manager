@@ -8,6 +8,7 @@ public class TagDto {
     private String name;
 
     public TagDto() {
+        id = Long.MIN_VALUE;
     }
 
     public long getId() {

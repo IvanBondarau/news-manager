@@ -1,30 +1,37 @@
 package com.epam.lab.service;
 
+import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
 import com.epam.lab.dto.TagDto;
+import com.epam.lab.exception.ResourceAlreadyExistException;
 import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TagServiceImpl implements TagService {
 
     private TagDao tagDao;
+    private NewsDao newsDao;
 
     @Autowired
-    public TagServiceImpl(TagDao tagDao) {
+    public TagServiceImpl(TagDao tagDao, NewsDao newsDao) {
         this.tagDao = tagDao;
+        this.newsDao = newsDao;
     }
+
+
 
     @Override
     @Transactional
     public void create(TagDto dto) {
         Optional<Tag> searchResult = tagDao.findByName(dto.getName());
         if (searchResult.isPresent()) {
-            dto.setId(searchResult.get().getId());
+            throw new ResourceAlreadyExistException(dto.toString() + " already exist", searchResult.get().getId());
         } else {
             long id = tagDao.create(new Tag(dto.getName()));
             dto.setId(id);
@@ -50,8 +57,16 @@ public class TagServiceImpl implements TagService {
 
     @Override
     @Transactional
-    public void delete(TagDto dto) {
-        long id = dto.getId();
+    public void delete(long id) {
+
+        List<Long> dependencies = newsDao.getTagsIdForNews(id);
+
+        for (Long newsId: dependencies) {
+            newsDao.deleteNewsTag(newsId, id);
+        }
+
         tagDao.delete(id);
     }
+
+
 }

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
@@ -32,8 +33,8 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
     private static final String SELECT_NEWS_ID_BY_AUTHOR_STATEMENT =
             "SELECT news_id FROM news_author WHERE author_id = ?";
 
-    private static final String SELECT_BY_NEWS_ID_STATEMENT =
-            "SELECT author_id FROM news_author WHERE news_id = ?";
+    private static final String SELECT_BY_NAME_SURNAME_STATEMENT =
+            "SELECT id, name, surname FROM public.author WHERE name = ? AND surname = ?";
 
     @Autowired
     public JdbcAuthorDao(DataSource dataSource) {
@@ -91,12 +92,27 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
     }
 
     @Override
-    public List<Long> getNewsIdByAuthor(Author author) {
+    public List<Long> getNewsIdByAuthor(long authorId) {
         return jdbcTemplate.query(
                 SELECT_NEWS_ID_BY_AUTHOR_STATEMENT,
-                new Object[]{author.getId()},
+                new Object[]{authorId},
                 ((resultSet, i) -> resultSet.getLong(1))
         );
+    }
+
+    @Override
+    public Optional<Author> findByNameSurname(String name, String surname) {
+        List<Author> loadedAuthors = jdbcTemplate.query(
+                SELECT_BY_NAME_SURNAME_STATEMENT,
+                new Object[]{name, surname},
+                new AuthorMapper()
+        );
+
+        if (loadedAuthors.size() == 0) {
+            return Optional.empty();
+        } else {
+            return Optional.of(loadedAuthors.get(0));
+        }
     }
 
 

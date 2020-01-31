@@ -1,12 +1,6 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.exception.AuthorAlreadyExistException;
-import com.epam.lab.exception.AuthorNotFoundException;
-import com.epam.lab.dao.JdbcNewsDao;
-import com.epam.lab.dao.NewsDao;
-import com.epam.lab.exception.NewsNotFoundException;
-import com.epam.lab.exception.TagAlreadyExistException;
-import com.epam.lab.exception.TagNotFoundException;
+import com.epam.lab.exception.*;
 import com.epam.lab.model.News;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -254,7 +248,7 @@ public class JdbcNewsDaoTest {
                 news.getId(),
                 1000);
 
-        long loadedId = newsDao.getAuthorIdByNews(news);
+        long loadedId = newsDao.getAuthorIdByNews(1000);
 
         assertEquals(1000, loadedId);
 
@@ -262,23 +256,16 @@ public class JdbcNewsDaoTest {
 
     @Test(expected = Exception.class)
     public void getNewsAuthorNotExist() {
-        News news = new News(
-                32,
-                "title",
-                "text", "textx",
-                Date.valueOf("2019-12-12"), Date.valueOf("2019-12-13"));
-        newsDao.getAuthorIdByNews(news);
+        newsDao.getAuthorIdByNews(1000);
     }
 
     @Test
     public void getNewsTagsValid() {
 
-        News news = newsDao.read(1000);
-
         jdbcTemplate.update("INSERT INTO news_tag(news_id, tag_id) VALUES(?, ?)",
                 1000, 1000);
 
-        List<Long> loadedId = newsDao.getTagsIdForNews(news);
+        List<Long> loadedId = newsDao.getTagsIdForNews(1000);
 
         assertTrue(loadedId.contains(1000L));
 
@@ -289,7 +276,7 @@ public class JdbcNewsDaoTest {
 
         News news = newsDao.read(1000);
 
-        newsDao.setNewsAuthor(news, 1000);
+        newsDao.setNewsAuthor(1000, 1000);
 
         Long count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM news_author WHERE news_id = ? AND author_id = ?",
@@ -301,19 +288,16 @@ public class JdbcNewsDaoTest {
     @Test(expected = AuthorAlreadyExistException.class)
     public void setNewsAuthorDoubleSet() {
 
-        News news = newsDao.read(1000);
 
-        newsDao.setNewsAuthor(news, 1000);
-        newsDao.setNewsAuthor(news, 1001);
+        newsDao.setNewsAuthor(1000, 1000);
+        newsDao.setNewsAuthor(1000, 1000);
 
     }
 
     @Test(expected = RuntimeException.class)
     public void setNewsAuthorInvalidAuthorId() {
 
-        News news = newsDao.read(1000);
-
-        newsDao.setNewsAuthor(news, 5000);
+        newsDao.setNewsAuthor(1000, 5000);
     }
 
     @Test
@@ -321,7 +305,7 @@ public class JdbcNewsDaoTest {
 
         News news = newsDao.read(1000);
 
-        newsDao.setNewsTag(news, 1000);
+        newsDao.setNewsTag(1000, 1000);
 
         Long count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM news_tag WHERE news_id = ? AND tag_id = ?",
@@ -332,77 +316,63 @@ public class JdbcNewsDaoTest {
 
     @Test(expected = TagAlreadyExistException.class)
     public void setNewsTagDoubleSet() {
-
-        News news = newsDao.read(1000);
-
-        newsDao.setNewsTag(news, 1000);
-        newsDao.setNewsTag(news, 1000);
+        newsDao.setNewsTag(1000, 1000);
+        newsDao.setNewsTag(1000, 1000);
 
     }
 
     @Test(expected = RuntimeException.class)
     public void setNewsAuthorInvalidTagId() {
 
-        News news = newsDao.read(1000);
-
-        newsDao.setNewsTag(news, 5000);
+        newsDao.setNewsTag(1000, 5000);
     }
 
 
     @Test
     public void deleteNewsAuthorValid() {
 
-        News news = newsDao.read(1000);
 
         jdbcTemplate.update("INSERT INTO news_author(news_id, author_id) VALUES(?, ?)",
                 1000, 1000);
 
-        newsDao.deleteNewsAuthor(news);
+        newsDao.deleteNewsAuthor(1000);
 
         Long count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM news_author WHERE news_id = ? AND author_id = ?",
-                new Object[]{news.getId(), 1000},
+                new Object[]{1000, 1000},
                 (resultSet, i) -> resultSet.getLong(1));
         assertEquals(Long.valueOf(0), count);
     }
 
     @Test(expected = AuthorNotFoundException.class)
     public void deleteNewsAuthorNotExist() {
-        News news = newsDao.read(1000);
-        newsDao.deleteNewsAuthor(news);
+        newsDao.deleteNewsAuthor(1000);
     }
 
     @Test(expected = RuntimeException.class)
     public void deleteNewsNotExist() {
-        News news = new News(
-                10,
-                "title",
-                "text", "textx",
-                Date.valueOf("2019-12-12"), Date.valueOf("2019-12-13"));
-        newsDao.deleteNewsAuthor(news);
+        newsDao.deleteNewsAuthor(1000);
     }
 
     @Test
     public void deleteNewsTagValid() {
 
-        News news = newsDao.read(1000);
 
         jdbcTemplate.update("INSERT INTO news_tag(news_id, tag_id) VALUES(?, ?)",
                 1000, 1000);
 
-        newsDao.deleteNewsTag(news, 1000);
+        newsDao.deleteNewsTag(1000, 1000);
 
         Long count = jdbcTemplate.queryForObject(
                 "SELECT COUNT(*) FROM news_tag WHERE news_id = ? AND tag_id = ?",
-                new Object[]{news.getId(), 1000},
+                new Object[]{1000, 1000},
                 (resultSet, i) -> resultSet.getLong(1));
         assertEquals(Long.valueOf(0), count);
     }
 
     @Test(expected = TagNotFoundException.class)
     public void deleteNewsTagNotExist() {
-        News news = newsDao.read(1000);
-        newsDao.deleteNewsTag(news, 5000);
+        newsDao.deleteNewsTag(1000, 5000);
     }
 
 }

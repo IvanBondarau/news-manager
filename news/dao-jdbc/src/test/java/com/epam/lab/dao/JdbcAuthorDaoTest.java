@@ -4,6 +4,7 @@ import com.epam.lab.exception.AuthorNotFoundException;
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.JdbcAuthorDao;
 import com.epam.lab.model.Author;
+import com.epam.lab.model.Tag;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -13,9 +14,9 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 public class JdbcAuthorDaoTest {
@@ -188,14 +189,28 @@ public class JdbcAuthorDaoTest {
 
     @Test
     public void getNewsIdByAuthorShouldBeValid() {
-        Author author = authorDao.read(1000);
-
         jdbcTemplate.update("INSERT INTO news_author(news_id, author_id) VALUES(?, ?)",
                 1000, 1000);
 
-        List<Long> ids = authorDao.getNewsIdByAuthor(author);
+        List<Long> ids = authorDao.getNewsIdByAuthor(1000);
 
         assertTrue(ids.contains(1000L));
+    }
+
+    @Test
+    public void findByNameValid() {
+
+        Optional<Author> result = authorDao.findByNameSurname("default name", "default surname");
+
+        assertTrue(result.isPresent());
+        assertEquals(Long.valueOf(result.get().getId()), Long.valueOf(1000));
+    }
+    @Test
+    public void findByNameNotFound() {
+
+        Optional<Author> result = authorDao.findByNameSurname("danjadxcdadadadadae", "qqqqqqqqqq");
+
+        assertFalse(result.isPresent());
     }
 
 

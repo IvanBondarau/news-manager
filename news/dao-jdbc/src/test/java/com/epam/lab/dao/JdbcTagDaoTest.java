@@ -13,9 +13,9 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
 public class JdbcTagDaoTest {
@@ -185,5 +185,22 @@ public class JdbcTagDaoTest {
 
         assertTrue(ids.contains(1000L));
     }
+
+    @Test
+    public void findByNameValid() {
+
+        Optional<Tag> result = tagDao.findByName("tag name");
+
+        assertTrue(result.isPresent());
+        assertEquals(Long.valueOf(result.get().getId()), Long.valueOf(1000));
+    }
+    @Test
+    public void findByNameNotFound() {
+
+        Optional<Tag> result = tagDao.findByName("danjadxcdadadadadae");
+
+        assertFalse(result.isPresent());
+    }
+
 
 }

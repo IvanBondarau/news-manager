@@ -12,7 +12,7 @@ CREATE TABLE public.roles
 (
     user_id bigint NOT NULL,
     role_name character varying(30) NOT NULL,
-    foreign key (user_id) references public.users(id)
+    foreign key (user_id) references public.users(id) ON DELETE CASCADE
 );
 
 CREATE TABLE public.author
@@ -45,8 +45,8 @@ CREATE TABLE public.news_author
 (
     news_id bigint NOT NULL,
     author_id bigint NOT NULL,
-    foreign key (news_id) references public.news(id),
-    foreign key (author_id) references public.author(id)
+    foreign key (news_id) references public.news(id) ON DELETE CASCADE,
+    foreign key (author_id) references public.author(id) ON DELETE CASCADE
 );
 
 CREATE TABLE public.news_tag
@@ -54,6 +54,6 @@ CREATE TABLE public.news_tag
     news_id bigint NOT NULL,
     tag_id bigint NOT NULL,
 
-    foreign key (news_id) references public.news(id),
-    foreign key (tag_id) references public.tag(id)
+    foreign key (news_id) references public.news(id) ON DELETE CASCADE,
+    foreign key (tag_id) references public.tag(id) ON DELETE CASCADE
 );

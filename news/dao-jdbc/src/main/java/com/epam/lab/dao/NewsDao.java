@@ -5,11 +5,11 @@ import com.epam.lab.model.News;
 import java.util.List;
 
 public interface NewsDao extends CrudDao<News> {
-    long getAuthorIdByNews(News news);
-    void setNewsAuthor(News news, long authorId);
-    void deleteNewsAuthor(News news);
+    long getAuthorIdByNews(long id);
+    void setNewsAuthor(long newsId, long authorId);
+    void deleteNewsAuthor(long newsId);
 
-    List<Long> getTagsIdForNews(News news);
-    void setNewsTag(News news, long tagId);
-    void deleteNewsTag(News news, long tagId);
+    List<Long> getTagsIdForNews(long id);
+    void setNewsTag(long newsId, long tagId);
+    void deleteNewsTag(long newsId, long tagId);
 }

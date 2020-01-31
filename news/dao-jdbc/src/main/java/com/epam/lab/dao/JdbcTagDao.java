@@ -2,7 +2,6 @@ package com.epam.lab.dao;
 
 import com.epam.lab.exception.TagNotFoundException;
 import com.epam.lab.model.Tag;
-import org.graalvm.compiler.nodes.calc.IntegerDivRemNode;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -97,19 +96,10 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
                 (resultSet, i) -> resultSet.getLong(1));
     }
 
-    private static final class TagMapper implements RowMapper<Tag> {
-        @Override
-        public Tag mapRow(ResultSet resultSet, int i) throws SQLException {
-            long id = resultSet.getLong(1);
-            String name = resultSet.getString(2);
-            return new Tag(id, name);
-        }
-    }
-
     @Override
     public Optional<Tag> findByName(String name) {
         List<Tag> loadedTags = jdbcTemplate.query(
-                SELECT_BY_ID_STATEMENT,
+                SELECT_BY_NAME_STATEMENT,
                 new Object[]{name},
                 new TagMapper()
         );
@@ -118,6 +108,15 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
             return Optional.empty();
         } else {
             return Optional.of(loadedTags.get(0));
+        }
+    }
+
+    private static final class TagMapper implements RowMapper<Tag> {
+        @Override
+        public Tag mapRow(ResultSet resultSet, int i) throws SQLException {
+            long id = resultSet.getLong(1);
+            String name = resultSet.getString(2);
+            return new Tag(id, name);
         }
     }
 }
