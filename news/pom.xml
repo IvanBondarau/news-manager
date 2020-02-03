@@ -19,6 +19,7 @@
     <modules>
         <module>dao-jdbc</module>
         <module>service</module>
+        <module>controller</module>
     </modules>
     <dependencies>
         <dependency>
@@ -32,6 +33,18 @@
             <version>4.13-rc-2</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.2</version>
+            </plugin>
+
+        </plugins>
+    </build>
 
 
 </project>

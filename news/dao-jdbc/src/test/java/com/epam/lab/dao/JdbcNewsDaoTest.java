@@ -1,5 +1,6 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.DataSourceHolder;
 import com.epam.lab.exception.*;
 import com.epam.lab.model.News;
 import org.junit.*;
@@ -45,7 +46,9 @@ public class JdbcNewsDaoTest {
     @Before
     public void init() {
         jdbcTemplate = new JdbcTemplate(embeddedDatabase);
-        newsDao = new JdbcNewsDao(embeddedDatabase);
+        DataSourceHolder dataSourceHolder = new DataSourceHolder();
+        dataSourceHolder.setDataSource(embeddedDatabase);
+        newsDao = new JdbcNewsDao(dataSourceHolder);
         jdbcTemplate.execute(DEFAULT_DATA);
     }
 

@@ -2,6 +2,7 @@ package com.epam.lab.dao;
 
 import com.epam.lab.model.News;
 
+import javax.sql.DataSource;
 import java.util.List;
 
 public interface NewsDao extends CrudDao<News> {
@@ -12,4 +13,5 @@ public interface NewsDao extends CrudDao<News> {
     List<Long> getTagsIdForNews(long id);
     void setNewsTag(long newsId, long tagId);
     void deleteNewsTag(long newsId, long tagId);
+
 }

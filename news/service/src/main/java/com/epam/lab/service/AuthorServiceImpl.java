@@ -3,14 +3,12 @@ package com.epam.lab.service;
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dto.AuthorDto;
-import com.epam.lab.exception.ResourceAlreadyExistException;
 import com.epam.lab.model.Author;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
@@ -29,15 +27,9 @@ public class AuthorServiceImpl implements AuthorService {
     public void create(AuthorDto dto) {
         String name = dto.getName();
         String surname = dto.getSurname();
+        long id = authorDao.create(new Author(name, surname));
+        dto.setId(id);
 
-        Optional<Author> searchResult = authorDao.findByNameSurname(name, surname);
-
-        if (searchResult.isPresent()) {
-            throw new ResourceAlreadyExistException(dto.toString() + " already exist", searchResult.get().getId());
-        } else {
-            long id = authorDao.create(new Author(name, surname));
-            dto.setId(id);
-        }
     }
 
     @Override
@@ -67,7 +59,7 @@ public class AuthorServiceImpl implements AuthorService {
     public void delete(long id) {
         List<Long> dependentNews = authorDao.getNewsIdByAuthor(id);
 
-        for (Long newsId: dependentNews) {
+        for (Long newsId : dependentNews) {
             newsDao.delete(newsId);
         }
 

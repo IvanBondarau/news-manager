@@ -31,6 +31,7 @@ public class TagServiceImpl implements TagService {
     public void create(TagDto dto) {
         Optional<Tag> searchResult = tagDao.findByName(dto.getName());
         if (searchResult.isPresent()) {
+            dto.setId(searchResult.get().getId());
             throw new ResourceAlreadyExistException(dto.toString() + " already exist", searchResult.get().getId());
         } else {
             long id = tagDao.create(new Tag(dto.getName()));

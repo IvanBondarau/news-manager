@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -26,15 +28,29 @@ public class NewsServiceImpl implements NewsService {
     private AuthorDao authorDao;
     private TagDao tagDao;
 
+    private AuthorService authorService;
+
     @Autowired
-    public NewsServiceImpl(NewsDao newsDao, AuthorDao authorDao, TagDao tagDao) {
+    public NewsServiceImpl(NewsDao newsDao, AuthorDao authorDao, TagDao tagDao, AuthorService authorService) {
         this.newsDao = newsDao;
         this.authorDao = authorDao;
         this.tagDao = tagDao;
+        this.authorService = authorService;
     }
 
     @Override
     public void create(NewsDto dto) {
+
+
+        if (dto.getAuthor().getId() == 0) {
+            authorService.create(dto.getAuthor());
+        } else {
+            dto.setAuthor(authorService.read(dto.getAuthor().getId()));
+        }
+
+        dto.setCreationDate(Date.valueOf(LocalDate.now()));
+        dto.setModificationDate(dto.getCreationDate());
+
         News entity = buildNewsFromDto(dto);
 
         long id = newsDao.create(entity);
@@ -84,6 +100,15 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public void update(NewsDto dto) {
+
+        if (dto.getAuthor().getId() == 0) {
+            authorService.create(dto.getAuthor());
+        } else {
+            dto.setAuthor(authorService.read(dto.getAuthor().getId()));
+        }
+
+
+        dto.setModificationDate(Date.valueOf(LocalDate.now()));
 
         NewsDto oldDto = read(dto.getId());
 

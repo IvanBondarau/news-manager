@@ -1,8 +1,10 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.DataSourceHolder;
 import com.epam.lab.exception.AuthorNotFoundException;
 import com.epam.lab.model.Author;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,6 +17,7 @@ import java.util.Optional;
 
 @Repository
 public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
+
 
     private static final String INSERT_STATEMENT =
             "INSERT INTO public.author(name, surname) VALUES(?, ?)";
@@ -36,10 +39,12 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
     private static final String SELECT_BY_NAME_SURNAME_STATEMENT =
             "SELECT id, name, surname FROM public.author WHERE name = ? AND surname = ?";
 
+
     @Autowired
-    public JdbcAuthorDao(DataSource dataSource) {
-        super(dataSource);
+    public JdbcAuthorDao(@Qualifier(value = "dataSourceHolder") DataSourceHolder dataSourceHolder) {
+        super.setDataSource(dataSourceHolder.getDataSource());
     }
+
 
     @Override
     public long create(Author entity) {
@@ -54,7 +59,7 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
                 },
                 keyHolder
         );
-        long key = (long) keyHolder.getKey();
+        long key = (long) keyHolder.getKeys().get("id");
         entity.setId(key);
         return key;
     }

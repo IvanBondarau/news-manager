@@ -1,5 +1,6 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.DataSourceHolder;
 import com.epam.lab.exception.AuthorNotFoundException;
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.JdbcAuthorDao;
@@ -44,7 +45,9 @@ public class JdbcAuthorDaoTest {
     @Before
     public void init() {
         jdbcTemplate = new JdbcTemplate(embeddedDatabase);
-        authorDao = new JdbcAuthorDao(embeddedDatabase);
+        DataSourceHolder dataSourceHolder = new DataSourceHolder();
+        dataSourceHolder.setDataSource(embeddedDatabase);
+        authorDao = new JdbcAuthorDao(dataSourceHolder);
         jdbcTemplate.execute(DEFAULT_DATA);
     }
 

@@ -1,5 +1,6 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.DataSourceHolder;
 import com.epam.lab.exception.UserNotFoundException;
 import com.epam.lab.dao.JdbcUserDao;
 import com.epam.lab.dao.UserDao;
@@ -42,7 +43,10 @@ public class JdbcUserDaoTest {
     @Before
     public void init() {
         jdbcTemplate = new JdbcTemplate(embeddedDatabase);
-        userDao = new JdbcUserDao(embeddedDatabase);
+        DataSourceHolder dataSourceHolder = new DataSourceHolder();
+        dataSourceHolder.setDataSource(embeddedDatabase);
+        userDao = new JdbcUserDao(dataSourceHolder);
+
     }
 
     @After

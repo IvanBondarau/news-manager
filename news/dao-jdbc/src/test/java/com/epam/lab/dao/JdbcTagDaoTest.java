@@ -1,5 +1,6 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.DataSourceHolder;
 import com.epam.lab.dao.JdbcTagDao;
 import com.epam.lab.dao.TagDao;
 import com.epam.lab.exception.TagNotFoundException;
@@ -45,7 +46,9 @@ public class JdbcTagDaoTest {
     @Before
     public void init() {
         jdbcTemplate = new JdbcTemplate(embeddedDatabase);
-        tagDao = new JdbcTagDao(embeddedDatabase);
+        DataSourceHolder dataSourceHolder = new DataSourceHolder();
+        dataSourceHolder.setDataSource(embeddedDatabase);
+        tagDao = new JdbcTagDao(dataSourceHolder);
         jdbcTemplate.execute(DEFAULT_DATA);
     }
 

@@ -1,8 +1,10 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.DataSourceHolder;
 import com.epam.lab.exception.UserNotFoundException;
 import com.epam.lab.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -31,8 +33,12 @@ public class JdbcUserDao extends AbstractDao implements UserDao {
 
 
     @Autowired
-    public JdbcUserDao(DataSource dataSource) {
-        super(dataSource);
+    public JdbcUserDao(DataSourceHolder dataSourceHolder) {
+        setDataSource(dataSourceHolder.getDataSource());
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        super.setDataSource(dataSource);
     }
 
     @Override

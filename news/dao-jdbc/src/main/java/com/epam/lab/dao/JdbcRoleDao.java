@@ -1,8 +1,11 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.DataSourceHolder;
 import com.epam.lab.exception.RoleAlreadyExistException;
 import com.epam.lab.exception.RoleNotFoundException;
 import com.epam.lab.model.Role;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
@@ -23,9 +26,11 @@ public class JdbcRoleDao extends AbstractDao implements RoleDao {
     private static final String SELECT_BY_USER_ID_STATEMENT =
             "SELECT user_id, role_name FROM public.roles WHERE user_id = ?";
 
-    public JdbcRoleDao(DataSource dataSource) {
-        super(dataSource);
+    @Autowired
+    public JdbcRoleDao(DataSourceHolder dataSourceHolder) {
+        super.setDataSource(dataSourceHolder.getDataSource());
     }
+
 
     @Override
     public void assignRoleToUser(Role role) {

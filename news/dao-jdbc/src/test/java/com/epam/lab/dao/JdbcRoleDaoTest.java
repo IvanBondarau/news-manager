@@ -1,5 +1,6 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.DataSourceHolder;
 import com.epam.lab.dao.JdbcRoleDao;
 import com.epam.lab.dao.RoleDao;
 import com.epam.lab.exception.RoleAlreadyExistException;
@@ -43,7 +44,9 @@ public class JdbcRoleDaoTest {
     @Before
     public void init() {
         jdbcTemplate = new JdbcTemplate(embeddedDatabase);
-        roleDao = new JdbcRoleDao(embeddedDatabase);
+        DataSourceHolder dataSourceHolder = new DataSourceHolder();
+        dataSourceHolder.setDataSource(embeddedDatabase);
+        roleDao = new JdbcRoleDao(dataSourceHolder);
 
         testUser = new User(1, "test", "test", "test", "test");
         jdbcTemplate.update("INSERT INTO public.users VALUES(?, ?, ?, ?, ?)",

@@ -1,11 +1,10 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.exception.AuthorAlreadyExistException;
-import com.epam.lab.exception.AuthorNotFoundException;
-import com.epam.lab.exception.NewsNotFoundException;
-import com.epam.lab.exception.TagAlreadyExistException;
-import com.epam.lab.exception.TagNotFoundException;
+import com.epam.lab.DataSourceHolder;
+import com.epam.lab.exception.*;
 import com.epam.lab.model.News;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -58,9 +57,12 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     private static final String SELECT_COUNT_NEWS_TAGS_STATEMENT =
             "SELECT COUNT(tag_id) FROM news_tag WHERE news_id = ? AND tag_id = ?";
 
-    public JdbcNewsDao(DataSource dataSource) {
-        super(dataSource);
+
+    @Autowired
+    public JdbcNewsDao(DataSourceHolder dataSourceHolder) {
+        super.setDataSource(dataSourceHolder.getDataSource());
     }
+
 
     @Override
     public long create(News entity) {
@@ -78,7 +80,7 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
                 },
                 keyHolder
         );
-        long key = (long) keyHolder.getKey();
+        long key = (long) keyHolder.getKeys().get("id");
         entity.setId(key);
         return key;
     }

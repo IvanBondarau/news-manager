@@ -50,26 +50,10 @@ public class AuthorServiceImplTest {
 
         service.create(authorDto);
 
-        Mockito.verify(authorDao).findByNameSurname("Test name", "Test surname");
         Mockito.verify(authorDao).create(resultEntity);
 
     }
 
-    @Test(expected = RuntimeException.class)
-    public void createAuthorAlreadyExistValid() {
-
-
-        Author resultEntity = new Author(1, "Test name", "Test surname");
-
-        Mockito.when(authorDao.findByNameSurname(any(), any())).thenReturn(Optional.of(resultEntity));
-
-        AuthorDto authorDto = new AuthorDto();
-        authorDto.setName("Test name");
-        authorDto.setSurname("Test surname");
-
-        service.create(authorDto);
-
-    }
 
     @Test
     public void readAuthorValid() {

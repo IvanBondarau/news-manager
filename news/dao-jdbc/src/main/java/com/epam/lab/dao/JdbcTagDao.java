@@ -1,16 +1,21 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.DataSourceHolder;
 import com.epam.lab.exception.TagNotFoundException;
 import com.epam.lab.model.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class JdbcTagDao extends AbstractDao implements TagDao {
 
     private static final String INSERT_STATEMENT =
@@ -33,8 +38,15 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
     private static final String SELECT_NEWS_ID_FOR_TAG =
             "SELECT news_id FROM news_tag WHERE tag_id = ?";
 
-    public JdbcTagDao(DataSource dataSource) {
-        super(dataSource);
+
+
+    @Autowired
+    public JdbcTagDao(DataSourceHolder dataSourceHolder) {
+        setDataSource(dataSourceHolder.getDataSource());
+    }
+
+    public void setDataSource(DataSource dataSource) {
+        super.setDataSource(dataSource);
     }
 
     @Override
@@ -49,7 +61,7 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
                 },
                 keyHolder
         );
-        long key = (long) keyHolder.getKey();
+        long key = (long) keyHolder.getKeys().get("id");
         entity.setId(key);
         return key;
     }

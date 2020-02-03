@@ -7,8 +7,13 @@ import javax.sql.DataSource;
 public abstract class AbstractDao {
 
     protected JdbcTemplate jdbcTemplate;
+    private DataSource dataSource;
 
-    protected AbstractDao(DataSource dataSource) {
+    protected void setDataSource(DataSource dataSource) {
+        if (dataSource == null) {
+            throw new RuntimeException("HELL");
+        }
+        this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate();
         jdbcTemplate.setDataSource(dataSource);
     }
