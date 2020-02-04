@@ -36,8 +36,11 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
     private static final String SELECT_NEWS_ID_BY_AUTHOR_STATEMENT =
             "SELECT news_id FROM news_author WHERE author_id = ?";
 
-    private static final String SELECT_BY_NAME_SURNAME_STATEMENT =
-            "SELECT id, name, surname FROM public.author WHERE name = ? AND surname = ?";
+    private static final String SELECT_BY_NAME_STATEMENT =
+            "SELECT news_id FROM news_author JOIN author ON author.id = author_id WHERE author.name = ?";
+
+    private static final String SELECT_BY_SURNAME_STATEMENT =
+            "SELECT news_id FROM news_author JOIN author ON author.id = author_id WHERE author.surname = ?";
 
 
     @Autowired
@@ -105,21 +108,27 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
         );
     }
 
-    @Override
-    public Optional<Author> findByNameSurname(String name, String surname) {
-        List<Author> loadedAuthors = jdbcTemplate.query(
-                SELECT_BY_NAME_SURNAME_STATEMENT,
-                new Object[]{name, surname},
-                new AuthorMapper()
-        );
 
-        if (loadedAuthors.size() == 0) {
-            return Optional.empty();
-        } else {
-            return Optional.of(loadedAuthors.get(0));
-        }
+
+    @Override
+    public List<Long> getNewsIdByAuthorName(String authorName) {
+        return jdbcTemplate.query(
+                SELECT_BY_NAME_STATEMENT,
+                new Object[]{authorName},
+                ((resultSet, i) -> resultSet.getLong(1))
+        );
     }
 
+
+
+    @Override
+    public List<Long> getNewsIdByAuthorSurname(String authorSurname) {
+        return jdbcTemplate.query(
+                SELECT_BY_SURNAME_STATEMENT,
+                new Object[]{authorSurname},
+                ((resultSet, i) -> resultSet.getLong(1))
+        );
+    }
 
     private static final class AuthorMapper implements RowMapper<Author> {
         @Override

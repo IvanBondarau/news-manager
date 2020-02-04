@@ -13,8 +13,10 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -22,8 +24,19 @@ import static org.junit.Assert.*;
 public class JdbcTagDaoTest {
     private static final String DEFAULT_DATA =
             "INSERT INTO public.author VALUES(1000, 'default name', 'default surname');\n" +
-                    "INSERT INTO public.news VALUES(1000, 'title', 'short text', 'long text', '2000-01-01', '2000-01-02');\n" +
-                    "INSERT INTO public.tag VALUES(1000, 'tag name');\n" +
+                    "INSERT INTO public.news VALUES(1001, 'news1', 'short text', 'long text', '2000-01-01', '2000-01-02');\n" +
+                    "INSERT INTO public.news VALUES(1002, 'news2', 'short text', 'long text', '2000-01-01', '2000-01-02');\n" +
+                    "INSERT INTO public.news VALUES(1003, 'news3', 'short text', 'long text', '2000-01-01', '2000-01-02');\n" +
+                    "INSERT INTO public.tag VALUES(1001, 'tag1');\n" +
+                    "INSERT INTO public.tag VALUES(1002, 'tag2');\n" +
+                    "INSERT INTO public.tag VALUES(1003, 'tag3');\n" +
+                    "INSERT INTO public.news_tag VALUES(1001, 1002);\n" +
+                    "INSERT INTO public.news_tag VALUES(1001, 1003);\n" +
+                    "INSERT INTO public.news_tag VALUES(1002, 1001);\n" +
+                    "INSERT INTO public.news_tag VALUES(1002, 1002);\n" +
+                    "INSERT INTO public.news_tag VALUES(1002, 1003);\n" +
+                    "INSERT INTO public.news_tag VALUES(1003, 1001);\n" +
+                    "INSERT INTO public.news_tag VALUES(1003, 1003);\n" +
                     "INSERT INTO public.users VALUES(1000, 'name', 'surname', 'login', 'password');\n" +
                     "INSERT INTO public.roles VALUES(1000, 'default role name');";
     private static EmbeddedDatabase embeddedDatabase;
@@ -75,8 +88,8 @@ public class JdbcTagDaoTest {
             return new Tag(id, name);
         });
 
-        assertEquals(2, tags.size());
-        assertEquals(tag, tags.get(1));
+        assertEquals(4, tags.size());
+        assertEquals(tag, tags.get(3));
 
     }
 
@@ -124,7 +137,7 @@ public class JdbcTagDaoTest {
             return new Tag(id, name);
         });
 
-        assertEquals(2, tags.size());
+        assertEquals(4, tags.size());
         assertEquals(tag, tags.get(0));
     }
 
@@ -168,7 +181,7 @@ public class JdbcTagDaoTest {
             return new Tag(id, name);
         });
 
-        assertEquals(1, tags.size());
+        assertEquals(3, tags.size());
 
     }
 
@@ -179,30 +192,40 @@ public class JdbcTagDaoTest {
 
     @Test
     public void getNewsIdByTagShouldBeValid() {
-        Tag tag = tagDao.read(1000);
+        Tag tag = tagDao.read(1001);
 
         jdbcTemplate.update("INSERT INTO news_tag(news_id, tag_id) VALUES(?, ?)",
-                1000, 1000);
+                1001, 1001);
 
-        List<Long> ids = tagDao.getNewsIdForTag(tag);
+        List<Long> ids = tagDao.getNewsIdByTag(tag);
 
-        assertTrue(ids.contains(1000L));
+        assertTrue(ids.contains(1001L));
     }
 
     @Test
     public void findByNameValid() {
 
-        Optional<Tag> result = tagDao.findByName("tag name");
+        Optional<Tag> result = tagDao.findByName("tag1");
 
         assertTrue(result.isPresent());
-        assertEquals(Long.valueOf(result.get().getId()), Long.valueOf(1000));
+        assertEquals(Long.valueOf(result.get().getId()), Long.valueOf(1001));
     }
     @Test
     public void findByNameNotFound() {
 
-        Optional<Tag> result = tagDao.findByName("danjadxcdadadadadae");
+        Optional<Tag> result = tagDao.findByName("superlongabsentname");
 
         assertFalse(result.isPresent());
+    }
+
+    @Test
+    public void findByTagNamesValid() {
+        Set<String> tagNames = new HashSet<>();
+        tagNames.add("tag1");
+        tagNames.add("tag3");
+
+        List<Long> result = tagDao.findNewsIdByTagNames(tagNames);
+        assertEquals(2, result.size());
     }
 
 

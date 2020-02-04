@@ -15,10 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -171,4 +168,30 @@ public class NewsServiceImpl implements NewsService {
         }
     }
 
+    @Override
+    public List<NewsDto> search(SearchCriteria searchCriteria) {
+        Set<Long> idResultSet = new HashSet<>(tagDao.findNewsIdByTagNames(searchCriteria.getTagNames()));
+
+        if (searchCriteria.getAuthorId() != null) {
+            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthor(searchCriteria.getAuthorId()));
+            idResultSet.retainAll(searchResult);
+        }
+
+        if (searchCriteria.getAuthorName() != null) {
+            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorName(searchCriteria.getAuthorName()));
+            idResultSet.retainAll(searchResult);
+        }
+
+        if (searchCriteria.getAuthorSurname() != null) {
+            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorName(searchCriteria.getAuthorSurname()));
+            idResultSet.retainAll(searchResult);
+        }
+
+        List<NewsDto> resultSet = new ArrayList<>();
+        for (Long newsId: idResultSet) {
+            resultSet.add(this.read(newsId));
+        }
+
+        return resultSet;
+    }
 }

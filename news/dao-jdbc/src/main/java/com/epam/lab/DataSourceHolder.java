@@ -10,10 +10,9 @@ import javax.sql.DataSource;
 public class DataSourceHolder {
 
     private static DataSource dataSource;
-    private static HikariConfig config;
 
     static {
-        config = new HikariConfig();
+        HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:postgresql://localhost:60666/newsManager");
         config.setUsername("newsManager");
         config.setPassword("12345");
@@ -35,6 +34,6 @@ public class DataSourceHolder {
     }
 
     public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+        DataSourceHolder.dataSource = dataSource;
     }
 }

@@ -5,8 +5,11 @@ import com.epam.lab.model.Tag;
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface TagDao extends CrudDao<Tag> {
-    List<Long> getNewsIdForTag(Tag tag);
+    List<Long> getNewsIdByTag(Tag tag);
     Optional<Tag> findByName(String name);
+
+    List<Long> findNewsIdByTagNames(Set<String> tagNames);
 }

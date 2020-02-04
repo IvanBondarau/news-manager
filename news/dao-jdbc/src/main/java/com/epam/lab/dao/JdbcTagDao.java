@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public class JdbcTagDao extends AbstractDao implements TagDao {
@@ -38,7 +39,9 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
     private static final String SELECT_NEWS_ID_FOR_TAG =
             "SELECT news_id FROM news_tag WHERE tag_id = ?";
 
-
+    private static final String SELECT_BY_TAG_NAMES_STATEMENT =
+            "SELECT news_id FROM news_tag JOIN tag ON tag_id = tag.id " +
+                    "WHERE tag.name IN (%s) GROUP BY news_id HAVING COUNT(tag_id) = %d;";
 
     @Autowired
     public JdbcTagDao(DataSourceHolder dataSourceHolder) {
@@ -102,7 +105,7 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
     }
 
     @Override
-    public List<Long> getNewsIdForTag(Tag tag) {
+    public List<Long> getNewsIdByTag(Tag tag) {
         return jdbcTemplate.query(SELECT_NEWS_ID_FOR_TAG,
                 new Object[]{tag.getId()},
                 (resultSet, i) -> resultSet.getLong(1));
@@ -123,6 +126,13 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
         }
     }
 
+    @Override
+    public List<Long> findNewsIdByTagNames(Set<String> tagNames) {
+        String params = convertToSql(tagNames);
+        String statement = String.format(SELECT_BY_TAG_NAMES_STATEMENT, params, tagNames.size());
+        return jdbcTemplate.query(statement, (resultSet, i) -> resultSet.getLong(1));
+    }
+
     private static final class TagMapper implements RowMapper<Tag> {
         @Override
         public Tag mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -130,5 +140,13 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
             String name = resultSet.getString(2);
             return new Tag(id, name);
         }
+    }
+
+    private String convertToSql(Set<String> tags) {
+        StringBuilder stringBuilder = new StringBuilder("''");
+        for (String tag: tags) {
+            stringBuilder.append(", '").append(tag).append("'");
+        }
+        return stringBuilder.toString();
     }
 }
