@@ -1,10 +1,8 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
-import com.epam.lab.exception.UserNotFoundException;
+import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -62,19 +60,19 @@ public class JdbcUserDao extends AbstractDao implements UserDao {
     }
 
     @Override
-    public User read(long id) {
+    public User read(long id) throws ResourceNotFoundException{
         List<User> loadedUsers = jdbcTemplate.query(SELECT_BY_ID_STATEMENT,
                 new Object[]{id},
                 new UserRowMapper());
 
         if (loadedUsers.size() == 0) {
-            throw new UserNotFoundException(id, "User with id " + id + " not found");
+            throw new ResourceNotFoundException("User with id " + id + " not found", id);
         }
         return loadedUsers.get(0);
     }
 
     @Override
-    public void update(User entity) {
+    public void update(User entity) throws ResourceNotFoundException{
 
         long numOfUpdated = jdbcTemplate.update(UPDATE_BY_ID_STATEMENT,
                 entity.getName(),
@@ -84,15 +82,15 @@ public class JdbcUserDao extends AbstractDao implements UserDao {
                 entity.getId());
 
         if (numOfUpdated != 1) {
-            throw new UserNotFoundException(entity.getId(), "User with id " + entity.getId() + " not found");
+            throw new ResourceNotFoundException("User with id " + entity.getId() + " not found", entity.getId());
         }
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(long id) throws ResourceNotFoundException {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
-            throw new UserNotFoundException(id, "User with id " + id + " not found");
+            throw new ResourceNotFoundException("User with id " + id + " not found", id);
         }
     }
 

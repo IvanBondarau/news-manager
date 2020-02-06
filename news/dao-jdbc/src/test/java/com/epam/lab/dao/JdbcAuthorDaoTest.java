@@ -1,11 +1,7 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
-import com.epam.lab.exception.AuthorNotFoundException;
-import com.epam.lab.dao.AuthorDao;
-import com.epam.lab.dao.JdbcAuthorDao;
+import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.model.Author;
-import com.epam.lab.model.Tag;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -15,7 +11,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -92,7 +87,7 @@ public class JdbcAuthorDaoTest {
     }
 
     @Test
-    public void readShouldBeValid() {
+    public void readShouldBeValid() throws ResourceNotFoundException {
         Author author = new Author(7, "name", "surname");
 
         jdbcTemplate.update("INSERT INTO public.author VALUES(?, ?, ?)",
@@ -105,14 +100,14 @@ public class JdbcAuthorDaoTest {
         assertEquals(author, loaded);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void readAuthorNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void readAuthorNotExist() throws ResourceNotFoundException {
         authorDao.read(11);
     }
 
 
     @Test
-    public void updateShouldBeValid() {
+    public void updateShouldBeValid() throws ResourceNotFoundException {
         Author author = new Author("name", "surname");
 
         jdbcTemplate.update("INSERT INTO public.author VALUES(?, ?, ?)",
@@ -137,14 +132,14 @@ public class JdbcAuthorDaoTest {
         assertEquals(author, authors.get(0));
     }
 
-    @Test(expected = AuthorNotFoundException.class)
-    public void updateUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void updateUserNotExist() throws ResourceNotFoundException {
         Author author = new Author(11, "x", "x");
         authorDao.update(author);
     }
 
     @Test(expected = Exception.class)
-    public void updateNullField() {
+    public void updateNullField() throws ResourceNotFoundException {
         Author author = new Author("name", "surname");
 
         jdbcTemplate.update("INSERT INTO public.author VALUES(?, ?)",
@@ -160,7 +155,7 @@ public class JdbcAuthorDaoTest {
     }
 
     @Test
-    public void deleteShouldBeValid() {
+    public void deleteShouldBeValid() throws ResourceNotFoundException {
 
         long authorId = 32;
 
@@ -185,8 +180,8 @@ public class JdbcAuthorDaoTest {
 
     }
 
-    @Test(expected = AuthorNotFoundException.class)
-    public void deleteUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteAuthorNotExist() throws ResourceNotFoundException {
         authorDao.delete(23);
     }
 
@@ -198,22 +193,6 @@ public class JdbcAuthorDaoTest {
         List<Long> ids = authorDao.getNewsIdByAuthor(1000);
 
         assertTrue(ids.contains(1000L));
-    }
-
-    @Test
-    public void findByNameValid() {
-
-        Optional<Author> result = authorDao.findByNameSurname("default name", "default surname");
-
-        assertTrue(result.isPresent());
-        assertEquals(Long.valueOf(result.get().getId()), Long.valueOf(1000));
-    }
-    @Test
-    public void findByNameNotFound() {
-
-        Optional<Author> result = authorDao.findByNameSurname("danjadxcdadadadadae", "qqqqqqqqqq");
-
-        assertFalse(result.isPresent());
     }
 
 

@@ -3,7 +3,10 @@ package com.epam.lab.service;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
 import com.epam.lab.dto.TagDto;
-import com.epam.lab.exception.ResourceAlreadyExistException;
+import com.epam.lab.exception.ResourceNotFoundException;
+import com.epam.lab.exception.NewsTagAlreadySetException;
+import com.epam.lab.exception.TagAlreadyExistException;
+import com.epam.lab.exception.TagNotFoundException;
 import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,14 +28,13 @@ public class TagServiceImpl implements TagService {
     }
 
 
-
     @Override
     @Transactional
     public void create(TagDto dto) {
         Optional<Tag> searchResult = tagDao.findByName(dto.getName());
         if (searchResult.isPresent()) {
             dto.setId(searchResult.get().getId());
-            throw new ResourceAlreadyExistException(dto.toString() + " already exist", searchResult.get().getId());
+            throw new TagAlreadyExistException(dto.getId(), searchResult.get().getName());
         } else {
             long id = tagDao.create(new Tag(dto.getName()));
             dto.setId(id);
@@ -42,7 +44,12 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public TagDto read(long id) {
-        Tag loaded = tagDao.read(id);
+        Tag loaded;
+        try {
+            loaded = tagDao.read(id);
+        } catch (ResourceNotFoundException e) {
+            throw new TagNotFoundException(e.getResourceId());
+        }
         TagDto dto = new TagDto();
         dto.setId(loaded.getId());
         dto.setName(loaded.getName());
@@ -53,7 +60,12 @@ public class TagServiceImpl implements TagService {
     @Transactional
     public void update(TagDto dto) {
         Tag entity = new Tag(dto.getId(), dto.getName());
-        tagDao.update(entity);
+        try {
+            tagDao.update(entity);
+        } catch (ResourceNotFoundException e) {
+            throw new TagNotFoundException(e.getResourceId());
+        }
+
     }
 
     @Override
@@ -62,11 +74,15 @@ public class TagServiceImpl implements TagService {
 
         List<Long> dependencies = newsDao.getTagsIdForNews(id);
 
-        for (Long newsId: dependencies) {
+        for (Long newsId : dependencies) {
             newsDao.deleteNewsTag(newsId, id);
         }
 
-        tagDao.delete(id);
+        try {
+            tagDao.delete(id);
+        } catch (ResourceNotFoundException e) {
+            throw new TagNotFoundException(e.getResourceId());
+        }
     }
 
 

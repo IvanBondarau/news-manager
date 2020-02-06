@@ -1,10 +1,7 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
-import com.epam.lab.dao.JdbcRoleDao;
-import com.epam.lab.dao.RoleDao;
+import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.exception.RoleAlreadyExistException;
-import com.epam.lab.exception.RoleNotFoundException;
 import com.epam.lab.model.Role;
 import com.epam.lab.model.User;
 import org.junit.*;
@@ -15,6 +12,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
+import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -65,7 +63,7 @@ public class JdbcRoleDaoTest {
     }
 
     @Test
-    public void assignShouldBeValid() {
+    public void assignShouldBeValid() throws RoleAlreadyExistException {
         Role role = new Role(testUser.getId(), "role_name");
         roleDao.assignRoleToUser(role);
 
@@ -84,20 +82,20 @@ public class JdbcRoleDaoTest {
     }
 
     @Test(expected = Exception.class)
-    public void assignNullRoleName() {
+    public void assignNullRoleName() throws RoleAlreadyExistException {
         Role role = new Role(testUser.getId(), null);
         roleDao.assignRoleToUser(role);
     }
 
     @Test(expected = RoleAlreadyExistException.class)
-    public void assignRoleTwice() {
+    public void assignRoleTwice() throws RoleAlreadyExistException {
         Role role = new Role(testUser.getId(), "test");
         roleDao.assignRoleToUser(role);
         roleDao.assignRoleToUser(role);
     }
 
     @Test
-    public void deleteShouldBeValid() {
+    public void deleteShouldBeValid() throws ResourceNotFoundException {
         Role role = new Role(testUser.getId(), "role_name");
 
         jdbcTemplate.update("INSERT INTO public.roles VALUES(?, ?)",
@@ -117,14 +115,14 @@ public class JdbcRoleDaoTest {
         assertEquals(0, loadedRoles.size());
     }
 
-    @Test(expected = RoleNotFoundException.class)
-    public void deleteUserIdNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteUserIdNotExist() throws ResourceNotFoundException {
         Role role = new Role(testUser.getId(), "test");
         roleDao.deleteUserRole(role);
     }
 
-    @Test(expected = RoleNotFoundException.class)
-    public void deleteRoleNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteRoleNotExist() throws ResourceNotFoundException {
         Role role = new Role(testUser.getId(), "test");
 
         jdbcTemplate.update("INSERT INTO public.roles VALUES(?, ?)",

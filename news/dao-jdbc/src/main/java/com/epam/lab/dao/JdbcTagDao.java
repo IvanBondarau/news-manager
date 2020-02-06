@@ -1,10 +1,8 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
-import com.epam.lab.exception.TagNotFoundException;
+import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -70,7 +68,7 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
     }
 
     @Override
-    public Tag read(long id) {
+    public Tag read(long id) throws ResourceNotFoundException{
         List<Tag> loadedTags = jdbcTemplate.query(
                 SELECT_BY_ID_STATEMENT,
                 new Object[]{id},
@@ -78,29 +76,29 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
         );
 
         if (loadedTags.size() == 0) {
-            throw new TagNotFoundException("Tag with id " + id + " not found", id);
+            throw new ResourceNotFoundException("Tag with id " + id + " not found", id);
         }
         return loadedTags.get(0);
     }
 
     @Override
-    public void update(Tag entity) {
+    public void update(Tag entity) throws ResourceNotFoundException {
 
         long numOfUpdated = jdbcTemplate.update(UPDATE_BY_ID_STATEMENT,
                 entity.getName(),
                 entity.getId());
 
         if (numOfUpdated != 1) {
-            throw new TagNotFoundException("Tag with id " + entity.getId() + " not found", entity.getId());
+            throw new ResourceNotFoundException("Tag with id " + entity.getId() + " not found", entity.getId());
         }
 
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(long id) throws ResourceNotFoundException {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
-            throw new TagNotFoundException("Tag with id " + id + " not found", id);
+            throw new ResourceNotFoundException("Tag with id " + id + " not found", id);
         }
     }
 

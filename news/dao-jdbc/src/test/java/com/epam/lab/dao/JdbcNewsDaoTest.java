@@ -1,6 +1,5 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
 import com.epam.lab.exception.*;
 import com.epam.lab.model.News;
 import org.junit.*;
@@ -101,7 +100,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test
-    public void readShouldBeValid() {
+    public void readShouldBeValid() throws ResourceNotFoundException {
 
         News news = new News(
                 "title",
@@ -121,14 +120,14 @@ public class JdbcNewsDaoTest {
         assertEquals(news, loaded);
     }
 
-    @Test(expected = NewsNotFoundException.class)
-    public void readNewsNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void readNewsNotExist() throws ResourceNotFoundException {
         newsDao.read(11);
     }
 
 
     @Test
-    public void updateShouldBeValid() {
+    public void updateShouldBeValid() throws ResourceNotFoundException {
         News news = new News(
                 1,
                 "title",
@@ -169,8 +168,8 @@ public class JdbcNewsDaoTest {
         assertEquals(news, newsList.get(0));
     }
 
-    @Test(expected = NewsNotFoundException.class)
-    public void updateUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void updateUserNotExist() throws ResourceNotFoundException {
         News news = new News(
                 20,
                 "title",
@@ -180,7 +179,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test(expected = Exception.class)
-    public void updateNullField() {
+    public void updateNullField() throws ResourceNotFoundException {
         News news = new News(
                 "title",
                 "text", "textx",
@@ -201,7 +200,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test
-    public void deleteShouldBeValid() {
+    public void deleteShouldBeValid() throws ResourceNotFoundException {
 
         long newsId = 32;
 
@@ -237,13 +236,13 @@ public class JdbcNewsDaoTest {
 
     }
 
-    @Test(expected = NewsNotFoundException.class)
-    public void deleteUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteUserNotExist() throws ResourceNotFoundException {
         newsDao.delete(23);
     }
 
     @Test
-    public void getNewsAuthorValid() {
+    public void getNewsAuthorValid() throws ResourceNotFoundException {
 
         News news = newsDao.read(1000);
 
@@ -275,7 +274,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test
-    public void setNewsAuthorValid() {
+    public void setNewsAuthorValid() throws ResourceNotFoundException {
 
         News news = newsDao.read(1000);
 
@@ -288,7 +287,7 @@ public class JdbcNewsDaoTest {
         assertEquals(Long.valueOf(1), count);
     }
 
-    @Test(expected = AuthorAlreadyExistException.class)
+    @Test(expected = NewsAuthorAlreadySetException.class)
     public void setNewsAuthorDoubleSet() {
 
 
@@ -304,7 +303,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test
-    public void setNewsTagValid() {
+    public void setNewsTagValid() throws ResourceNotFoundException {
 
         News news = newsDao.read(1000);
 
@@ -317,7 +316,7 @@ public class JdbcNewsDaoTest {
         assertEquals(Long.valueOf(1), count);
     }
 
-    @Test(expected = TagAlreadyExistException.class)
+    @Test(expected = NewsTagAlreadySetException.class)
     public void setNewsTagDoubleSet() {
         newsDao.setNewsTag(1000, 1000);
         newsDao.setNewsTag(1000, 1000);
@@ -347,20 +346,18 @@ public class JdbcNewsDaoTest {
         assertEquals(Long.valueOf(0), count);
     }
 
-    @Test(expected = AuthorNotFoundException.class)
+    @Test(expected = NewsAuthorNotFoundException.class)
     public void deleteNewsAuthorNotExist() {
         newsDao.deleteNewsAuthor(1000);
     }
 
-    @Test(expected = RuntimeException.class)
-    public void deleteNewsNotExist() {
-        newsDao.deleteNewsAuthor(1000);
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteNewsNotExist() throws ResourceNotFoundException {
+        newsDao.delete(5000);
     }
 
     @Test
     public void deleteNewsTagValid() {
-
-
         jdbcTemplate.update("INSERT INTO news_tag(news_id, tag_id) VALUES(?, ?)",
                 1000, 1000);
 
@@ -373,7 +370,7 @@ public class JdbcNewsDaoTest {
         assertEquals(Long.valueOf(0), count);
     }
 
-    @Test(expected = TagNotFoundException.class)
+    @Test(expected = NewsTagNotFoundException.class)
     public void deleteNewsTagNotExist() {
         newsDao.deleteNewsTag(1000, 5000);
     }

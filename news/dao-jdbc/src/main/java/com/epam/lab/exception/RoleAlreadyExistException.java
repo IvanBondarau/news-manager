@@ -2,7 +2,7 @@ package com.epam.lab.exception;
 
 import com.epam.lab.model.Role;
 
-public class RoleAlreadyExistException extends RuntimeException {
+public class RoleAlreadyExistException extends Exception {
 
     private Role role;
 

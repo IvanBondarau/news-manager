@@ -1,9 +1,6 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
-import com.epam.lab.dao.JdbcTagDao;
-import com.epam.lab.dao.TagDao;
-import com.epam.lab.exception.TagNotFoundException;
+import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.model.Tag;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -100,7 +97,7 @@ public class JdbcTagDaoTest {
     }
 
     @Test
-    public void readShouldBeValid() {
+    public void readShouldBeValid() throws ResourceNotFoundException {
         Tag tag = new Tag("name");
 
         jdbcTemplate.update("INSERT INTO public.tag VALUES(?, ?)",
@@ -112,14 +109,14 @@ public class JdbcTagDaoTest {
         assertEquals(tag, loaded);
     }
 
-    @Test(expected = TagNotFoundException.class)
-    public void readUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void readUserNotExist() throws ResourceNotFoundException {
         tagDao.read(11);
     }
 
 
     @Test
-    public void updateShouldBeValid() {
+    public void updateShouldBeValid() throws ResourceNotFoundException {
         Tag tag = new Tag("name");
 
         jdbcTemplate.update("INSERT INTO public.tag VALUES(?, ?)",
@@ -141,14 +138,14 @@ public class JdbcTagDaoTest {
         assertEquals(tag, tags.get(0));
     }
 
-    @Test(expected = TagNotFoundException.class)
-    public void updateUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void updateUserNotExist() throws ResourceNotFoundException {
         Tag tag = new Tag(142, "x");
         tagDao.update(tag);
     }
 
     @Test(expected = Exception.class)
-    public void updateNullField() {
+    public void updateNullField() throws ResourceNotFoundException {
         Tag tag = new Tag(11, "name");
 
         jdbcTemplate.update("INSERT INTO public.tag VALUES(?, ?)",
@@ -162,7 +159,7 @@ public class JdbcTagDaoTest {
     }
 
     @Test
-    public void deleteShouldBeValid() {
+    public void deleteShouldBeValid() throws ResourceNotFoundException {
 
         long tagId = 32;
 
@@ -185,13 +182,13 @@ public class JdbcTagDaoTest {
 
     }
 
-    @Test(expected = TagNotFoundException.class)
-    public void deleteUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteUserNotExist() throws ResourceNotFoundException {
         tagDao.delete(23);
     }
 
     @Test
-    public void getNewsIdByTagShouldBeValid() {
+    public void getNewsIdByTagShouldBeValid() throws ResourceNotFoundException {
         Tag tag = tagDao.read(1001);
 
         jdbcTemplate.update("INSERT INTO news_tag(news_id, tag_id) VALUES(?, ?)",

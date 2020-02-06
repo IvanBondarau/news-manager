@@ -1,9 +1,6 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
-import com.epam.lab.exception.UserNotFoundException;
-import com.epam.lab.dao.JdbcUserDao;
-import com.epam.lab.dao.UserDao;
+import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.model.User;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -84,7 +81,7 @@ public class JdbcUserDaoTest {
     }
 
     @Test
-    public void readShouldBeValid() {
+    public void readShouldBeValid() throws ResourceNotFoundException {
         User user = new User(7, "name", "surname", "login", "password");
 
         jdbcTemplate.update("INSERT INTO public.users VALUES(?, ?, ?, ?, ?)",
@@ -98,14 +95,14 @@ public class JdbcUserDaoTest {
         assertEquals(user, loaded);
     }
 
-    @Test(expected = UserNotFoundException.class)
-    public void readUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void readUserNotExist() throws ResourceNotFoundException {
         userDao.read(11);
     }
 
 
     @Test
-    public void updateShouldBeValid() {
+    public void updateShouldBeValid() throws ResourceNotFoundException {
         User user = new User("name", "surname", "login", "password");
 
         jdbcTemplate.update("INSERT INTO public.users VALUES(?, ?, ?, ?, ?)",
@@ -135,14 +132,14 @@ public class JdbcUserDaoTest {
         assertEquals(user, users.get(0));
     }
 
-    @Test(expected = UserNotFoundException.class)
-    public void updateUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void updateUserNotExist() throws ResourceNotFoundException {
         User user = new User(11, "t", "t", "t", "t");
         userDao.update(user);
     }
 
     @Test(expected = Exception.class)
-    public void updateNullField() {
+    public void updateNullField() throws ResourceNotFoundException {
         User user = new User("name", "surname", "login", "password");
 
         jdbcTemplate.update("INSERT INTO public.users VALUES(?, ?, ?, ?, ?)",
@@ -161,7 +158,7 @@ public class JdbcUserDaoTest {
     }
 
     @Test
-    public void deleteShouldBeValid() {
+    public void deleteShouldBeValid() throws ResourceNotFoundException {
 
         long userId = 32;
 
@@ -189,8 +186,8 @@ public class JdbcUserDaoTest {
 
     }
 
-    @Test(expected = UserNotFoundException.class)
-    public void deleteUserNotExist() {
+    @Test(expected = ResourceNotFoundException.class)
+    public void deleteUserNotExist() throws ResourceNotFoundException {
         userDao.delete(23);
     }
 }

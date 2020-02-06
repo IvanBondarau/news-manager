@@ -40,8 +40,6 @@ public class AuthorServiceImplTest {
     @Test
     public void createNewAuthorValid() {
 
-        Mockito.when(authorDao.findByNameSurname(any(), any())).thenReturn(Optional.empty());
-
         AuthorDto authorDto = new AuthorDto();
         authorDto.setName("Test name");
         authorDto.setSurname("Test surname");

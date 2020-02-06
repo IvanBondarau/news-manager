@@ -39,4 +39,9 @@ public class TagDto {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

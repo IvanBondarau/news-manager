@@ -1,6 +1,7 @@
-package com.epam.lab.service;
+package com.epam.lab.dto;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class SearchCriteria {
@@ -10,6 +11,9 @@ public class SearchCriteria {
     private String authorSurname;
 
     private Set<String> tagNames;
+
+    private List<SortOrder> sortParams;
+
 
     public SearchCriteria() {
         tagNames = new HashSet<>();
@@ -45,5 +49,13 @@ public class SearchCriteria {
 
     public void setTagNames(Set<String> tagNames) {
         this.tagNames = tagNames;
+    }
+
+    public List<SortOrder> getSortParams() {
+        return sortParams;
+    }
+
+    public void setSortParams(List<SortOrder> sortParams) {
+        this.sortParams = sortParams;
     }
 }

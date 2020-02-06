@@ -1,12 +1,11 @@
 package com.epam.lab.exception;
 
-
-public class TagAlreadyExistException extends RuntimeException {
+public class NewsTagAlreadySetException extends RuntimeException {
 
     private long newsId;
     private long tagId;
 
-    public TagAlreadyExistException(String message, long newsId, long tagId) {
+    public NewsTagAlreadySetException(String message, long newsId, long tagId) {
         super(message);
         this.newsId = newsId;
         this.tagId = tagId;

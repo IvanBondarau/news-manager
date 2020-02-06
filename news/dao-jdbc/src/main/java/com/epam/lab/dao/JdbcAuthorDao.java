@@ -1,19 +1,17 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
-import com.epam.lab.exception.AuthorNotFoundException;
+import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.model.Author;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
@@ -68,17 +66,22 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
     }
 
     @Override
-    public Author read(long id) {
-        return jdbcTemplate.queryForObject(
-                SELECT_BY_ID_STATEMENT,
-                new Object[]{id},
-                new AuthorMapper()
-        );
+    public Author read(long id) throws ResourceNotFoundException {
+        try {
+            return jdbcTemplate.queryForObject(
+                    SELECT_BY_ID_STATEMENT,
+                    new Object[]{id},
+                    new AuthorMapper()
+            );
+        } catch (IncorrectResultSizeDataAccessException e) {
+            throw new ResourceNotFoundException("Author with id " + id + " not found", id);
+        }
+
 
     }
 
     @Override
-    public void update(Author entity) {
+    public void update(Author entity) throws ResourceNotFoundException {
 
         long numOfUpdated = jdbcTemplate.update(UPDATE_BY_ID_STATEMENT,
                 entity.getName(),
@@ -86,16 +89,16 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
                 entity.getId());
 
         if (numOfUpdated != 1) {
-            throw new AuthorNotFoundException(entity.getId(), "Author with id " + entity.getId() + " not found");
+            throw new ResourceNotFoundException("Author with id " + entity.getId() + " not found", entity.getId());
         }
 
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(long id) throws ResourceNotFoundException {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
-            throw new AuthorNotFoundException(id, "Author with id " + id + " not found");
+            throw new ResourceNotFoundException("Author with id " + id + " not found", id);
         }
     }
 

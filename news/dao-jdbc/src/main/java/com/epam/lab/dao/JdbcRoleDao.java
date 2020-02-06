@@ -1,15 +1,12 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
+import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.exception.RoleAlreadyExistException;
-import com.epam.lab.exception.RoleNotFoundException;
 import com.epam.lab.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -33,7 +30,7 @@ public class JdbcRoleDao extends AbstractDao implements RoleDao {
 
 
     @Override
-    public void assignRoleToUser(Role role) {
+    public void assignRoleToUser(Role role) throws RoleAlreadyExistException {
 
         //Check if the role is already assigned to user
         List<Role> userRoles = getUserRoles(role.getUserId());
@@ -49,7 +46,7 @@ public class JdbcRoleDao extends AbstractDao implements RoleDao {
     }
 
     @Override
-    public void deleteUserRole(Role role) {
+    public void deleteUserRole(Role role) throws ResourceNotFoundException {
         long deleted = jdbcTemplate.update(
                 DELETE_STATEMENT,
                 role.getUserId(),
@@ -57,7 +54,8 @@ public class JdbcRoleDao extends AbstractDao implements RoleDao {
         );
 
         if (deleted != 1) {
-            throw new RoleNotFoundException(role);
+            throw new ResourceNotFoundException("Role " + role.getName()
+                    + " for user " + role.getUserId() + " not found", role.getUserId());
         }
     }
 

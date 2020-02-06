@@ -1,6 +1,7 @@
 package com.epam.lab.service;
 
 import com.epam.lab.dto.NewsDto;
+import com.epam.lab.dto.SearchCriteria;
 
 import java.util.List;
 

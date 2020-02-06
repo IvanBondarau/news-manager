@@ -3,6 +3,8 @@ package com.epam.lab.service;
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dto.AuthorDto;
+import com.epam.lab.exception.AuthorNotFoundException;
+import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.model.Author;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,13 +31,17 @@ public class AuthorServiceImpl implements AuthorService {
         String surname = dto.getSurname();
         long id = authorDao.create(new Author(name, surname));
         dto.setId(id);
-
     }
 
     @Override
     @Transactional
     public AuthorDto read(long id) {
-        Author loaded = authorDao.read(id);
+        Author loaded;
+        try {
+            loaded = authorDao.read(id);
+        } catch (ResourceNotFoundException e) {
+            throw new AuthorNotFoundException(e.getResourceId());
+        }
         AuthorDto result = new AuthorDto();
         result.setId(loaded.getId());
         result.setName(loaded.getName());
@@ -51,7 +57,11 @@ public class AuthorServiceImpl implements AuthorService {
                 dto.getName(),
                 dto.getSurname()
         );
-        authorDao.update(author);
+        try {
+            authorDao.update(author);
+        } catch (ResourceNotFoundException e) {
+            throw new AuthorNotFoundException(e.getResourceId());
+        }
     }
 
     @Override
@@ -62,9 +72,11 @@ public class AuthorServiceImpl implements AuthorService {
         for (Long newsId : dependentNews) {
             newsDao.delete(newsId);
         }
-
-        authorDao.delete(id);
-
+        try {
+            authorDao.delete(id);
+        } catch (ResourceNotFoundException e) {
+            throw new AuthorNotFoundException(e.getResourceId());
+        }
     }
 
 

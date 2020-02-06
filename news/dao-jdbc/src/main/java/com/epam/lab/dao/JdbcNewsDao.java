@@ -1,16 +1,13 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.DataSourceHolder;
 import com.epam.lab.exception.*;
 import com.epam.lab.model.News;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.sql.*;
 import java.util.List;
 
@@ -86,19 +83,19 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     }
 
     @Override
-    public News read(long id) {
+    public News read(long id) throws ResourceNotFoundException {
         List<News> loadedNews = jdbcTemplate.query(SELECT_BY_ID_STATEMENT,
                 new Object[]{id},
                 new NewsRowMapper());
 
         if (loadedNews.size() == 0) {
-            throw new NewsNotFoundException("News with id " + id + " not found", id);
+            throw new ResourceNotFoundException("News with id " + id + " not found", id);
         }
         return loadedNews.get(0);
     }
 
     @Override
-    public void update(News entity) {
+    public void update(News entity) throws ResourceNotFoundException {
         long numOfUpdated = jdbcTemplate.update(UPDATE_BY_ID_STATEMENT,
                 entity.getTitle(),
                 entity.getShortText(),
@@ -108,15 +105,15 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
                 entity.getId());
 
         if (numOfUpdated != 1) {
-            throw new NewsNotFoundException("News with id " + entity.getId() + " not found", entity.getId());
+            throw new ResourceNotFoundException("News with id " + entity.getId() + " not found", entity.getId());
         }
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(long id) throws ResourceNotFoundException {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
-            throw new NewsNotFoundException("News with id " + id + " not found", id);
+            throw new ResourceNotFoundException("News with id " + id + " not found", id);
         }
     }
 
@@ -127,7 +124,7 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
                 ((resultSet, i) -> resultSet.getLong(1)));
 
         if (authorId.size() != 1) {
-            throw new AuthorNotFoundException("Author for news with id " + newsId + " not found");
+            throw new NewsAuthorNotFoundException("Author for news with id " + newsId + " not found");
         }
         return authorId.get(0);
     }
@@ -136,7 +133,7 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     public void setNewsAuthor(long newsId, long authorId) {
         long authors = countNewsAuthors(newsId);
         if (authors != 0) {
-            throw new AuthorAlreadyExistException("Author of news already exists", newsId);
+            throw new NewsAuthorAlreadySetException("Author of news already exists", newsId);
         }
         jdbcTemplate.update(INSERT_NEWS_AUTHOR_STATEMENT, newsId, authorId);
     }
@@ -145,7 +142,7 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     public void deleteNewsAuthor(long newsId) {
         long numOfDeleted = jdbcTemplate.update(DELETE_NEWS_AUTHOR_STATEMENT, newsId);
         if (numOfDeleted != 1) {
-            throw new AuthorNotFoundException("News author (news id" + newsId + ") not found");
+            throw new NewsAuthorNotFoundException("Author for news with id " + newsId + " not found");
         }
     }
 
@@ -161,7 +158,7 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     public void setNewsTag(long newsId, long tagId) {
         long tags = countNewsTags(newsId, tagId);
         if (tags != 0) {
-            throw new TagAlreadyExistException("News tag already exists", newsId, tagId);
+            throw new NewsTagAlreadySetException("News tag already exists", newsId, tagId);
         }
         jdbcTemplate.update(INSERT_NEWS_TAG_STATEMENT, newsId, tagId);
     }
@@ -170,7 +167,7 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     public void deleteNewsTag(long newsId, long tagId) {
         long numOfDeleted = jdbcTemplate.update(DELETE_NEWS_TAG_STATEMENT, newsId, tagId);
         if (numOfDeleted != 1) {
-            throw new TagNotFoundException("News author (news id" + newsId + ") not found", tagId);
+            throw new NewsTagNotFoundException("Tag " + tagId + " for news " + newsId + " not found");
         }
     }
 
