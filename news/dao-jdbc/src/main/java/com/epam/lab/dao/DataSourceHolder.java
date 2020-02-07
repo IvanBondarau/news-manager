@@ -16,11 +16,6 @@ public class DataSourceHolder {
 
     public void init() {
         HikariConfig config = new HikariConfig("/database.properties");
-        /*config.setJdbcUrl("jdbc:postgresql://localhost:60666/newsManager");
-        config.setUsername("newsManager");
-        config.setPassword("12345");
-        config.setDriverClassName("org.postgresql.Driver");
-        config.setMaximumPoolSize(10);*/
         dataSource = new HikariDataSource(config);
     }
 

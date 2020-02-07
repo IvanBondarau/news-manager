@@ -10,9 +10,6 @@ public abstract class AbstractDao {
     private DataSource dataSource;
 
     protected void setDataSource(DataSource dataSource) {
-        if (dataSource == null) {
-            throw new RuntimeException("HELL");
-        }
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate();
         jdbcTemplate.setDataSource(dataSource);

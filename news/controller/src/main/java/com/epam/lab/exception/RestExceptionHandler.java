@@ -82,4 +82,44 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(new RequestError(errorMessage),
                 httpHeaders, HttpStatus.CONFLICT);
     }
+
+    @ExceptionHandler({ParseException.class})
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<RequestError> resolveParseException(
+            ParseException e,
+            Locale locale,
+            HttpServletResponse response) throws IOException {
+
+        ResourceBundle errorMessages = ResourceBundle.getBundle("errorMessages", locale);
+        String errorMessage = errorMessages.getString("invalidRequestParams");
+        errorMessage = new String(errorMessage.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        response.setCharacterEncoding("utf-8");
+        httpHeaders.add("Content-Type", "application/json;charset=UTF-8");
+        return new ResponseEntity<>(new RequestError(String.format(errorMessage, e.getParamName(), e.getValue())),
+                httpHeaders, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({NewsAuthorNotFoundException.class,
+    NewsAuthorAlreadySetException.class,
+    NewsTagNotFoundException.class,
+    NewsTagAlreadySetException.class,
+    ResourceNotFoundException.class,
+    RoleAlreadyExistException.class,
+    NullPointerException.class})
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<RequestError> resolveInternalException(
+            Exception e,
+            Locale locale,
+            HttpServletResponse response) throws IOException {
+
+        ResourceBundle errorMessages = ResourceBundle.getBundle("errorMessages", locale);
+        String errorMessage = errorMessages.getString("internalServerError");
+        errorMessage = new String(errorMessage.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        response.setCharacterEncoding("utf-8");
+        httpHeaders.add("Content-Type", "application/json;charset=UTF-8");
+        return new ResponseEntity<>(new RequestError(String.format(errorMessage, e.getLocalizedMessage())),
+                httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }

@@ -4,6 +4,7 @@ import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
 import com.epam.lab.dto.*;
+import com.epam.lab.exception.AuthorNotFoundException;
 import com.epam.lab.exception.NewsNotFoundException;
 import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.model.Author;
@@ -12,6 +13,7 @@ import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
@@ -26,24 +28,30 @@ public class NewsServiceImpl implements NewsService {
     private AuthorDao authorDao;
     private TagDao tagDao;
 
-    private AuthorService authorService;
 
     @Autowired
-    public NewsServiceImpl(NewsDao newsDao, AuthorDao authorDao, TagDao tagDao, AuthorService authorService) {
+    public NewsServiceImpl(NewsDao newsDao, AuthorDao authorDao, TagDao tagDao) {
         this.newsDao = newsDao;
         this.authorDao = authorDao;
         this.tagDao = tagDao;
-        this.authorService = authorService;
     }
 
     @Override
+    @Transactional
     public void create(NewsDto dto) {
 
-
         if (dto.getAuthor().getId() == 0) {
-            authorService.create(dto.getAuthor());
+            Author author = new Author(dto.getAuthor().getName(), dto.getAuthor().getSurname());
+            long id = authorDao.create(author);
+            dto.getAuthor().setId(id);
         } else {
-            dto.setAuthor(authorService.read(dto.getAuthor().getId()));
+            try {
+                Author author = authorDao.read(dto.getAuthor().getId());
+                dto.getAuthor().setName(author.getName());
+                dto.getAuthor().setSurname(author.getSurname());
+            } catch (ResourceNotFoundException e) {
+                throw new AuthorNotFoundException(e.getResourceId());
+            }
         }
 
         dto.setCreationDate(Date.valueOf(LocalDate.now()));
@@ -63,6 +71,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    @Transactional
     public NewsDto read(long id) {
         News entity;
         try {
@@ -104,27 +113,45 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public void update(NewsDto dto) {
 
+        /*
+         *  Read or create news author
+         *  If author id is received, then try to read author from the database
+         *  Otherwise create new author with specified name and surname
+         */
         if (dto.getAuthor().getId() == 0) {
-            authorService.create(dto.getAuthor());
+            Author author = new Author(dto.getAuthor().getName(), dto.getAuthor().getSurname());
+            long id = authorDao.create(author);
+            dto.getAuthor().setId(id);
         } else {
-            dto.setAuthor(authorService.read(dto.getAuthor().getId()));
+            try {
+                Author author = authorDao.read(dto.getAuthor().getId());
+                dto.getAuthor().setName(author.getName());
+                dto.getAuthor().setSurname(author.getSurname());
+            } catch (ResourceNotFoundException e) {
+                throw new AuthorNotFoundException(e.getResourceId());
+            }
         }
 
-
-        dto.setModificationDate(Date.valueOf(LocalDate.now()));
+        //Read old news version
         NewsDto oldDto;
         try {
              oldDto = read(dto.getId());
         }  catch (ResourceNotFoundException e) {
             throw new NewsNotFoundException(e.getResourceId());
         }
+
+        //Update author
         if (!oldDto.getAuthor().equals(dto.getAuthor())) {
             newsDao.deleteNewsAuthor(dto.getId());
             newsDao.setNewsAuthor(dto.getId(), dto.getAuthor().getId());
         }
 
+        //Update tags
         updateTags(oldDto, dto);
 
+        //Update fields
+        dto.setCreationDate(oldDto.getCreationDate());
+        dto.setModificationDate(Date.valueOf(LocalDate.now()));
         News entity = buildNewsFromDto(dto);
         entity.setId(dto.getId());
         newsDao.update(entity);
@@ -140,7 +167,7 @@ public class NewsServiceImpl implements NewsService {
 
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED)
     private void createOrGet(TagDto dto) {
         Optional<Tag> searchResult = tagDao.findByName(dto.getName());
         if (searchResult.isPresent()) {
@@ -186,7 +213,7 @@ public class NewsServiceImpl implements NewsService {
     public List<NewsDto> search(SearchCriteria searchCriteria) {
         Set<Long> idResultSet = null;
 
-        if (searchCriteria.getTagNames() != null) {
+        if (searchCriteria.getTagNames() != null && (!searchCriteria.getTagNames().isEmpty())) {
             idResultSet = new HashSet<>(tagDao.findNewsIdByTagNames(searchCriteria.getTagNames()));
         }
 
@@ -254,60 +281,5 @@ public class NewsServiceImpl implements NewsService {
         }
 
         return resultSet;
-    }
-
-    private static final class NewsDateComparator implements Comparator<NewsDto> {
-        @Override
-        public int compare(NewsDto o1, NewsDto o2) {
-            if (o1.getCreationDate() == o2.getCreationDate()) {
-                return 0;
-            }
-            if (o1.getCreationDate() == null) {
-                return -1;
-            }
-            if (o2.getCreationDate() == null) {
-                return 1;
-            }
-            return o1.getCreationDate().compareTo(o2.getCreationDate());
-        }
-    }
-
-    private static final class NewsAuthorComparator implements Comparator<NewsDto> {
-
-        @Override
-        public int compare(NewsDto o1, NewsDto o2) {
-            if (o1.getAuthor() == o2.getAuthor()) {
-                return 0;
-            }
-            if (o1.getAuthor() == null) {
-                return -1;
-            }
-            if (o2.getAuthor() == null) {
-                return 1;
-            }
-            return (o1.getAuthor().toString().compareTo(o2.getAuthor().toString()));
-
-        }
-    }
-
-    private static final class NewsTagComparator implements Comparator<NewsDto> {
-
-        @Override
-        public int compare(NewsDto o1, NewsDto o2) {
-            if (o1.getTags() == o2.getTags()) {
-                return 0;
-            }
-            if (o1.getTags() == null) {
-                return -1;
-            }
-            if (o2.getTags() == null) {
-                return 1;
-            }
-            String tags1 = o1.getTags().stream().map((TagDto::getName)).sorted().collect(Collectors.joining(","));
-            String tags2 = o2.getTags().stream().map((TagDto::getName)).sorted().collect(Collectors.joining(","));
-
-            return tags1.compareTo(tags2);
-
-        }
     }
 }

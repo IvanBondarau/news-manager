@@ -1,11 +1,27 @@
 package com.epam.lab.exception;
 
 public class ParseException extends RuntimeException {
-    public ParseException(String message) {
-        super(message);
+    private String paramName;
+    private String value;
+
+    public ParseException(String paramName, String value) {
+        this.paramName = paramName;
+        this.value = value;
     }
 
-    public ParseException(String message, Throwable cause) {
-        super(message, cause);
+    public String getParamName() {
+        return paramName;
+    }
+
+    public void setParamName(String paramName) {
+        this.paramName = paramName;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
     }
 }

@@ -24,7 +24,8 @@ import java.util.stream.Collectors;
 public class NewsController {
     @Autowired
     private NewsService newsService;
-
+    @Autowired
+    private RequestParamsParser parser;
 
     /**
      * This method reads the news by id
@@ -65,9 +66,9 @@ public class NewsController {
         searchCriteria.setAuthorName(authorName);
         searchCriteria.setAuthorSurname(authorSurname);
 
-        Set<String> tagNamesSet = parseTagNames(tagNames);
+        Set<String> tagNamesSet = parser.parseTagNames(tagNames);
         searchCriteria.setTagNames(tagNamesSet);
-        List<SortOrder> sortOrders = parseOrderParams(orderParams);
+        List<SortOrder> sortOrders = parser.parseOrderParams(orderParams);
         searchCriteria.setSortParams(sortOrders);
 
         return newsService.search(searchCriteria);
@@ -117,35 +118,6 @@ public class NewsController {
         newsService.delete(id);
     }
 
-
-    private static final Pattern tagNamesPattern = Pattern.compile("([a-zA-Z0-9]+)(,[a-zA-Z0-9]+)*");
-    private static final Pattern orderParamsPattern = Pattern.compile("([a-zA-Z])(,[a-zA-Z])*");
-
-    private Set<String> parseTagNames(String strTagNames) {
-        if (strTagNames == null) {
-            return null;
-        }
-        Matcher matcher = tagNamesPattern.matcher(strTagNames);
-        if (!matcher.matches()) {
-            throw new ParseException("Invalid tagNames param");
-        }
-
-        String[] tagNamesArr = strTagNames.split(",");
-        return new HashSet<>(Arrays.asList(tagNamesArr));
-    }
-
-    private List<SortOrder> parseOrderParams(String orderParams) {
-        if (orderParams == null) {
-            return null;
-        }
-        Matcher matcher = orderParamsPattern.matcher(orderParams);
-        if (!matcher.matches()) {
-            throw new ParseException("Invalid order params");
-        }
-
-        String[] orderParamsArr = orderParams.split(",");
-        return Arrays.stream(orderParamsArr).map(SortOrder::fromString).collect(Collectors.toList());
-    }
 
 
 
