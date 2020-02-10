@@ -55,9 +55,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({TagAlreadyExistException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
+
     public ResponseEntity<RequestError> handleTagAlreadyExistException(TagAlreadyExistException e, Locale locale) {
         setLocalizedResourceBundle(locale);
-
         RequestError requestError = createRequestError(TAG_ALREADY_EXIST_MESSAGE_CODE,
                 e.getName(), e.getTagId());
         HttpHeaders httpHeaders = getDefaultHeadersJson();
