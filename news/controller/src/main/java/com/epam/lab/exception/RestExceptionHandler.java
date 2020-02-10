@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
@@ -24,102 +23,115 @@ import java.util.ResourceBundle;
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final String ERROR_MESSAGES_BUNDLE_NAME = "errorMessages";
+    private static final String INTERNAL_ERROR_MESSAGE_CODE = "internalServerError";
+    private static final String INVALID_REQUEST_PARAM_MESSAGE_CODE = "invalidRequestParams";
+    private static final String DATA_ACCESS_ERROR_MESSAGE_CODE = "databaseError";
+    private static final String TAG_ALREADY_EXIST_MESSAGE_CODE = "tagAlreadyExist";
+    private static final String TAG_NOT_FOUND_MESSAGE_CODE = "tagNotFound";
+    private static final String AUTHOR_NOT_FOUND_MESSAGE_CODE = "authorNotFound";
+    private static final String NEWS_NOT_FOUND_MESSAGE_CODE = "newsNotFound";
+    private final ThreadLocal<ResourceBundle> errorMessagesBundle = new ThreadLocal<>();
+
     @ExceptionHandler({AuthorNotFoundException.class, TagNotFoundException.class, NewsNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<RequestError> resolveItemNotFound(
-            ItemNotFoundException e,
-            Locale locale,
-            HttpServletResponse response) throws IOException {
-        String errorMessage;
-        ResourceBundle errorMessages = ResourceBundle.getBundle("errorMessages", locale);
+    public ResponseEntity<RequestError> handleItemNotFound(ItemNotFoundException e, Locale locale) {
+        setLocalizedResourceBundle(locale);
+
+        String errorMessageCode;
         if (e instanceof AuthorNotFoundException) {
-            errorMessage = errorMessages.getString("authorNotFound");
+            errorMessageCode = AUTHOR_NOT_FOUND_MESSAGE_CODE;
         } else if (e instanceof TagNotFoundException) {
-            errorMessage = errorMessages.getString("tagNotFound");
+            errorMessageCode = TAG_NOT_FOUND_MESSAGE_CODE;
         } else {
-            errorMessage = errorMessages.getString("newsNotFound");
+            errorMessageCode = NEWS_NOT_FOUND_MESSAGE_CODE;
         }
 
-        errorMessage = new String(errorMessage.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        HttpHeaders httpHeaders = new HttpHeaders();
+        RequestError requestError = createRequestError(errorMessageCode, e.getId());
+        HttpHeaders httpHeaders = getDefaultHeadersJson();
 
-        response.setCharacterEncoding("utf-8");
-        httpHeaders.add("Content-Type", "application/json;charset=UTF-8");
-        return new ResponseEntity<>(new RequestError(String.format(errorMessage, e.getId())),
-                httpHeaders, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(requestError, httpHeaders, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler({TagAlreadyExistException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<RequestError> resolveTagAlreadyExist(
-            TagAlreadyExistException e,
-            Locale locale,
-            HttpServletResponse response) throws IOException {
+    public ResponseEntity<RequestError> handleTagAlreadyExistException(TagAlreadyExistException e, Locale locale) {
+        setLocalizedResourceBundle(locale);
 
-        ResourceBundle errorMessages = ResourceBundle.getBundle("errorMessages", locale);
-        String errorMessage = errorMessages.getString("tagAlreadyExist");
-        errorMessage = new String(errorMessage.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        response.setCharacterEncoding("utf-8");
-        httpHeaders.add("Content-Type", "application/json;charset=UTF-8");
-        return new ResponseEntity<>(new RequestError(String.format(errorMessage, e.getName(), e.getTagId())),
-                httpHeaders, HttpStatus.CONFLICT);
+        RequestError requestError = createRequestError(TAG_ALREADY_EXIST_MESSAGE_CODE,
+                e.getName(), e.getTagId());
+        HttpHeaders httpHeaders = getDefaultHeadersJson();
+        return new ResponseEntity<>(requestError, httpHeaders, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({DataAccessException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ResponseEntity<RequestError> resolveDataAccessException(
-            DataAccessException e,
-            Locale locale,
-            HttpServletResponse response) throws IOException {
+    public ResponseEntity<RequestError> handleDataAccessException(DataAccessException e, Locale locale) {
+        setLocalizedResourceBundle(locale);
 
-        ResourceBundle errorMessages = ResourceBundle.getBundle("errorMessages", locale);
-        String errorMessage = errorMessages.getString("databaseError");
-        errorMessage = new String(errorMessage.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        response.setCharacterEncoding("utf-8");
-        httpHeaders.add("Content-Type", "application/json;charset=UTF-8");
-        return new ResponseEntity<>(new RequestError(errorMessage),
+        RequestError requestError = createRequestError(DATA_ACCESS_ERROR_MESSAGE_CODE, e.getLocalizedMessage());
+        HttpHeaders httpHeaders = getDefaultHeadersJson();
+
+        return new ResponseEntity<>(requestError,
                 httpHeaders, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler({ParseException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseEntity<RequestError> resolveParseException(
-            ParseException e,
-            Locale locale,
-            HttpServletResponse response) throws IOException {
+    public ResponseEntity<RequestError> handleParseException(ParseException e, Locale locale) {
+        setLocalizedResourceBundle(locale);
 
-        ResourceBundle errorMessages = ResourceBundle.getBundle("errorMessages", locale);
-        String errorMessage = errorMessages.getString("invalidRequestParams");
-        errorMessage = new String(errorMessage.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-        HttpHeaders httpHeaders = new HttpHeaders();
-        response.setCharacterEncoding("utf-8");
-        httpHeaders.add("Content-Type", "application/json;charset=UTF-8");
-        return new ResponseEntity<>(new RequestError(String.format(errorMessage, e.getParamName(), e.getValue())),
-                httpHeaders, HttpStatus.BAD_REQUEST);
+        RequestError error = createRequestError(INVALID_REQUEST_PARAM_MESSAGE_CODE,
+                e.getParamName(), e.getValue());
+
+        HttpHeaders httpHeaders = getDefaultHeadersJson();
+
+        return new ResponseEntity<>(error, httpHeaders, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler({NewsAuthorNotFoundException.class,
-    NewsAuthorAlreadySetException.class,
-    NewsTagNotFoundException.class,
-    NewsTagAlreadySetException.class,
-    ResourceNotFoundException.class,
-    RoleAlreadyExistException.class,
-    NullPointerException.class})
+            NewsAuthorAlreadySetException.class,
+            NewsTagNotFoundException.class,
+            NewsTagAlreadySetException.class,
+            ResourceNotFoundException.class,
+            RoleAlreadyExistException.class,
+            NullPointerException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<RequestError> resolveInternalException(
-            Exception e,
-            Locale locale,
-            HttpServletResponse response) throws IOException {
+    public ResponseEntity<RequestError> handleInternalException(Exception e, Locale locale) {
+        setLocalizedResourceBundle(locale);
 
-        ResourceBundle errorMessages = ResourceBundle.getBundle("errorMessages", locale);
-        String errorMessage = errorMessages.getString("internalServerError");
-        errorMessage = new String(errorMessage.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
+        RequestError error = createRequestError(INTERNAL_ERROR_MESSAGE_CODE, e.getLocalizedMessage());
+
+        HttpHeaders httpHeaders = getDefaultHeadersJson();
+        return new ResponseEntity<>(error, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private HttpHeaders getDefaultHeadersJson() {
         HttpHeaders httpHeaders = new HttpHeaders();
-        response.setCharacterEncoding("utf-8");
         httpHeaders.add("Content-Type", "application/json;charset=UTF-8");
-        return new ResponseEntity<>(new RequestError(String.format(errorMessage, e.getLocalizedMessage())),
-                httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR);
+        return httpHeaders;
+    }
+
+    private void setLocalizedResourceBundle(Locale locale) {
+        errorMessagesBundle.set(ResourceBundle.getBundle(ERROR_MESSAGES_BUNDLE_NAME, locale));
+    }
+
+    private RequestError createRequestError(String errorMessageCode, Object... errorParams) {
+        String errorMessage = getLocalizedErrorMessage(errorMessageCode);
+        String formattedErrorMessage = formatErrorMessage(errorMessage, errorParams);
+        return new RequestError(formattedErrorMessage);
+    }
+
+    private String getLocalizedErrorMessage(String errorMessageCode) {
+        String errorMessage = errorMessagesBundle.get().getString(errorMessageCode);
+        return convertFromIsoToUtf8(errorMessage);
+    }
+
+    private String formatErrorMessage(String errorMessage, Object... args) {
+        return String.format(errorMessage, args);
+    }
+
+    private String convertFromIsoToUtf8(String isoString) {
+        return new String(isoString.getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
     }
 }
