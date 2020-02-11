@@ -100,7 +100,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test
-    public void readShouldBeValid() throws ResourceNotFoundException {
+    public void readShouldBeValid() {
 
         News news = new News(
                 "title",
@@ -120,14 +120,14 @@ public class JdbcNewsDaoTest {
         assertEquals(news, loaded);
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void readNewsNotExist() throws ResourceNotFoundException {
+    @Test(expected = NewsNotFoundException.class)
+    public void readNewsNotExist()  {
         newsDao.read(11);
     }
 
 
     @Test
-    public void updateShouldBeValid() throws ResourceNotFoundException {
+    public void updateShouldBeValid()  {
         News news = new News(
                 1,
                 "title",
@@ -168,8 +168,8 @@ public class JdbcNewsDaoTest {
         assertEquals(news, newsList.get(0));
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void updateUserNotExist() throws ResourceNotFoundException {
+    @Test(expected = NewsNotFoundException.class)
+    public void updateNewsNotExist() {
         News news = new News(
                 20,
                 "title",
@@ -179,7 +179,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test(expected = Exception.class)
-    public void updateNullField() throws ResourceNotFoundException {
+    public void updateNullField() {
         News news = new News(
                 "title",
                 "text", "textx",
@@ -200,7 +200,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test
-    public void deleteShouldBeValid() throws ResourceNotFoundException {
+    public void deleteShouldBeValid() {
 
         long newsId = 32;
 
@@ -236,13 +236,9 @@ public class JdbcNewsDaoTest {
 
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void deleteUserNotExist() throws ResourceNotFoundException {
-        newsDao.delete(23);
-    }
 
     @Test
-    public void getNewsAuthorValid() throws ResourceNotFoundException {
+    public void getNewsAuthorValid() {
 
         News news = newsDao.read(1000);
 
@@ -274,7 +270,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test
-    public void setNewsAuthorValid() throws ResourceNotFoundException {
+    public void setNewsAuthorValid() {
 
         News news = newsDao.read(1000);
 
@@ -303,7 +299,7 @@ public class JdbcNewsDaoTest {
     }
 
     @Test
-    public void setNewsTagValid() throws ResourceNotFoundException {
+    public void setNewsTagValid()  {
 
         News news = newsDao.read(1000);
 
@@ -351,8 +347,8 @@ public class JdbcNewsDaoTest {
         newsDao.deleteNewsAuthor(1000);
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void deleteNewsNotExist() throws ResourceNotFoundException {
+    @Test(expected = NewsNotFoundException.class)
+    public void deleteNewsNotExist() {
         newsDao.delete(5000);
     }
 

@@ -1,6 +1,6 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.exception.ResourceNotFoundException;
+import com.epam.lab.exception.UserNotFoundException;
 import com.epam.lab.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
@@ -60,19 +60,19 @@ public class JdbcUserDao extends AbstractDao implements UserDao {
     }
 
     @Override
-    public User read(long id) throws ResourceNotFoundException{
+    public User read(long id) {
         List<User> loadedUsers = jdbcTemplate.query(SELECT_BY_ID_STATEMENT,
                 new Object[]{id},
                 new UserRowMapper());
 
         if (loadedUsers.size() == 0) {
-            throw new ResourceNotFoundException("User with id " + id + " not found", id);
+            throw new UserNotFoundException(id);
         }
         return loadedUsers.get(0);
     }
 
     @Override
-    public void update(User entity) throws ResourceNotFoundException{
+    public void update(User entity) {
 
         long numOfUpdated = jdbcTemplate.update(UPDATE_BY_ID_STATEMENT,
                 entity.getName(),
@@ -82,15 +82,15 @@ public class JdbcUserDao extends AbstractDao implements UserDao {
                 entity.getId());
 
         if (numOfUpdated != 1) {
-            throw new ResourceNotFoundException("User with id " + entity.getId() + " not found", entity.getId());
+            throw new UserNotFoundException(entity.getId());
         }
     }
 
     @Override
-    public void delete(long id) throws ResourceNotFoundException {
+    public void delete(long id) {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
-            throw new ResourceNotFoundException("User with id " + id + " not found", id);
+            throw new UserNotFoundException(id);
         }
     }
 

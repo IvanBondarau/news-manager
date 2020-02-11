@@ -1,6 +1,5 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.exception.RoleAlreadyExistException;
 import com.epam.lab.model.Role;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,7 @@ public class JdbcRoleDao extends AbstractDao implements RoleDao {
     }
 
     @Override
-    public void deleteUserRole(Role role) throws ResourceNotFoundException {
+    public void deleteUserRole(Role role)  {
         long deleted = jdbcTemplate.update(
                 DELETE_STATEMENT,
                 role.getUserId(),
@@ -54,8 +53,8 @@ public class JdbcRoleDao extends AbstractDao implements RoleDao {
         );
 
         if (deleted != 1) {
-            throw new ResourceNotFoundException("Role " + role.getName()
-                    + " for user " + role.getUserId() + " not found", role.getUserId());
+            throw new RuntimeException("Role " + role.getName()
+                    + " for user " + role.getUserId() + " not found");
         }
     }
 

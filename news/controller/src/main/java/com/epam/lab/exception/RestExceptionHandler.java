@@ -33,7 +33,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String NEWS_NOT_FOUND_MESSAGE_CODE = "newsNotFound";
     private final ThreadLocal<ResourceBundle> errorMessagesBundle = new ThreadLocal<>();
 
-    @ExceptionHandler({AuthorNotFoundException.class, TagNotFoundException.class, NewsNotFoundException.class})
+    @ExceptionHandler(value = ItemNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<RequestError> handleItemNotFound(ItemNotFoundException e, Locale locale) {
         setLocalizedResourceBundle(locale);
@@ -89,15 +89,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(error, httpHeaders, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({NewsAuthorNotFoundException.class,
-            NewsAuthorAlreadySetException.class,
-            NewsTagNotFoundException.class,
-            NewsTagAlreadySetException.class,
-            ResourceNotFoundException.class,
-            RoleAlreadyExistException.class,
-            NullPointerException.class})
+    @ExceptionHandler(value = RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<RequestError> handleInternalException(Exception e, Locale locale) {
+    public ResponseEntity<RequestError> handleInternalException(RuntimeException e, Locale locale) {
         setLocalizedResourceBundle(locale);
 
         RequestError error = createRequestError(INTERNAL_ERROR_MESSAGE_CODE, e.getLocalizedMessage());

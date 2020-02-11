@@ -5,7 +5,6 @@ import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
 import com.epam.lab.dto.*;
 import com.epam.lab.exception.NewsNotFoundException;
-import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.model.News;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -95,12 +94,7 @@ public class NewsServiceImpl implements NewsService {
 
     @Override
     public void delete(long id) {
-        try {
-            newsDao.delete(id);
-        } catch (ResourceNotFoundException e) {
-            throw new NewsNotFoundException(e.getResourceId());
-        }
-
+        newsDao.delete(id);
     }
 
 

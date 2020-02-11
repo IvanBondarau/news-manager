@@ -1,6 +1,5 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.exception.RoleAlreadyExistException;
 import com.epam.lab.model.Role;
 import com.epam.lab.model.User;
@@ -12,7 +11,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabase;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
-import javax.management.relation.RoleNotFoundException;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -95,7 +93,7 @@ public class JdbcRoleDaoTest {
     }
 
     @Test
-    public void deleteShouldBeValid() throws ResourceNotFoundException {
+    public void deleteShouldBeValid()  {
         Role role = new Role(testUser.getId(), "role_name");
 
         jdbcTemplate.update("INSERT INTO public.roles VALUES(?, ?)",
@@ -115,14 +113,14 @@ public class JdbcRoleDaoTest {
         assertEquals(0, loadedRoles.size());
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void deleteUserIdNotExist() throws ResourceNotFoundException {
+    @Test(expected = RuntimeException.class)
+    public void deleteUserIdNotExist() {
         Role role = new Role(testUser.getId(), "test");
         roleDao.deleteUserRole(role);
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void deleteRoleNotExist() throws ResourceNotFoundException {
+    @Test(expected = RuntimeException.class)
+    public void deleteRoleNotExist()  {
         Role role = new Role(testUser.getId(), "test");
 
         jdbcTemplate.update("INSERT INTO public.roles VALUES(?, ?)",

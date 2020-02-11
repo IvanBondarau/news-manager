@@ -83,19 +83,19 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     }
 
     @Override
-    public News read(long id) throws ResourceNotFoundException {
+    public News read(long id) {
         List<News> loadedNews = jdbcTemplate.query(SELECT_BY_ID_STATEMENT,
                 new Object[]{id},
                 new NewsRowMapper());
 
         if (loadedNews.size() == 0) {
-            throw new ResourceNotFoundException("News with id " + id + " not found", id);
+            throw new NewsNotFoundException(id);
         }
         return loadedNews.get(0);
     }
 
     @Override
-    public void update(News entity) throws ResourceNotFoundException {
+    public void update(News entity) {
         long numOfUpdated = jdbcTemplate.update(UPDATE_BY_ID_STATEMENT,
                 entity.getTitle(),
                 entity.getShortText(),
@@ -105,15 +105,15 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
                 entity.getId());
 
         if (numOfUpdated != 1) {
-            throw new ResourceNotFoundException("News with id " + entity.getId() + " not found", entity.getId());
+            throw new NewsNotFoundException(entity.getId());
         }
     }
 
     @Override
-    public void delete(long id) throws ResourceNotFoundException {
+    public void delete(long id) {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
-            throw new ResourceNotFoundException("News with id " + id + " not found", id);
+            throw new NewsNotFoundException(id);
         }
     }
 

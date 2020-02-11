@@ -1,6 +1,6 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.exception.ResourceNotFoundException;
+import com.epam.lab.exception.TagNotFoundException;
 import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
@@ -68,7 +68,7 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
     }
 
     @Override
-    public Tag read(long id) throws ResourceNotFoundException{
+    public Tag read(long id) {
         List<Tag> loadedTags = jdbcTemplate.query(
                 SELECT_BY_ID_STATEMENT,
                 new Object[]{id},
@@ -76,29 +76,29 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
         );
 
         if (loadedTags.size() == 0) {
-            throw new ResourceNotFoundException("Tag with id " + id + " not found", id);
+            throw new TagNotFoundException(id);
         }
         return loadedTags.get(0);
     }
 
     @Override
-    public void update(Tag entity) throws ResourceNotFoundException {
+    public void update(Tag entity) {
 
         long numOfUpdated = jdbcTemplate.update(UPDATE_BY_ID_STATEMENT,
                 entity.getName(),
                 entity.getId());
 
         if (numOfUpdated != 1) {
-            throw new ResourceNotFoundException("Tag with id " + entity.getId() + " not found", entity.getId());
+            throw new TagNotFoundException(entity.getId());
         }
 
     }
 
     @Override
-    public void delete(long id) throws ResourceNotFoundException {
+    public void delete(long id)  {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
-            throw new ResourceNotFoundException("Tag with id " + id + " not found", id);
+            throw new TagNotFoundException(id);
         }
     }
 

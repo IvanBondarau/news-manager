@@ -1,6 +1,6 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.exception.ResourceNotFoundException;
+import com.epam.lab.exception.AuthorNotFoundException;
 import com.epam.lab.model.Author;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -66,7 +66,7 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
     }
 
     @Override
-    public Author read(long id) throws ResourceNotFoundException {
+    public Author read(long id)  {
         try {
             return jdbcTemplate.queryForObject(
                     SELECT_BY_ID_STATEMENT,
@@ -74,14 +74,14 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
                     new AuthorMapper()
             );
         } catch (IncorrectResultSizeDataAccessException e) {
-            throw new ResourceNotFoundException("Author with id " + id + " not found", id);
+            throw new AuthorNotFoundException(id);
         }
 
 
     }
 
     @Override
-    public void update(Author entity) throws ResourceNotFoundException {
+    public void update(Author entity) {
 
         long numOfUpdated = jdbcTemplate.update(UPDATE_BY_ID_STATEMENT,
                 entity.getName(),
@@ -89,16 +89,16 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
                 entity.getId());
 
         if (numOfUpdated != 1) {
-            throw new ResourceNotFoundException("Author with id " + entity.getId() + " not found", entity.getId());
+            throw new AuthorNotFoundException(entity.getId());
         }
 
     }
 
     @Override
-    public void delete(long id) throws ResourceNotFoundException {
+    public void delete(long id)  {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
-            throw new ResourceNotFoundException("Author with id " + id + " not found", id);
+            throw new AuthorNotFoundException(id);
         }
     }
 
