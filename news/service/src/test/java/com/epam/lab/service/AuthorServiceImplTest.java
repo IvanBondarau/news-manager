@@ -2,8 +2,10 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
+import com.epam.lab.dto.AuthorConverter;
 import com.epam.lab.dto.AuthorDto;
 import com.epam.lab.model.Author;
+import com.epam.lab.model.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,16 +27,17 @@ public class AuthorServiceImplTest {
 
     @Mock
     private AuthorDao authorDao;
-
     @Mock
     private NewsDao newsDao;
+
+    private AuthorConverter converter = new AuthorConverter();
 
     private AuthorService service;
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        service = new AuthorServiceImpl(authorDao, newsDao);
+        service = new AuthorServiceImpl(authorDao, newsDao, converter);
     }
 
     @Test
@@ -95,5 +98,28 @@ public class AuthorServiceImplTest {
         Mockito.verify(newsDao).delete(4);
         Mockito.verify(authorDao).delete(1);
 
+    }
+
+    @Test
+    public void loadOrCreateAuthorLoad() {
+        Author defaultAuthor = new Author(500, "check", "check");
+        Mockito.when(authorDao.read(500)).thenReturn(defaultAuthor);
+
+        AuthorDto dto = new AuthorDto(500, "check", "check");
+
+        service.loadOrCreateAuthor(dto);
+
+        Mockito.verify(authorDao).read(500);
+    }
+
+    @Test
+    public void loadOrCreateAuthorCreate() {
+        Author defaultAuthor = new Author(-1, "check", "check");
+
+        AuthorDto dto = new AuthorDto(-1, "check", "check");
+
+        service.loadOrCreateAuthor(dto);
+
+        Mockito.verify(authorDao).create(defaultAuthor);
     }
 }

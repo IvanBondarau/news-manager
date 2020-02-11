@@ -3,7 +3,7 @@ package com.epam.lab.model;
 import java.sql.Date;
 import java.util.Objects;
 
-public class News {
+public class News implements Entity {
 
     private long id;
     private String title;

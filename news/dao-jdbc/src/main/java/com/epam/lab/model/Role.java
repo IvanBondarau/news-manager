@@ -2,7 +2,7 @@ package com.epam.lab.model;
 
 import java.util.Objects;
 
-public class Role {
+public class Role implements Entity {
 
     private long userId;
     private String name;

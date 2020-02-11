@@ -2,7 +2,7 @@ package com.epam.lab.model;
 
 import java.util.Objects;
 
-public class Tag {
+public class Tag implements Entity {
     private long id;
     private String name;
 

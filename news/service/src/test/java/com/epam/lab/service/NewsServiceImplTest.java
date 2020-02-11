@@ -19,6 +19,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.sql.Date;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,6 +36,11 @@ public class NewsServiceImplTest {
 
     private NewsService service;
 
+    @Mock
+    private TagService tagService;
+    @Mock
+    private AuthorService authorService;
+
     private NewsDto defaultDto;
     private News defaultEntity;
     private Author defaultAuthor;
@@ -47,7 +53,8 @@ public class NewsServiceImplTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        service = new NewsServiceImpl(newsDao, authorDao, tagDao);
+        NewsConverter newsConverter = new NewsConverter();
+        service = new NewsServiceImpl(newsDao, authorDao, tagDao, tagService, authorService, newsConverter);
     }
 
     @Before
@@ -101,32 +108,27 @@ public class NewsServiceImplTest {
 
     @Test
     public void createValid() {
-        Mockito.when(tagDao.findByName("Tag 2")).thenReturn(Optional.of(new Tag(2, "Tag 2")));
-        Mockito.when(tagDao.findByName("Tag 1")).thenReturn(Optional.empty());
-        Mockito.when(tagDao.findByName("Tag 3")).thenReturn(Optional.empty());
-
-        Mockito.when(authorDao.read(100)).thenReturn(new Author(100, "Name", "Surname"));
 
         service.create(defaultDto);
 
-        Mockito.verify(tagDao, times(2)).create(any());
+        Mockito.verify(tagService, times(3)).loadOrCreateTag(any());
         Mockito.verify(newsDao, times(1)).create(any());
-        Mockito.verify(tagDao, times(3)).findByName(any());
 
     }
 
     @Test
     public void readValid() {
         Mockito.when(newsDao.getTagsIdForNews(100)).thenReturn(Arrays.asList(6L, 7L, 8L));
-        Mockito.when(newsDao.read(100)).thenReturn(defaultEntity);
-        Mockito.when(tagDao.read(6)).thenReturn(defaultTag1);
-        Mockito.when(tagDao.read(7)).thenReturn(defaultTag2);
-        Mockito.when(tagDao.read(8)).thenReturn(defaultTag3);
         Mockito.when(newsDao.getAuthorIdByNews(100)).thenReturn(100L);
-        Mockito.when(authorDao.read(100)).thenReturn(defaultAuthor);
+        Mockito.when(newsDao.read(100)).thenReturn(defaultEntity);
 
         NewsDto result = service.read(100);
-        assertEquals(defaultDto, result);
+
+        Mockito.verify(newsDao).read(100);
+        Mockito.verify(tagService).read(6);
+        Mockito.verify(tagService).read(7);
+        Mockito.verify(tagService).read(8);
+        Mockito.verify(authorService).read(100);
 
     }
 
@@ -134,10 +136,10 @@ public class NewsServiceImplTest {
     public void updateValid() {
         Mockito.when(newsDao.read(100)).thenReturn(defaultEntity);
         Mockito.when(newsDao.getTagsIdForNews(100)).thenReturn(Arrays.asList(6L, 7L));
-        Mockito.when(tagDao.read(6L)).thenReturn(defaultTag1);
-        Mockito.when(tagDao.read(7L)).thenReturn(defaultTag2);
         Mockito.when(newsDao.getAuthorIdByNews(100)).thenReturn(100L);
-        Mockito.when(authorDao.read(100)).thenReturn(defaultAuthor);
+        Mockito.when(tagService.read(6)).thenReturn(new TagDto("Tag 2"));
+        Mockito.when(tagService.read(7)).thenReturn(new TagDto("Tag 3"));
+        Mockito.when(authorService.read(100)).thenReturn(new AuthorDto(6, "default", "default"));
 
         NewsDto newsDto = new NewsDto();
         newsDto.setId(100);
@@ -145,12 +147,13 @@ public class NewsServiceImplTest {
         newsDto.setShortText("Short");
         newsDto.setFullText("Full text");
         AuthorDto updatedAuthor = new AuthorDto();
+        updatedAuthor.setId(400);
         updatedAuthor.setName("new author");
         updatedAuthor.setSurname("new author");
 
         newsDto.setAuthor(updatedAuthor);
 
-        TagDto updatedTag1 = new TagDto(); updatedTag1.setName("new 1");
+        TagDto updatedTag1 = new TagDto(); updatedTag1.setName("new 1"); updatedTag1.setId(400);
         TagDto updatedTag2 = new TagDto(); updatedTag2.setName("Tag 2");
         TagDto updatedTag3 = new TagDto(); updatedTag3.setName("Tag 3");
 
@@ -159,42 +162,11 @@ public class NewsServiceImplTest {
         service.update(newsDto);
 
         Mockito.verify(newsDao).read(100);
-        Mockito.verify(authorDao).create(any());
-        Mockito.verify(tagDao, times(3)).findByName(any());
-        Mockito.verify(tagDao, times(3)).create(any());
-    }
-
-
-    @Test
-    public void updateAuthorAlreadyExist() {
-        Mockito.when(newsDao.read(100)).thenReturn(defaultEntity);
-        Mockito.when(newsDao.getTagsIdForNews(100)).thenReturn(Arrays.asList(6L, 7L));
-        Mockito.when(tagDao.read(6L)).thenReturn(defaultTag1);
-        Mockito.when(tagDao.read(7L)).thenReturn(defaultTag2);
-        Mockito.when(newsDao.getAuthorIdByNews(100)).thenReturn(100L);
-        Mockito.when(authorDao.read(100)).thenReturn(defaultAuthor);
-
-        NewsDto newsDto = new NewsDto();
-        newsDto.setId(100);
-        newsDto.setTitle("Updated");
-        newsDto.setShortText("Short");
-        newsDto.setFullText("Full text");
-        AuthorDto updatedAuthor = new AuthorDto();
-        updatedAuthor.setId(100);
-
-        newsDto.setAuthor(updatedAuthor);
-
-        TagDto updatedTag1 = new TagDto(); updatedTag1.setName("new 1");
-        TagDto updatedTag2 = new TagDto(); updatedTag2.setName("Tag 2");
-        TagDto updatedTag3 = new TagDto(); updatedTag3.setName("Tag 3");
-
-        newsDto.setTags(new HashSet<>(Arrays.asList(updatedTag1, updatedTag2, updatedTag3)));
-
-        service.update(newsDto);
-
-        Mockito.verify(newsDao).read(100);
-        Mockito.verify(authorDao, times(2)).read(100);
-        Mockito.verify(tagDao, times(3)).findByName(any());
+        Mockito.verify(authorService).loadOrCreateAuthor(any());
+        Mockito.verify(tagService, times(3)).loadOrCreateTag(any());
+        Mockito.verify(newsDao).setNewsAuthor(100, 400);
+        Mockito.verify(newsDao).setNewsTag(100, 400);
+        Mockito.verify(newsDao).update(any());
     }
 
     @Test
@@ -204,15 +176,13 @@ public class NewsServiceImplTest {
         Mockito.when(tagDao.findNewsIdByTagNames(any())).thenReturn(Arrays.asList(101L, 102L, 103L));
         Mockito.when(newsDao.read(102)).thenReturn(defaultEntity);
         Mockito.when(newsDao.read(103)).thenReturn(defaultEntity);
-        Mockito.when(authorDao.read(0)).thenReturn(new Author("A", "B"));
-        Mockito.when(authorDao.read(100)).thenReturn(new Author("A", "C"));
+        Mockito.when(newsDao.read(104)).thenReturn(defaultEntity);
         Mockito.when(tagDao.read(102)).thenReturn(defaultTag1);
         Mockito.when(tagDao.read(103)).thenReturn(defaultTag1);
 
         List<NewsDto> result = service.search(defaultSearchCriteria);
 
         assertEquals(2, result.size());
-        assertTrue(result.get(0).getAuthor().toString().compareTo(result.get(1).getAuthor().toString()) < 1);
 
     }
 

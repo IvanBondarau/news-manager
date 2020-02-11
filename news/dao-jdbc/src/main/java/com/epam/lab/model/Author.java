@@ -2,7 +2,7 @@ package com.epam.lab.model;
 
 import java.util.Objects;
 
-public class Author {
+public class Author implements Entity {
 
     private long id;
     private String name;

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class NewsDto {
+public class NewsDto implements Dto {
 
     long id;
     private String title;

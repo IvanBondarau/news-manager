@@ -4,16 +4,11 @@ import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
 import com.epam.lab.dto.*;
-import com.epam.lab.exception.AuthorNotFoundException;
 import com.epam.lab.exception.NewsNotFoundException;
 import com.epam.lab.exception.ResourceNotFoundException;
-import com.epam.lab.model.Author;
 import com.epam.lab.model.News;
-import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
@@ -28,133 +23,74 @@ public class NewsServiceImpl implements NewsService {
     private AuthorDao authorDao;
     private TagDao tagDao;
 
+    private TagService tagService;
+
+    private AuthorService authorService;
+
+    private NewsConverter newsConverter;
 
     @Autowired
-    public NewsServiceImpl(NewsDao newsDao, AuthorDao authorDao, TagDao tagDao) {
+    public NewsServiceImpl(NewsDao newsDao, AuthorDao authorDao, TagDao tagDao,
+                           TagService tagService, AuthorService authorService,
+                           NewsConverter newsConverter) {
         this.newsDao = newsDao;
         this.authorDao = authorDao;
         this.tagDao = tagDao;
+        this.tagService = tagService;
+        this.authorService = authorService;
+        this.newsConverter = newsConverter;
     }
 
     @Override
     @Transactional
-    public void create(NewsDto dto) {
+    public void create(NewsDto newsDto) {
 
-        if (dto.getAuthor().getId() == 0) {
-            Author author = new Author(dto.getAuthor().getName(), dto.getAuthor().getSurname());
-            long id = authorDao.create(author);
-            dto.getAuthor().setId(id);
-        } else {
-            try {
-                Author author = authorDao.read(dto.getAuthor().getId());
-                dto.getAuthor().setName(author.getName());
-                dto.getAuthor().setSurname(author.getSurname());
-            } catch (ResourceNotFoundException e) {
-                throw new AuthorNotFoundException(e.getResourceId());
-            }
-        }
+        loadNewsAuthor(newsDto);
+        loadNewsTags(newsDto);
 
-        dto.setCreationDate(Date.valueOf(LocalDate.now()));
-        dto.setModificationDate(dto.getCreationDate());
-
-        News entity = buildNewsFromDto(dto);
-
+        setCurrentCreationDate(newsDto);
+        News entity = newsConverter.convertToEntity(newsDto);
         long id = newsDao.create(entity);
-        dto.setId(id);
+        newsDto.setId(id);
 
-        newsDao.setNewsAuthor(dto.getId(), dto.getAuthor().getId());
-
-        for (TagDto tagDto : dto.getTags()) {
-            createOrGet(tagDto);
-            newsDao.setNewsTag(dto.getId(), tagDto.getId());
-        }
+        newsDao.setNewsAuthor(newsDto.getId(), newsDto.getAuthor().getId());
+        newsDto.getTags().forEach(
+                (TagDto tagDto) -> newsDao.setNewsTag(newsDto.getId(), tagDto.getId())
+        );
     }
 
     @Override
     @Transactional
     public NewsDto read(long id) {
-        News entity;
-        try {
-            entity = newsDao.read(id);
-        } catch (ResourceNotFoundException e) {
-            throw new NewsNotFoundException(e.getResourceId());
-        }
+        News newsEntity = newsDao.read(id);
+        NewsDto newsDto = newsConverter.convertToDto(newsEntity);
 
-        NewsDto dto = new NewsDto();
-        dto.setId(entity.getId());
-        dto.setTitle(entity.getTitle());
-        dto.setShortText(entity.getShortText());
-        dto.setFullText(entity.getFullText());
-        dto.setCreationDate(entity.getCreationDate());
-        dto.setModificationDate(entity.getModificationDate());
+        long authorId = newsDao.getAuthorIdByNews(newsDto.getId());
+        newsDto.setAuthor(authorService.read(authorId));
 
-        long authorId = newsDao.getAuthorIdByNews(dto.getId());
-        Author author = authorDao.read(authorId);
-        AuthorDto authorDto = new AuthorDto();
-        authorDto.setId(authorId);
-        authorDto.setName(author.getName());
-        authorDto.setSurname(author.getSurname());
+        List<Long> tagIds = newsDao.getTagsIdForNews(newsDto.getId());
 
-        dto.setAuthor(authorDto);
+        newsDto.setTags(
+                tagIds.stream()
+                        .map((Long tagId) -> tagService.read(tagId))
+                        .collect(Collectors.toSet())
+        );
 
-        List<Long> tagIds = newsDao.getTagsIdForNews(dto.getId());
-
-        dto.setTags(tagIds.stream().map((Long tagId) -> {
-            Tag tag = tagDao.read(tagId);
-            TagDto tagDto = new TagDto();
-            tagDto.setId(tag.getId());
-            tagDto.setName(tag.getName());
-            return tagDto;
-        }).collect(Collectors.toSet()));
-
-        return dto;
+        return newsDto;
     }
 
     @Override
-    public void update(NewsDto dto) {
+    public void update(NewsDto newsDto) {
 
-        /*
-         *  Read or create news author
-         *  If author id is received, then try to read author from the database
-         *  Otherwise create new author with specified name and surname
-         */
-        if (dto.getAuthor().getId() == 0) {
-            Author author = new Author(dto.getAuthor().getName(), dto.getAuthor().getSurname());
-            long id = authorDao.create(author);
-            dto.getAuthor().setId(id);
-        } else {
-            try {
-                Author author = authorDao.read(dto.getAuthor().getId());
-                dto.getAuthor().setName(author.getName());
-                dto.getAuthor().setSurname(author.getSurname());
-            } catch (ResourceNotFoundException e) {
-                throw new AuthorNotFoundException(e.getResourceId());
-            }
-        }
+        loadNewsAuthor(newsDto);
+        loadNewsTags(newsDto);
 
-        //Read old news version
-        NewsDto oldDto;
-        try {
-             oldDto = read(dto.getId());
-        }  catch (ResourceNotFoundException e) {
-            throw new NewsNotFoundException(e.getResourceId());
-        }
+        NewsDto oldNewsDto = read(newsDto.getId());
 
-        //Update author
-        if (!oldDto.getAuthor().equals(dto.getAuthor())) {
-            newsDao.deleteNewsAuthor(dto.getId());
-            newsDao.setNewsAuthor(dto.getId(), dto.getAuthor().getId());
-        }
+        updateNewsAuthor(oldNewsDto, newsDto);
+        updateNewsTags(oldNewsDto, newsDto);
+        updateNewsFields(oldNewsDto, newsDto);
 
-        //Update tags
-        updateTags(oldDto, dto);
-
-        //Update fields
-        dto.setCreationDate(oldDto.getCreationDate());
-        dto.setModificationDate(Date.valueOf(LocalDate.now()));
-        News entity = buildNewsFromDto(dto);
-        entity.setId(dto.getId());
-        newsDao.update(entity);
     }
 
     @Override
@@ -167,119 +103,167 @@ public class NewsServiceImpl implements NewsService {
 
     }
 
-    @Transactional(propagation = Propagation.REQUIRED)
-    private void createOrGet(TagDto dto) {
-        Optional<Tag> searchResult = tagDao.findByName(dto.getName());
-        if (searchResult.isPresent()) {
-            dto.setId(searchResult.get().getId());
-        } else {
-            long id = tagDao.create(new Tag(dto.getName()));
-            dto.setId(id);
-        }
-    }
-
-    private News buildNewsFromDto(NewsDto dto) {
-        return new News(
-                dto.getTitle(),
-                dto.getShortText(),
-                dto.getFullText(),
-                dto.getCreationDate(),
-                dto.getModificationDate()
-        );
-    }
-
-    @Transactional
-    private void updateTags(NewsDto oldDto, NewsDto dto) {
-        for (TagDto tagDto : dto.getTags()) {
-            createOrGet(tagDto);
-        }
-
-        Set<TagDto> tagsToRemove = new HashSet<>(oldDto.getTags());
-        tagsToRemove.removeAll(dto.getTags());
-
-        for (TagDto tagDto : tagsToRemove) {
-            newsDao.deleteNewsTag(oldDto.getId(), tagDto.getId());
-        }
-
-        Set<TagDto> tagsToAdd = new HashSet<>(dto.getTags());
-        tagsToAdd.removeAll(oldDto.getTags());
-
-        for (TagDto tagDto : tagsToAdd) {
-            newsDao.setNewsTag(oldDto.getId(), tagDto.getId());
-        }
-    }
 
     @Override
     public List<NewsDto> search(SearchCriteria searchCriteria) {
-        Set<Long> idResultSet = null;
+        Set<Long> searchResult = null;
 
-        if (searchCriteria.getTagNames() != null && (!searchCriteria.getTagNames().isEmpty())) {
-            idResultSet = new HashSet<>(tagDao.findNewsIdByTagNames(searchCriteria.getTagNames()));
-        }
+        searchResult = searchByTagNames(searchCriteria.getTagNames(), searchResult);
+        searchResult = searchByAuthorId(searchCriteria.getAuthorId(), searchResult);
+        searchResult = searchByAuthorName(searchCriteria.getAuthorName(), searchResult);
+        searchResult = searchByAuthorSurname(searchCriteria.getAuthorSurname(), searchResult);
 
-        if (searchCriteria.getAuthorId() != null) {
-            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthor(searchCriteria.getAuthorId()));
-            if (idResultSet == null) {
-                idResultSet = searchResult;
-            } else {
-                idResultSet.retainAll(searchResult);
-            }
-        }
-
-        if (searchCriteria.getAuthorName() != null) {
-            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorName(searchCriteria.getAuthorName()));
-            if (idResultSet == null) {
-                idResultSet = searchResult;
-            } else {
-                idResultSet.retainAll(searchResult);
-            }
-        }
-
-        if (searchCriteria.getAuthorSurname() != null) {
-            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorName(searchCriteria.getAuthorSurname()));
-            if (idResultSet == null) {
-                idResultSet = searchResult;
-            } else {
-                idResultSet.retainAll(searchResult);
-            }
-        }
-
-        if (idResultSet == null) {
+        if (searchResult == null) {
             return new ArrayList<>();
         }
 
+        List<NewsDto> results = readAll(searchResult);
+
+        sortBySortParams(results, searchCriteria.getSortParams());
+
+        return results;
+    }
+
+    private void updateNewsTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
+        removeExtraTags(oldNewsDto, receivedNewsDto);
+        addNewTags(oldNewsDto, receivedNewsDto);
+    }
+
+    private void removeExtraTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
+        Set<TagDto> tagsToRemove = new HashSet<>(oldNewsDto.getTags());
+        tagsToRemove.removeAll(receivedNewsDto.getTags());
+
+        for (TagDto tagDto : tagsToRemove) {
+            newsDao.deleteNewsTag(oldNewsDto.getId(), tagDto.getId());
+        }
+    }
+
+    private void addNewTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
+        Set<TagDto> tagsToAdd = new HashSet<>(receivedNewsDto.getTags());
+        tagsToAdd.removeAll(oldNewsDto.getTags());
+
+        for (TagDto tagDto : tagsToAdd) {
+            newsDao.setNewsTag(oldNewsDto.getId(), tagDto.getId());
+        }
+    }
+
+    private void updateNewsFields(NewsDto oldNewsDto, NewsDto newsDto) {
+        newsDto.setCreationDate(oldNewsDto.getCreationDate());
+        newsDto.setModificationDate(Date.valueOf(LocalDate.now()));
+        News entity = newsConverter.convertToEntity(newsDto);
+        newsDao.update(entity);
+    }
+
+
+    private void loadNewsAuthor(NewsDto newsDto) {
+        authorService.loadOrCreateAuthor(newsDto.getAuthor());
+    }
+
+    private void loadNewsTags(NewsDto newsDto) {
+        newsDto.getTags().forEach((TagDto tagDto) -> tagService.loadOrCreateTag(tagDto));
+    }
+
+    private void updateNewsAuthor(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
+
+        long oldAuthorId = oldNewsDto.getAuthor().getId();
+        long newAuthorId = receivedNewsDto.getAuthor().getId();
+
+        if (oldAuthorId != newAuthorId) {
+            newsDao.deleteNewsAuthor(receivedNewsDto.getId());
+            newsDao.setNewsAuthor(receivedNewsDto.getId(), newAuthorId);
+        }
+    }
+
+    private void setCurrentCreationDate(NewsDto newsDto) {
+        newsDto.setCreationDate(Date.valueOf(LocalDate.now()));
+        newsDto.setModificationDate(newsDto.getCreationDate());
+    }
+
+    private Comparator<NewsDto> addNextComparator(Comparator<NewsDto> comparator, SortOrder sortOrder) {
+        Comparator<NewsDto> nextComparator;
+
+        switch (sortOrder) {
+            case BY_DATE:
+                nextComparator = new NewsDateComparator();
+                break;
+            case BY_TAGS:
+                nextComparator = new NewsTagComparator();
+                break;
+            case BY_AUTHOR:
+                nextComparator = new NewsAuthorComparator();
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + sortOrder);
+        }
+
+        if (comparator == null) {
+            return nextComparator;
+        } else {
+            return comparator.thenComparing(nextComparator);
+        }
+    }
+
+    private Set<Long> searchByAuthorId(Long authorId, Set<Long> previousResult) {
+        if (authorId != null) {
+            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthor(authorId));
+            return uniteSearchResults(previousResult, searchResult);
+        } else {
+            return previousResult;
+        }
+    }
+
+    private Set<Long> searchByAuthorName(String authorName, Set<Long> previousResult) {
+        if (authorName != null) {
+            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorName(authorName));
+            return uniteSearchResults(previousResult, searchResult);
+        } else {
+            return previousResult;
+        }
+    }
+
+    private Set<Long> searchByAuthorSurname(String authorSurname, Set<Long> previousResult) {
+        if (authorSurname != null) {
+            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorSurname(authorSurname));
+            return uniteSearchResults(previousResult, searchResult);
+        } else {
+            return previousResult;
+        }
+    }
+
+    private Set<Long> searchByTagNames(Set<String> tagNames, Set<Long> previousResult) {
+        if (tagNames != null && (!tagNames.isEmpty())) {
+            Set<Long> searchResult = new HashSet<>(tagDao.findNewsIdByTagNames(tagNames));
+            return uniteSearchResults(previousResult, searchResult);
+        } else {
+            return previousResult;
+        }
+    }
+
+    private Set<Long> uniteSearchResults(Set<Long> firstResult, Set<Long> secondResult) {
+        if (firstResult == null) {
+            return secondResult;
+        } else {
+            firstResult.retainAll(secondResult);
+            return firstResult;
+        }
+    }
+
+    private List<NewsDto> readAll(Set<Long> idList) {
         List<NewsDto> resultSet = new ArrayList<>();
-        for (Long newsId: idResultSet) {
+        for (Long newsId : idList) {
             resultSet.add(this.read(newsId));
         }
-
-        if (searchCriteria.getSortParams() != null) {
-            Comparator<NewsDto> comparator = null;
-            for (SortOrder sortOrder: searchCriteria.getSortParams()) {
-                if (sortOrder == SortOrder.BY_DATE) {
-                    comparator = comparator == null ?
-                            new NewsDateComparator()
-                            : comparator.thenComparing(new NewsDateComparator());
-                }
-
-                if (sortOrder == SortOrder.BY_AUTHOR) {
-                    comparator = comparator == null ?
-                            new NewsAuthorComparator()
-                            : comparator.thenComparing(new NewsAuthorComparator());
-                }
-
-                if (sortOrder == SortOrder.BY_TAGS) {
-                    comparator = comparator == null ?
-                            new NewsTagComparator()
-                            : comparator.thenComparing(new NewsTagComparator());
-                }
-
-            }
-
-            resultSet.sort(comparator);
-
-        }
-
         return resultSet;
     }
+
+    private void sortBySortParams(List<NewsDto> news, List<SortOrder> sortParams) {
+        if (sortParams != null) {
+            Comparator<NewsDto> comparator = null;
+            for (SortOrder sortOrder : sortParams) {
+                comparator = addNextComparator(comparator, sortOrder);
+            }
+            news.sort(comparator);
+        }
+    }
+
 }

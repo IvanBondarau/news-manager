@@ -2,7 +2,7 @@ package com.epam.lab.model;
 
 import java.util.Objects;
 
-public class User {
+public class User implements Entity {
 
     private long id;
     private String name;

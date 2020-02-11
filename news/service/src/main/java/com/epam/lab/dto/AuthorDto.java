@@ -2,13 +2,19 @@ package com.epam.lab.dto;
 
 import java.util.Objects;
 
-public class AuthorDto {
+public class AuthorDto implements Dto {
 
     private long id;
     private String name;
     private String surname;
 
     public AuthorDto() {
+    }
+
+    public AuthorDto(long id, String name, String surname) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
     }
 
     public long getId() {

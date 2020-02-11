@@ -2,6 +2,7 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
+import com.epam.lab.dto.TagConverter;
 import com.epam.lab.dto.TagDto;
 import com.epam.lab.exception.ResourceNotFoundException;
 import com.epam.lab.exception.NewsTagAlreadySetException;
@@ -21,12 +22,14 @@ public class TagServiceImpl implements TagService {
     private TagDao tagDao;
     private NewsDao newsDao;
 
+    private TagConverter tagConverter;
+
     @Autowired
-    public TagServiceImpl(TagDao tagDao, NewsDao newsDao) {
+    public TagServiceImpl(TagDao tagDao, NewsDao newsDao, TagConverter tagConverter) {
         this.tagDao = tagDao;
         this.newsDao = newsDao;
+        this.tagConverter = tagConverter;
     }
-
 
     @Override
     @Transactional
@@ -44,28 +47,15 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public TagDto read(long id) {
-        Tag loaded;
-        try {
-            loaded = tagDao.read(id);
-        } catch (ResourceNotFoundException e) {
-            throw new TagNotFoundException(e.getResourceId());
-        }
-        TagDto dto = new TagDto();
-        dto.setId(loaded.getId());
-        dto.setName(loaded.getName());
-        return dto;
+        Tag tag = tagDao.read(id);
+        return tagConverter.convertToDto(tag);
     }
 
     @Override
     @Transactional
     public void update(TagDto dto) {
-        Tag entity = new Tag(dto.getId(), dto.getName());
-        try {
-            tagDao.update(entity);
-        } catch (ResourceNotFoundException e) {
-            throw new TagNotFoundException(e.getResourceId());
-        }
-
+        Tag entity = tagConverter.convertToEntity(dto);
+        tagDao.update(entity);
     }
 
     @Override
@@ -78,12 +68,20 @@ public class TagServiceImpl implements TagService {
             newsDao.deleteNewsTag(newsId, id);
         }
 
-        try {
-            tagDao.delete(id);
-        } catch (ResourceNotFoundException e) {
-            throw new TagNotFoundException(e.getResourceId());
+        tagDao.delete(id);
+    }
+
+    @Override
+    public void loadOrCreateTag(TagDto dto) {
+        Optional<Tag> searchResult = tagDao.findByName(dto.getName());
+        if (searchResult.isPresent()) {
+            dto.setId(searchResult.get().getId());
+        } else {
+            long id = tagDao.create(new Tag(dto.getName()));
+            dto.setId(id);
         }
     }
+
 
 
 }

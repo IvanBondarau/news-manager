@@ -2,13 +2,18 @@ package com.epam.lab.dto;
 
 import java.util.Objects;
 
-public class TagDto {
+public class TagDto implements Dto {
 
     private long id;
     private String name;
 
+
     public TagDto() {
         id = Long.MIN_VALUE;
+    }
+
+    public TagDto(String name) {
+        this.name = name;
     }
 
     public long getId() {

@@ -2,7 +2,10 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
+import com.epam.lab.dto.AuthorDto;
+import com.epam.lab.dto.TagConverter;
 import com.epam.lab.dto.TagDto;
+import com.epam.lab.model.Author;
 import com.epam.lab.model.Tag;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,16 +28,17 @@ public class TagServiceImplTest {
 
     @Mock
     private TagDao tagDao;
-
     @Mock
     private NewsDao newsDao;
+
+    private TagConverter tagConverter = new TagConverter();
 
     private TagService service;
 
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        service = new TagServiceImpl(tagDao, newsDao);
+        service = new TagServiceImpl(tagDao, newsDao, tagConverter);
     }
 
     @Test
@@ -110,6 +114,30 @@ public class TagServiceImplTest {
         Mockito.verify(newsDao).deleteNewsTag(4, 1);
         Mockito.verify(tagDao).delete(1);
 
+    }
+
+    @Test
+    public void loadOrCreateTagLoad() {
+        Tag tag = new Tag(70, "Tag 1");
+        Mockito.when(tagDao.findByName("Tag 1")).thenReturn(Optional.of(tag));
+
+        TagDto tagDto = new TagDto("Tag 1");
+
+        service.loadOrCreateTag(tagDto);
+
+        assertEquals(70, tagDto.getId());
+        Mockito.verify(tagDao).findByName("Tag 1");
+    }
+
+    @Test
+    public void loadOrCreateTagCreate() {
+        Mockito.when(tagDao.findByName("Tag 1")).thenReturn(Optional.empty());
+
+        TagDto tagDto = new TagDto("Tag 1");
+
+        service.loadOrCreateTag(tagDto);
+
+        Mockito.verify(tagDao).create(new Tag("Tag 1"));
     }
 
 
