@@ -1,5 +1,9 @@
 package com.epam.lab.dto;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.PastOrPresent;
+import javax.validation.constraints.Size;
 import java.sql.Date;
 import java.util.HashSet;
 import java.util.Objects;
@@ -8,10 +12,25 @@ import java.util.Set;
 public class NewsDto implements Dto {
 
     long id;
+
+    @NotNull
+    @Size(max = 30)
     private String title;
+
+    @NotNull
+    @Size(max = 100)
     private String shortText;
+
+    @NotNull
+    @Size(max = 200)
     private String fullText;
+
+    @NotNull
+    @PastOrPresent
     private Date creationDate;
+
+    @NotNull
+    @PastOrPresent
     private Date modificationDate;
 
     private Set<TagDto> tags;

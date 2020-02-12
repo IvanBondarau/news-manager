@@ -1,5 +1,6 @@
-package com.epam.lab.exception;
+package com.epam.lab.controller;
 
+import com.epam.lab.exception.*;
 import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import javax.validation.ValidationException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -33,6 +35,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String TAG_NOT_FOUND_MESSAGE_CODE = "tagNotFound";
     private static final String AUTHOR_NOT_FOUND_MESSAGE_CODE = "authorNotFound";
     private static final String NEWS_NOT_FOUND_MESSAGE_CODE = "newsNotFound";
+    private static final String VALIDATION_EXCEPTION_MESSAGE_CODE = "badRequestParams";
     private final ThreadLocal<ResourceBundle> errorMessagesBundle = new ThreadLocal<>();
 
     @ExceptionHandler(value = ItemNotFoundException.class)
@@ -100,6 +103,20 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         HttpHeaders httpHeaders = getDefaultHeadersJson();
 
+        return new ResponseEntity<>(error, httpHeaders, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = InvalidRequestFormatException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<RequestError> handleValidationException(InvalidRequestFormatException e, Locale locale) {
+        logger.warn("Handling ValidationException");
+        logger.error(e.getMessage(), e);
+
+        setLocalizedResourceBundle(locale);
+
+        RequestError error = createRequestError(VALIDATION_EXCEPTION_MESSAGE_CODE, e.getLocalizedMessage());
+
+        HttpHeaders httpHeaders = getDefaultHeadersJson();
         return new ResponseEntity<>(error, httpHeaders, HttpStatus.BAD_REQUEST);
     }
 

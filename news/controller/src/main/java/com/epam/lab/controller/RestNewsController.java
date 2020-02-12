@@ -3,12 +3,16 @@ package com.epam.lab.controller;
 import com.epam.lab.dto.NewsDto;
 import com.epam.lab.dto.SortOrder;
 import com.epam.lab.dto.SearchCriteria;
+import com.epam.lab.exception.InvalidRequestFormatException;
 import com.epam.lab.service.NewsService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.*;
 
 @RestController
@@ -24,7 +28,7 @@ public class RestNewsController {
     /**
      * This method reads the news by id
      * @param id  id of read news
-     * @return  NewsDto with all news parameters, tags and author
+     * @return  NewsDto with fields, tags and author
      */
     @GetMapping(value = "/news/{id}")
     @ResponseStatus(HttpStatus.OK)
@@ -82,7 +86,12 @@ public class RestNewsController {
      */
     @PostMapping(value = "/news")
     @ResponseStatus(HttpStatus.CREATED)
-    public NewsDto createNews(@RequestBody NewsDto newsDto) {
+    public NewsDto createNews(@RequestBody @NotNull @Valid NewsDto newsDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            logger.error("Create news: unsuccessful binding");
+            throw new InvalidRequestFormatException(bindingResult.toString());
+        }
+
         logger.info("New create news request");
         logger.info("News = " + newsDto);
         newsService.create(newsDto);
@@ -100,7 +109,13 @@ public class RestNewsController {
      */
     @PutMapping(value = "/news/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public NewsDto updateNews(@RequestBody NewsDto newsDto, @PathVariable long id) {
+    public NewsDto updateNews(@RequestBody @NotNull @Valid NewsDto newsDto, @PathVariable long id,
+                              BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            logger.error("Update news: unsuccessful binding");
+            throw new InvalidRequestFormatException(bindingResult.toString());
+        }
+
         logger.info("New update news request");
         logger.info("News id = " + id);
         logger.info("Updated news = " + newsDto);

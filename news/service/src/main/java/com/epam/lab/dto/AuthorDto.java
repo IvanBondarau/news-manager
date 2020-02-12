@@ -1,11 +1,21 @@
 package com.epam.lab.dto;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 
 public class AuthorDto implements Dto {
 
+    @Positive
     private long id;
+
+    @NotNull
+    @Size(max = 30)
     private String name;
+
+    @NotNull
+    @Size(max = 30)
     private String surname;
 
     public AuthorDto() {

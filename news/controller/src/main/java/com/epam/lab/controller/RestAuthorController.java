@@ -1,11 +1,15 @@
 package com.epam.lab.controller;
 
 import com.epam.lab.dto.AuthorDto;
+import com.epam.lab.exception.InvalidRequestFormatException;
 import com.epam.lab.service.AuthorService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 public class RestAuthorController {
@@ -37,7 +41,11 @@ public class RestAuthorController {
      */
     @PostMapping(value = "/author")
     @ResponseStatus(HttpStatus.CREATED)
-    public AuthorDto createAuthor(@RequestBody AuthorDto authorDto) {
+    public AuthorDto createAuthor(@RequestBody @Valid AuthorDto authorDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            logger.error("Create author: unsuccessful binding");
+            throw new InvalidRequestFormatException(bindingResult.toString());
+        }
         logger.info("New create author request");
         logger.info("Author = " + authorDto);
         authorService.create(authorDto);
@@ -53,7 +61,13 @@ public class RestAuthorController {
      */
     @PutMapping(value = "/author/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public AuthorDto updateAuthor(@RequestBody AuthorDto authorDto, @PathVariable long id) {
+    public AuthorDto updateAuthor(@RequestBody @Valid AuthorDto authorDto, @PathVariable long id,
+                                  BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            logger.error("Update author: unsuccessful binding");
+            throw new InvalidRequestFormatException(bindingResult.toString());
+        }
+
         logger.info("New update author request");
         logger.info("Author id = " + id);
         logger.info("Updated author = " + authorDto);

@@ -1,12 +1,16 @@
 package com.epam.lab.dto;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Objects;
 
 public class TagDto implements Dto {
 
     private long id;
-    private String name;
 
+    @NotNull
+    @Size(max = 20)
+    private String name;
 
     public TagDto() {
         id = Long.MIN_VALUE;

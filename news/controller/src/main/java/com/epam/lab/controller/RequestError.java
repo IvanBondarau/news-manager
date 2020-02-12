@@ -1,4 +1,4 @@
-package com.epam.lab.exception;
+package com.epam.lab.controller;
 
 public class RequestError {
     private String error;

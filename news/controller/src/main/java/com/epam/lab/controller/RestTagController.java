@@ -1,11 +1,16 @@
 package com.epam.lab.controller;
 
 import com.epam.lab.dto.TagDto;
+import com.epam.lab.exception.InvalidRequestFormatException;
 import com.epam.lab.service.TagService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 
 @RestController
 public class RestTagController {
@@ -35,7 +40,12 @@ public class RestTagController {
      */
     @PostMapping(value = "/tag")
     @ResponseStatus(HttpStatus.CREATED)
-    public TagDto createTag(@RequestBody TagDto tagDto) {
+    public TagDto createTag(@RequestBody @NotNull @Valid TagDto tagDto, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            logger.error("Create tag: unsuccessful binding");
+            throw new InvalidRequestFormatException(bindingResult.toString());
+        }
+
         logger.info("New create tag request");
         logger.info("Tag = " + tagDto);
         tagService.create(tagDto);
@@ -50,7 +60,12 @@ public class RestTagController {
      */
     @PutMapping(value = "/tag/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TagDto updateTag(@RequestBody TagDto tagDto, @PathVariable long id) {
+    public TagDto updateTag(@RequestBody @Valid TagDto tagDto, @PathVariable long id, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            logger.error("Update tag: unsuccessful binding");
+            throw new InvalidRequestFormatException(bindingResult.toString());
+        }
+
         logger.info("New update tag request");
         logger.info("Tag id = " + id);
         logger.info("Updated tag = " + tagDto);
