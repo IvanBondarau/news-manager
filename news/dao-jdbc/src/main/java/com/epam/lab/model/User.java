@@ -81,4 +81,15 @@ public class User implements Entity {
     public int hashCode() {
         return Objects.hash(id, name, surname, login, password);
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

@@ -3,25 +3,19 @@ package com.epam.lab.controller;
 import com.epam.lab.dto.NewsDto;
 import com.epam.lab.dto.SortOrder;
 import com.epam.lab.dto.SearchCriteria;
-import com.epam.lab.exception.*;
 import com.epam.lab.service.NewsService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @RestController
-public class NewsController {
+public class RestNewsController {
+
+    private static final Logger logger = Logger.getLogger(RestNewsController.class);
+
     @Autowired
     private NewsService newsService;
     @Autowired
@@ -35,6 +29,8 @@ public class NewsController {
     @GetMapping(value = "/news/{id}")
     @ResponseStatus(HttpStatus.OK)
     public NewsDto getNews(@PathVariable("id") long id) {
+        logger.info("New get news request");
+        logger.info("News id = " + id);
         return newsService.read(id);
     }
 
@@ -87,6 +83,8 @@ public class NewsController {
     @PostMapping(value = "/news")
     @ResponseStatus(HttpStatus.CREATED)
     public NewsDto createNews(@RequestBody NewsDto newsDto) {
+        logger.info("New create news request");
+        logger.info("News = " + newsDto);
         newsService.create(newsDto);
         return newsDto;
     }
@@ -103,6 +101,9 @@ public class NewsController {
     @PutMapping(value = "/news/{id}")
     @ResponseStatus(HttpStatus.OK)
     public NewsDto updateNews(@RequestBody NewsDto newsDto, @PathVariable long id) {
+        logger.info("New update news request");
+        logger.info("News id = " + id);
+        logger.info("Updated news = " + newsDto);
         newsDto.setId(id);
         newsService.update(newsDto);
         return newsDto;
@@ -115,6 +116,8 @@ public class NewsController {
     @DeleteMapping(value = "/news/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteNews(@PathVariable long id) {
+        logger.info("New delete news request");
+        logger.info("News id = " + id);
         newsService.delete(id);
     }
 

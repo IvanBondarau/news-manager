@@ -41,4 +41,12 @@ public class Role implements Entity {
     public int hashCode() {
         return Objects.hash(userId, name);
     }
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "userId=" + userId +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

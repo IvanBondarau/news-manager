@@ -1,5 +1,6 @@
 package com.epam.lab.exception;
 
+import org.apache.log4j.Logger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -22,6 +22,8 @@ import java.util.ResourceBundle;
  */
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
+
+    private static final Logger logger = Logger.getLogger(RestExceptionHandler.class);
 
     private static final String ERROR_MESSAGES_BUNDLE_NAME = "errorMessages";
     private static final String INTERNAL_ERROR_MESSAGE_CODE = "internalServerError";
@@ -36,6 +38,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = ItemNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<RequestError> handleItemNotFound(ItemNotFoundException e, Locale locale) {
+        logger.warn("Handling ItemNotFoundException");
+        logger.warn("Item id = " + e.getId());
+
         setLocalizedResourceBundle(locale);
 
         String errorMessageCode;
@@ -57,6 +62,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
 
     public ResponseEntity<RequestError> handleTagAlreadyExistException(TagAlreadyExistException e, Locale locale) {
+        logger.warn("Handling TagAlreadyExistException");
+        logger.warn("Tag name = " + e.getName());
+
         setLocalizedResourceBundle(locale);
         RequestError requestError = createRequestError(TAG_ALREADY_EXIST_MESSAGE_CODE,
                 e.getName(), e.getTagId());
@@ -67,6 +75,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({DataAccessException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<RequestError> handleDataAccessException(DataAccessException e, Locale locale) {
+        logger.warn("Handling DataAccessException");
+        logger.warn("Message: " + e.getLocalizedMessage());
         setLocalizedResourceBundle(locale);
 
         RequestError requestError = createRequestError(DATA_ACCESS_ERROR_MESSAGE_CODE, e.getLocalizedMessage());
@@ -79,6 +89,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ParseException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<RequestError> handleParseException(ParseException e, Locale locale) {
+        logger.warn("Handling ParseException");
+        logger.warn("Invalid param name = " + e.getParamName());
+        logger.warn("Invalid param value = " + e.getValue());
+
         setLocalizedResourceBundle(locale);
 
         RequestError error = createRequestError(INVALID_REQUEST_PARAM_MESSAGE_CODE,
@@ -92,6 +106,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<RequestError> handleInternalException(RuntimeException e, Locale locale) {
+        logger.error("Handling unexpected RuntimeException");
+        logger.error(e.getMessage(), e);
+
         setLocalizedResourceBundle(locale);
 
         RequestError error = createRequestError(INTERNAL_ERROR_MESSAGE_CODE, e.getLocalizedMessage());
