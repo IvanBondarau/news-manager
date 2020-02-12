@@ -1,0 +1,81 @@
+2020-02-12 18:45:38,469 +0300 [main] ERROR (JdbcAuthorDao.java:96) - Author update error: author not found
+2020-02-12 18:45:38,475 +0300 [main] ERROR (JdbcAuthorDao.java:97) - Author = Author{id=11, name='x', surname='x'}
+2020-02-12 18:45:38,775 +0300 [main] ERROR (JdbcAuthorDao.java:79) - Author read error: author not found
+2020-02-12 18:45:38,775 +0300 [main] ERROR (JdbcAuthorDao.java:80) - Author id = 11
+2020-02-12 18:45:38,788 +0300 [main] ERROR (JdbcAuthorDao.java:107) - Author delete error: author not found
+2020-02-12 18:45:38,788 +0300 [main] ERROR (JdbcAuthorDao.java:108) - Author id = 23
+2020-02-12 18:45:39,390 +0300 [main] ERROR (JdbcNewsDao.java:158) - Unable to find news author
+2020-02-12 18:45:39,391 +0300 [main] ERROR (JdbcNewsDao.java:159) - News id = 1000
+2020-02-12 18:45:39,408 +0300 [main] ERROR (JdbcNewsDao.java:136) - Unable to find news author
+2020-02-12 18:45:39,408 +0300 [main] ERROR (JdbcNewsDao.java:137) - News id = 1000
+2020-02-12 18:45:39,423 +0300 [main] ERROR (JdbcNewsDao.java:147) - Attempt to set second author for news
+2020-02-12 18:45:39,425 +0300 [main] ERROR (JdbcNewsDao.java:148) - News id 1000, author id = 1000
+2020-02-12 18:45:39,430 +0300 [main] ERROR (JdbcNewsDao.java:95) - News read error: news not found
+2020-02-12 18:45:39,430 +0300 [main] ERROR (JdbcNewsDao.java:96) - News id = 11
+2020-02-12 18:45:39,445 +0300 [main] ERROR (JdbcNewsDao.java:123) - News delete error: news not found
+2020-02-12 18:45:39,446 +0300 [main] ERROR (JdbcNewsDao.java:124) - News id = 5000
+2020-02-12 18:45:39,455 +0300 [main] ERROR (JdbcNewsDao.java:176) - Attempt to add news tag while this tag is already set
+2020-02-12 18:45:39,455 +0300 [main] ERROR (JdbcNewsDao.java:177) - News id = , tag id =1000
+2020-02-12 18:45:39,477 +0300 [main] ERROR (JdbcNewsDao.java:113) - News update error: news not found
+2020-02-12 18:45:39,477 +0300 [main] ERROR (JdbcNewsDao.java:114) - News = News{id=20, title='title', shortText='text', fullText='textx', creationDate=2019-12-12, modificationDate=2019-12-13}
+2020-02-12 18:45:39,483 +0300 [main] ERROR (JdbcNewsDao.java:187) - Trying to unset news tag which isn't exist
+2020-02-12 18:45:40,155 +0300 [main] ERROR (JdbcTagDao.java:97) - Tag update error: tag not found
+2020-02-12 18:45:40,168 +0300 [main] ERROR (JdbcTagDao.java:98) - Tag id = Tag{id=142, name='x'}
+2020-02-12 18:45:40,278 +0300 [main] ERROR (JdbcTagDao.java:82) - Tag read error: tag not found
+2020-02-12 18:45:40,278 +0300 [main] ERROR (JdbcTagDao.java:83) - Tag id = 11
+2020-02-12 18:45:40,315 +0300 [main] ERROR (JdbcTagDao.java:108) - Tag delete error: tag not found
+2020-02-12 18:45:40,315 +0300 [main] ERROR (JdbcTagDao.java:109) - Tag id = 23
+2020-02-12 18:46:17,419 +0300 [main] ERROR (JdbcAuthorDao.java:96) - Author update error: author not found
+2020-02-12 18:46:17,423 +0300 [main] ERROR (JdbcAuthorDao.java:97) - Author = Author{id=11, name='x', surname='x'}
+2020-02-12 18:46:17,922 +0300 [main] ERROR (JdbcAuthorDao.java:79) - Author read error: author not found
+2020-02-12 18:46:17,922 +0300 [main] ERROR (JdbcAuthorDao.java:80) - Author id = 11
+2020-02-12 18:46:17,941 +0300 [main] ERROR (JdbcAuthorDao.java:107) - Author delete error: author not found
+2020-02-12 18:46:17,941 +0300 [main] ERROR (JdbcAuthorDao.java:108) - Author id = 23
+2020-02-12 18:46:18,534 +0300 [main] ERROR (JdbcNewsDao.java:158) - Unable to find news author
+2020-02-12 18:46:18,534 +0300 [main] ERROR (JdbcNewsDao.java:159) - News id = 1000
+2020-02-12 18:46:18,544 +0300 [main] ERROR (JdbcNewsDao.java:136) - Unable to find news author
+2020-02-12 18:46:18,545 +0300 [main] ERROR (JdbcNewsDao.java:137) - News id = 1000
+2020-02-12 18:46:18,562 +0300 [main] ERROR (JdbcNewsDao.java:147) - Attempt to set second author for news
+2020-02-12 18:46:18,562 +0300 [main] ERROR (JdbcNewsDao.java:148) - News id 1000, author id = 1000
+2020-02-12 18:46:18,573 +0300 [main] ERROR (JdbcNewsDao.java:95) - News read error: news not found
+2020-02-12 18:46:18,573 +0300 [main] ERROR (JdbcNewsDao.java:96) - News id = 11
+2020-02-12 18:46:18,589 +0300 [main] ERROR (JdbcNewsDao.java:123) - News delete error: news not found
+2020-02-12 18:46:18,589 +0300 [main] ERROR (JdbcNewsDao.java:124) - News id = 5000
+2020-02-12 18:46:18,597 +0300 [main] ERROR (JdbcNewsDao.java:176) - Attempt to add news tag while this tag is already set
+2020-02-12 18:46:18,597 +0300 [main] ERROR (JdbcNewsDao.java:177) - News id = , tag id =1000
+2020-02-12 18:46:18,621 +0300 [main] ERROR (JdbcNewsDao.java:113) - News update error: news not found
+2020-02-12 18:46:18,622 +0300 [main] ERROR (JdbcNewsDao.java:114) - News = News{id=20, title='title', shortText='text', fullText='textx', creationDate=2019-12-12, modificationDate=2019-12-13}
+2020-02-12 18:46:18,629 +0300 [main] ERROR (JdbcNewsDao.java:187) - Trying to unset news tag which isn't exist
+2020-02-12 18:46:19,275 +0300 [main] ERROR (JdbcTagDao.java:97) - Tag update error: tag not found
+2020-02-12 18:46:19,277 +0300 [main] ERROR (JdbcTagDao.java:98) - Tag id = Tag{id=142, name='x'}
+2020-02-12 18:46:19,330 +0300 [main] ERROR (JdbcTagDao.java:82) - Tag read error: tag not found
+2020-02-12 18:46:19,330 +0300 [main] ERROR (JdbcTagDao.java:83) - Tag id = 11
+2020-02-12 18:46:19,343 +0300 [main] ERROR (JdbcTagDao.java:108) - Tag delete error: tag not found
+2020-02-12 18:46:19,343 +0300 [main] ERROR (JdbcTagDao.java:109) - Tag id = 23
+2020-02-12 18:46:32,865 +0300 [main] ERROR (JdbcAuthorDao.java:96) - Author update error: author not found
+2020-02-12 18:46:32,869 +0300 [main] ERROR (JdbcAuthorDao.java:97) - Author = Author{id=11, name='x', surname='x'}
+2020-02-12 18:46:33,109 +0300 [main] ERROR (JdbcAuthorDao.java:79) - Author read error: author not found
+2020-02-12 18:46:33,109 +0300 [main] ERROR (JdbcAuthorDao.java:80) - Author id = 11
+2020-02-12 18:46:33,119 +0300 [main] ERROR (JdbcAuthorDao.java:107) - Author delete error: author not found
+2020-02-12 18:46:33,119 +0300 [main] ERROR (JdbcAuthorDao.java:108) - Author id = 23
+2020-02-12 18:46:33,689 +0300 [main] ERROR (JdbcNewsDao.java:158) - Unable to find news author
+2020-02-12 18:46:33,690 +0300 [main] ERROR (JdbcNewsDao.java:159) - News id = 1000
+2020-02-12 18:46:33,698 +0300 [main] ERROR (JdbcNewsDao.java:136) - Unable to find news author
+2020-02-12 18:46:33,698 +0300 [main] ERROR (JdbcNewsDao.java:137) - News id = 1000
+2020-02-12 18:46:33,714 +0300 [main] ERROR (JdbcNewsDao.java:147) - Attempt to set second author for news
+2020-02-12 18:46:33,715 +0300 [main] ERROR (JdbcNewsDao.java:148) - News id 1000, author id = 1000
+2020-02-12 18:46:33,723 +0300 [main] ERROR (JdbcNewsDao.java:95) - News read error: news not found
+2020-02-12 18:46:33,724 +0300 [main] ERROR (JdbcNewsDao.java:96) - News id = 11
+2020-02-12 18:46:33,740 +0300 [main] ERROR (JdbcNewsDao.java:123) - News delete error: news not found
+2020-02-12 18:46:33,740 +0300 [main] ERROR (JdbcNewsDao.java:124) - News id = 5000
+2020-02-12 18:46:33,757 +0300 [main] ERROR (JdbcNewsDao.java:176) - Attempt to add news tag while this tag is already set
+2020-02-12 18:46:33,757 +0300 [main] ERROR (JdbcNewsDao.java:177) - News id = , tag id =1000
+2020-02-12 18:46:33,772 +0300 [main] ERROR (JdbcNewsDao.java:113) - News update error: news not found
+2020-02-12 18:46:33,772 +0300 [main] ERROR (JdbcNewsDao.java:114) - News = News{id=20, title='title', shortText='text', fullText='textx', creationDate=2019-12-12, modificationDate=2019-12-13}
+2020-02-12 18:46:33,780 +0300 [main] ERROR (JdbcNewsDao.java:187) - Trying to unset news tag which isn't exist
+2020-02-12 18:46:34,477 +0300 [main] ERROR (JdbcTagDao.java:97) - Tag update error: tag not found
+2020-02-12 18:46:34,477 +0300 [main] ERROR (JdbcTagDao.java:98) - Tag id = Tag{id=142, name='x'}
+2020-02-12 18:46:34,606 +0300 [main] ERROR (JdbcTagDao.java:82) - Tag read error: tag not found
+2020-02-12 18:46:34,607 +0300 [main] ERROR (JdbcTagDao.java:83) - Tag id = 11
+2020-02-12 18:46:34,622 +0300 [main] ERROR (JdbcTagDao.java:108) - Tag delete error: tag not found
+2020-02-12 18:46:34,622 +0300 [main] ERROR (JdbcTagDao.java:109) - Tag id = 23

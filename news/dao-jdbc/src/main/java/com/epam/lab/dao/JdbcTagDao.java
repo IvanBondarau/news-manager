@@ -2,6 +2,7 @@ package com.epam.lab.dao;
 
 import com.epam.lab.exception.TagNotFoundException;
 import com.epam.lab.model.Tag;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,6 +17,8 @@ import java.util.Set;
 
 @Repository
 public class JdbcTagDao extends AbstractDao implements TagDao {
+
+    private static final Logger logger = Logger.getLogger(JdbcTagDao.class);
 
     private static final String INSERT_STATEMENT =
             "INSERT INTO public.tag(name) VALUES(?)";
@@ -76,6 +79,8 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
         );
 
         if (loadedTags.size() == 0) {
+            logger.error("Tag read error: tag not found");
+            logger.error("Tag id = " + id);
             throw new TagNotFoundException(id);
         }
         return loadedTags.get(0);
@@ -89,15 +94,19 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
                 entity.getId());
 
         if (numOfUpdated != 1) {
+            logger.error("Tag update error: tag not found");
+            logger.error("Tag id = " + entity);
             throw new TagNotFoundException(entity.getId());
         }
 
     }
 
     @Override
-    public void delete(long id)  {
+    public void delete(long id) {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
+            logger.error("Tag delete error: tag not found");
+            logger.error("Tag id = " + id);
             throw new TagNotFoundException(id);
         }
     }
@@ -131,6 +140,14 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
         return jdbcTemplate.query(statement, (resultSet, i) -> resultSet.getLong(1));
     }
 
+    private String convertToSql(Set<String> tags) {
+        StringBuilder stringBuilder = new StringBuilder("''");
+        for (String tag : tags) {
+            stringBuilder.append(", '").append(tag).append("'");
+        }
+        return stringBuilder.toString();
+    }
+
     private static final class TagMapper implements RowMapper<Tag> {
         @Override
         public Tag mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -138,13 +155,5 @@ public class JdbcTagDao extends AbstractDao implements TagDao {
             String name = resultSet.getString(2);
             return new Tag(id, name);
         }
-    }
-
-    private String convertToSql(Set<String> tags) {
-        StringBuilder stringBuilder = new StringBuilder("''");
-        for (String tag: tags) {
-            stringBuilder.append(", '").append(tag).append("'");
-        }
-        return stringBuilder.toString();
     }
 }

@@ -1,0 +1,54 @@
+0    [main] ERROR com.epam.lab.dao.JdbcAuthorDao  - Author update error: author not found
+1    [main] ERROR com.epam.lab.dao.JdbcAuthorDao  - Author = Author{id=11, name='x', surname='x'}
+423  [main] ERROR com.epam.lab.dao.JdbcAuthorDao  - Author read error: author not found
+423  [main] ERROR com.epam.lab.dao.JdbcAuthorDao  - Author id = 11
+442  [main] ERROR com.epam.lab.dao.JdbcAuthorDao  - Author delete error: author not found
+442  [main] ERROR com.epam.lab.dao.JdbcAuthorDao  - Author id = 23
+906  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - Unable to find news author
+908  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News id = 1000
+921  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - Unable to find news author
+921  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News id = 1000
+946  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - Attempt to set second author for news
+947  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News id 1000, author id = 1000
+954  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News read error: news not found
+954  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News id = 11
+972  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News delete error: news not found
+973  [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News id = 5000
+1002 [main] ERROR com.epam.lab.dao.JdbcNewsDao  - Attempt to add news tag while this tag is already set
+1002 [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News id = , tag id =1000
+1010 [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News update error: news not found
+1010 [main] ERROR com.epam.lab.dao.JdbcNewsDao  - News = News{id=20, title='title', shortText='text', fullText='textx', creationDate=2019-12-12, modificationDate=2019-12-13}
+1022 [main] ERROR com.epam.lab.dao.JdbcNewsDao  - Trying to unset news tag which isn't exist
+1610 [main] ERROR com.epam.lab.dao.JdbcTagDao  - Tag update error: tag not found
+1610 [main] ERROR com.epam.lab.dao.JdbcTagDao  - Tag id = Tag{id=142, name='x'}
+1667 [main] ERROR com.epam.lab.dao.JdbcTagDao  - Tag read error: tag not found
+1667 [main] ERROR com.epam.lab.dao.JdbcTagDao  - Tag id = 11
+1680 [main] ERROR com.epam.lab.dao.JdbcTagDao  - Tag delete error: tag not found
+1680 [main] ERROR com.epam.lab.dao.JdbcTagDao  - Tag id = 23
+2020-02-12 18:44:35,587 +0300 [main] ERROR (JdbcAuthorDao.java:96) - Author update error: author not found
+2020-02-12 18:44:35,587 +0300 [main] ERROR (JdbcAuthorDao.java:97) - Author = Author{id=11, name='x', surname='x'}
+2020-02-12 18:44:36,002 +0300 [main] ERROR (JdbcAuthorDao.java:79) - Author read error: author not found
+2020-02-12 18:44:36,002 +0300 [main] ERROR (JdbcAuthorDao.java:80) - Author id = 11
+2020-02-12 18:44:36,012 +0300 [main] ERROR (JdbcAuthorDao.java:107) - Author delete error: author not found
+2020-02-12 18:44:36,013 +0300 [main] ERROR (JdbcAuthorDao.java:108) - Author id = 23
+2020-02-12 18:44:36,603 +0300 [main] ERROR (JdbcNewsDao.java:158) - Unable to find news author
+2020-02-12 18:44:36,604 +0300 [main] ERROR (JdbcNewsDao.java:159) - News id = 1000
+2020-02-12 18:44:36,614 +0300 [main] ERROR (JdbcNewsDao.java:136) - Unable to find news author
+2020-02-12 18:44:36,614 +0300 [main] ERROR (JdbcNewsDao.java:137) - News id = 1000
+2020-02-12 18:44:36,636 +0300 [main] ERROR (JdbcNewsDao.java:147) - Attempt to set second author for news
+2020-02-12 18:44:36,637 +0300 [main] ERROR (JdbcNewsDao.java:148) - News id 1000, author id = 1000
+2020-02-12 18:44:36,646 +0300 [main] ERROR (JdbcNewsDao.java:95) - News read error: news not found
+2020-02-12 18:44:36,647 +0300 [main] ERROR (JdbcNewsDao.java:96) - News id = 11
+2020-02-12 18:44:36,668 +0300 [main] ERROR (JdbcNewsDao.java:123) - News delete error: news not found
+2020-02-12 18:44:36,668 +0300 [main] ERROR (JdbcNewsDao.java:124) - News id = 5000
+2020-02-12 18:44:36,696 +0300 [main] ERROR (JdbcNewsDao.java:176) - Attempt to add news tag while this tag is already set
+2020-02-12 18:44:36,696 +0300 [main] ERROR (JdbcNewsDao.java:177) - News id = , tag id =1000
+2020-02-12 18:44:36,707 +0300 [main] ERROR (JdbcNewsDao.java:113) - News update error: news not found
+2020-02-12 18:44:36,709 +0300 [main] ERROR (JdbcNewsDao.java:114) - News = News{id=20, title='title', shortText='text', fullText='textx', creationDate=2019-12-12, modificationDate=2019-12-13}
+2020-02-12 18:44:36,716 +0300 [main] ERROR (JdbcNewsDao.java:187) - Trying to unset news tag which isn't exist
+2020-02-12 18:44:37,407 +0300 [main] ERROR (JdbcTagDao.java:97) - Tag update error: tag not found
+2020-02-12 18:44:37,407 +0300 [main] ERROR (JdbcTagDao.java:98) - Tag id = Tag{id=142, name='x'}
+2020-02-12 18:44:37,551 +0300 [main] ERROR (JdbcTagDao.java:82) - Tag read error: tag not found
+2020-02-12 18:44:37,551 +0300 [main] ERROR (JdbcTagDao.java:83) - Tag id = 11
+2020-02-12 18:44:37,576 +0300 [main] ERROR (JdbcTagDao.java:108) - Tag delete error: tag not found
+2020-02-12 18:44:37,576 +0300 [main] ERROR (JdbcTagDao.java:109) - Tag id = 23

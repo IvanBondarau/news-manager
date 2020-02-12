@@ -2,6 +2,7 @@ package com.epam.lab.dao;
 
 import com.epam.lab.exception.AuthorNotFoundException;
 import com.epam.lab.model.Author;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -16,6 +17,7 @@ import java.util.List;
 @Repository
 public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
 
+    private static final Logger logger = Logger.getLogger(JdbcAuthorDao.class);
 
     private static final String INSERT_STATEMENT =
             "INSERT INTO public.author(name, surname) VALUES(?, ?)";
@@ -74,6 +76,8 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
                     new AuthorMapper()
             );
         } catch (IncorrectResultSizeDataAccessException e) {
+            logger.error("Author read error: author not found");
+            logger.error("Author id = " + id);
             throw new AuthorNotFoundException(id);
         }
 
@@ -89,6 +93,8 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
                 entity.getId());
 
         if (numOfUpdated != 1) {
+            logger.error("Author update error: author not found");
+            logger.error("Author = " + entity);
             throw new AuthorNotFoundException(entity.getId());
         }
 
@@ -98,6 +104,8 @@ public class JdbcAuthorDao extends AbstractDao implements AuthorDao {
     public void delete(long id)  {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
+            logger.error("Author delete error: author not found");
+            logger.error("Author id = " + id);
             throw new AuthorNotFoundException(id);
         }
     }

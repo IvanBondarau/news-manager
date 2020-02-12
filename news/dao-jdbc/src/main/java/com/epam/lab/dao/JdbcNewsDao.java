@@ -2,6 +2,7 @@ package com.epam.lab.dao;
 
 import com.epam.lab.exception.*;
 import com.epam.lab.model.News;
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -13,6 +14,8 @@ import java.util.List;
 
 @Repository
 public class JdbcNewsDao extends AbstractDao implements NewsDao {
+
+    private static final Logger logger = Logger.getLogger(JdbcNewsDao.class);
 
     private static final String INSERT_STATEMENT =
             "INSERT INTO public.news(title, short_text, full_text, creation_date, modification_date) "
@@ -89,6 +92,8 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
                 new NewsRowMapper());
 
         if (loadedNews.size() == 0) {
+            logger.error("News read error: news not found");
+            logger.error("News id = " + id);
             throw new NewsNotFoundException(id);
         }
         return loadedNews.get(0);
@@ -105,6 +110,8 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
                 entity.getId());
 
         if (numOfUpdated != 1) {
+            logger.error("News update error: news not found");
+            logger.error("News = " + entity);
             throw new NewsNotFoundException(entity.getId());
         }
     }
@@ -113,6 +120,8 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     public void delete(long id) {
         long numOfDeleted = jdbcTemplate.update(DELETE_BY_ID_STATEMENT, id);
         if (numOfDeleted != 1) {
+            logger.error("News delete error: news not found");
+            logger.error("News id = " + id);
             throw new NewsNotFoundException(id);
         }
     }
@@ -124,6 +133,8 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
                 ((resultSet, i) -> resultSet.getLong(1)));
 
         if (authorId.size() != 1) {
+            logger.error("Unable to find news author");
+            logger.error("News id = " + newsId);
             throw new NewsAuthorNotFoundException("Author for news with id " + newsId + " not found");
         }
         return authorId.get(0);
@@ -133,6 +144,8 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     public void setNewsAuthor(long newsId, long authorId) {
         long authors = countNewsAuthors(newsId);
         if (authors != 0) {
+            logger.error("Attempt to set second author for news");
+            logger.error("News id " + newsId + ", author id = " + authorId);
             throw new NewsAuthorAlreadySetException("Author of news already exists", newsId);
         }
         jdbcTemplate.update(INSERT_NEWS_AUTHOR_STATEMENT, newsId, authorId);
@@ -142,6 +155,8 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     public void deleteNewsAuthor(long newsId) {
         long numOfDeleted = jdbcTemplate.update(DELETE_NEWS_AUTHOR_STATEMENT, newsId);
         if (numOfDeleted != 1) {
+            logger.error("Unable to find news author");
+            logger.error("News id = " + newsId);
             throw new NewsAuthorNotFoundException("Author for news with id " + newsId + " not found");
         }
     }
@@ -158,6 +173,8 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     public void setNewsTag(long newsId, long tagId) {
         long tags = countNewsTags(newsId, tagId);
         if (tags != 0) {
+            logger.error("Attempt to add news tag while this tag is already set");
+            logger.error("News id = " + ", tag id =" + tagId);
             throw new NewsTagAlreadySetException("News tag already exists", newsId, tagId);
         }
         jdbcTemplate.update(INSERT_NEWS_TAG_STATEMENT, newsId, tagId);
@@ -167,6 +184,7 @@ public class JdbcNewsDao extends AbstractDao implements NewsDao {
     public void deleteNewsTag(long newsId, long tagId) {
         long numOfDeleted = jdbcTemplate.update(DELETE_NEWS_TAG_STATEMENT, newsId, tagId);
         if (numOfDeleted != 1) {
+            logger.error("Trying to unset news tag which isn't exist");
             throw new NewsTagNotFoundException("Tag " + tagId + " for news " + newsId + " not found");
         }
     }
