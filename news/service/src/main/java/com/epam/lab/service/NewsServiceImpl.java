@@ -1,10 +1,13 @@
 package com.epam.lab.service;
 
+import com.epam.lab.converter.NewsConverter;
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
-import com.epam.lab.dto.*;
-import com.epam.lab.exception.NewsNotFoundException;
+import com.epam.lab.dto.NewsDto;
+import com.epam.lab.dto.FilterCriteria;
+import com.epam.lab.dto.SortOrder;
+import com.epam.lab.dto.TagDto;
 import com.epam.lab.model.News;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,8 +47,8 @@ public class NewsServiceImpl implements NewsService {
     @Transactional
     public void create(NewsDto newsDto) {
 
-        loadNewsAuthor(newsDto);
-        loadNewsTags(newsDto);
+        uploadNewsAuthor(newsDto);
+        uploadNewsTags(newsDto);
 
         setCurrentCreationDate(newsDto);
         News entity = newsConverter.convertToEntity(newsDto);
@@ -58,15 +61,29 @@ public class NewsServiceImpl implements NewsService {
         );
     }
 
+    private void setCurrentCreationDate(NewsDto newsDto) {
+        newsDto.setCreationDate(Date.valueOf(LocalDate.now()));
+        newsDto.setModificationDate(newsDto.getCreationDate());
+    }
+
     @Override
     @Transactional
     public NewsDto read(long id) {
         News newsEntity = newsDao.read(id);
         NewsDto newsDto = newsConverter.convertToDto(newsEntity);
 
+        readNewsAuthor(newsDto);
+        readNewsTags(newsDto);
+
+        return newsDto;
+    }
+
+    private void readNewsAuthor(NewsDto newsDto) {
         long authorId = newsDao.getAuthorIdByNews(newsDto.getId());
         newsDto.setAuthor(authorService.read(authorId));
+    }
 
+    private void readNewsTags(NewsDto newsDto) {
         List<Long> tagIds = newsDao.getTagsIdForNews(newsDto.getId());
 
         newsDto.setTags(
@@ -74,15 +91,13 @@ public class NewsServiceImpl implements NewsService {
                         .map((Long tagId) -> tagService.read(tagId))
                         .collect(Collectors.toSet())
         );
-
-        return newsDto;
     }
 
     @Override
     public void update(NewsDto newsDto) {
 
-        loadNewsAuthor(newsDto);
-        loadNewsTags(newsDto);
+        uploadNewsAuthor(newsDto);
+        uploadNewsTags(newsDto);
 
         NewsDto oldNewsDto = read(newsDto.getId());
 
@@ -92,38 +107,21 @@ public class NewsServiceImpl implements NewsService {
 
     }
 
-    @Override
-    public void delete(long id) {
-        newsDao.delete(id);
+    private void uploadNewsAuthor(NewsDto newsDto) {
+        authorService.upload(newsDto.getAuthor());
     }
 
-
-    @Override
-    public List<NewsDto> search(SearchCriteria searchCriteria) {
-        Set<Long> searchResult = null;
-
-        searchResult = searchByTagNames(searchCriteria.getTagNames(), searchResult);
-        searchResult = searchByAuthorId(searchCriteria.getAuthorId(), searchResult);
-        searchResult = searchByAuthorName(searchCriteria.getAuthorName(), searchResult);
-        searchResult = searchByAuthorSurname(searchCriteria.getAuthorSurname(), searchResult);
-
-        if (searchResult == null) {
-            return new ArrayList<>();
-        }
-
-        List<NewsDto> results = readAll(searchResult);
-
-        sortBySortParams(results, searchCriteria.getSortParams());
-
-        return results;
+    private void uploadNewsTags(NewsDto newsDto) {
+        newsDto.getTags().forEach((TagDto tagDto) -> tagService.upload(tagDto));
     }
+
 
     private void updateNewsTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
-        removeExtraTags(oldNewsDto, receivedNewsDto);
-        addNewTags(oldNewsDto, receivedNewsDto);
+        removeOutdatedTags(oldNewsDto, receivedNewsDto);
+        saveUpdatedTags(oldNewsDto, receivedNewsDto);
     }
 
-    private void removeExtraTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
+    private void removeOutdatedTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
         Set<TagDto> tagsToRemove = new HashSet<>(oldNewsDto.getTags());
         tagsToRemove.removeAll(receivedNewsDto.getTags());
 
@@ -132,7 +130,7 @@ public class NewsServiceImpl implements NewsService {
         }
     }
 
-    private void addNewTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
+    private void saveUpdatedTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
         Set<TagDto> tagsToAdd = new HashSet<>(receivedNewsDto.getTags());
         tagsToAdd.removeAll(oldNewsDto.getTags());
 
@@ -149,14 +147,6 @@ public class NewsServiceImpl implements NewsService {
     }
 
 
-    private void loadNewsAuthor(NewsDto newsDto) {
-        authorService.loadOrCreateAuthor(newsDto.getAuthor());
-    }
-
-    private void loadNewsTags(NewsDto newsDto) {
-        newsDto.getTags().forEach((TagDto tagDto) -> tagService.loadOrCreateTag(tagDto));
-    }
-
     private void updateNewsAuthor(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
 
         long oldAuthorId = oldNewsDto.getAuthor().getId();
@@ -168,9 +158,59 @@ public class NewsServiceImpl implements NewsService {
         }
     }
 
-    private void setCurrentCreationDate(NewsDto newsDto) {
-        newsDto.setCreationDate(Date.valueOf(LocalDate.now()));
-        newsDto.setModificationDate(newsDto.getCreationDate());
+
+    @Override
+    public void delete(long id) {
+        newsDao.delete(id);
+    }
+
+    @Override
+    public List<NewsDto> getAll() {
+        return newsDao.getAll().stream()
+                .map(newsEntity -> {
+                    NewsDto newsDto = newsConverter.convertToDto(newsEntity);
+                    readNewsTags(newsDto);
+                    readNewsAuthor(newsDto);
+                    return newsDto;
+                }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<NewsDto> filter(FilterCriteria filterCriteria) {
+
+        List<NewsDto> searchResults;
+
+        if (containsSearchParams(filterCriteria)) {
+            searchResults = searchByCriteriaParams(filterCriteria);
+        } else {
+            searchResults = getAll();
+        }
+
+        sortBySortParams(searchResults, filterCriteria.getSortParams());
+
+        return searchResults;
+    }
+
+    private boolean containsSearchParams(FilterCriteria filterCriteria) {
+        return !(filterCriteria.getAuthorId() == null
+                && filterCriteria.getAuthorName() == null
+                && filterCriteria.getAuthorSurname() == null
+                && filterCriteria.getTagNames() == null);
+    }
+
+    private List<NewsDto> searchByCriteriaParams(FilterCriteria filterCriteria) {
+        Set<Long> searchResult = null;
+
+        searchResult = searchByTagNames(filterCriteria.getTagNames(), searchResult);
+        searchResult = searchByAuthorId(filterCriteria.getAuthorId(), searchResult);
+        searchResult = searchByAuthorName(filterCriteria.getAuthorName(), searchResult);
+        searchResult = searchByAuthorSurname(filterCriteria.getAuthorSurname(), searchResult);
+
+        if (searchResult == null) {
+            return new ArrayList<>();
+        } else {
+            return readAll(searchResult);
+        }
     }
 
     private Comparator<NewsDto> addNextComparator(Comparator<NewsDto> comparator, SortOrder sortOrder) {
@@ -200,7 +240,7 @@ public class NewsServiceImpl implements NewsService {
     private Set<Long> searchByAuthorId(Long authorId, Set<Long> previousResult) {
         if (authorId != null) {
             Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthor(authorId));
-            return uniteSearchResults(previousResult, searchResult);
+            return joinSearchResults(previousResult, searchResult);
         } else {
             return previousResult;
         }
@@ -209,7 +249,7 @@ public class NewsServiceImpl implements NewsService {
     private Set<Long> searchByAuthorName(String authorName, Set<Long> previousResult) {
         if (authorName != null) {
             Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorName(authorName));
-            return uniteSearchResults(previousResult, searchResult);
+            return joinSearchResults(previousResult, searchResult);
         } else {
             return previousResult;
         }
@@ -218,7 +258,7 @@ public class NewsServiceImpl implements NewsService {
     private Set<Long> searchByAuthorSurname(String authorSurname, Set<Long> previousResult) {
         if (authorSurname != null) {
             Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorSurname(authorSurname));
-            return uniteSearchResults(previousResult, searchResult);
+            return joinSearchResults(previousResult, searchResult);
         } else {
             return previousResult;
         }
@@ -227,13 +267,13 @@ public class NewsServiceImpl implements NewsService {
     private Set<Long> searchByTagNames(Set<String> tagNames, Set<Long> previousResult) {
         if (tagNames != null && (!tagNames.isEmpty())) {
             Set<Long> searchResult = new HashSet<>(tagDao.findNewsIdByTagNames(tagNames));
-            return uniteSearchResults(previousResult, searchResult);
+            return joinSearchResults(previousResult, searchResult);
         } else {
             return previousResult;
         }
     }
 
-    private Set<Long> uniteSearchResults(Set<Long> firstResult, Set<Long> secondResult) {
+    private Set<Long> joinSearchResults(Set<Long> firstResult, Set<Long> secondResult) {
         if (firstResult == null) {
             return secondResult;
         } else {
@@ -260,4 +300,8 @@ public class NewsServiceImpl implements NewsService {
         }
     }
 
+    @Override
+    public long count() {
+        return newsDao.count();
+    }
 }

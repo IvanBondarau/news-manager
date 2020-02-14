@@ -13,15 +13,7 @@ public class ParseException extends RuntimeException {
         return paramName;
     }
 
-    public void setParamName(String paramName) {
-        this.paramName = paramName;
-    }
-
     public String getValue() {
         return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 }

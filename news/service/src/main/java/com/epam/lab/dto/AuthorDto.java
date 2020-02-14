@@ -7,7 +7,6 @@ import java.util.Objects;
 
 public class AuthorDto implements Dto {
 
-    @Positive
     private long id;
 
     @NotNull

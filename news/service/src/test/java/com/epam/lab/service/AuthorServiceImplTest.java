@@ -2,10 +2,9 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
-import com.epam.lab.dto.AuthorConverter;
+import com.epam.lab.converter.AuthorConverter;
 import com.epam.lab.dto.AuthorDto;
 import com.epam.lab.model.Author;
-import com.epam.lab.model.Entity;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,12 +14,8 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 
 @RunWith(JUnit4.class)
 public class AuthorServiceImplTest {
@@ -101,25 +96,31 @@ public class AuthorServiceImplTest {
     }
 
     @Test
-    public void loadOrCreateAuthorLoad() {
+    public void saveAuthorAlreadyExistsValid() {
         Author defaultAuthor = new Author(500, "check", "check");
         Mockito.when(authorDao.read(500)).thenReturn(defaultAuthor);
 
         AuthorDto dto = new AuthorDto(500, "check", "check");
 
-        service.loadOrCreateAuthor(dto);
+        service.upload(dto);
 
         Mockito.verify(authorDao).read(500);
     }
 
     @Test
-    public void loadOrCreateAuthorCreate() {
+    public void saveAuthorNotExistValid() {
         Author defaultAuthor = new Author(-1, "check", "check");
 
         AuthorDto dto = new AuthorDto(-1, "check", "check");
 
-        service.loadOrCreateAuthor(dto);
+        service.upload(dto);
 
         Mockito.verify(authorDao).create(defaultAuthor);
+    }
+
+    @Test
+    public void getAllValid() {
+        service.getAll();
+        Mockito.verify(authorDao).getAll();
     }
 }

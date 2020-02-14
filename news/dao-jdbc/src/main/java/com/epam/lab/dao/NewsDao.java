@@ -16,4 +16,7 @@ public interface NewsDao extends CrudDao<News> {
     void setNewsTag(long newsId, long tagId);
     void deleteNewsTag(long newsId, long tagId);
 
+    List<News> getAll();
+    Long count();
+
 }

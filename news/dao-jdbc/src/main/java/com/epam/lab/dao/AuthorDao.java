@@ -12,4 +12,6 @@ public interface AuthorDao extends CrudDao<Author> {
 
     List<Long> getNewsIdByAuthorSurname(String authorSurname);
 
+    List<Author> getAll();
+
 }

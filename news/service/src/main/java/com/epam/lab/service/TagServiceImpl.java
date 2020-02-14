@@ -2,9 +2,10 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
-import com.epam.lab.dto.TagConverter;
+import com.epam.lab.converter.TagConverter;
+import com.epam.lab.dto.AuthorDto;
 import com.epam.lab.dto.TagDto;
-import com.epam.lab.exception.TagAlreadyExistException;
+import com.epam.lab.exception.TagAlreadyExistsException;
 import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TagServiceImpl implements TagService {
@@ -34,7 +36,7 @@ public class TagServiceImpl implements TagService {
         Optional<Tag> searchResult = tagDao.findByName(dto.getName());
         if (searchResult.isPresent()) {
             dto.setId(searchResult.get().getId());
-            throw new TagAlreadyExistException(dto.getId(), searchResult.get().getName());
+            throw new TagAlreadyExistsException(dto.getId(), searchResult.get().getName());
         } else {
             long id = tagDao.create(new Tag(dto.getName()));
             dto.setId(id);
@@ -69,7 +71,14 @@ public class TagServiceImpl implements TagService {
     }
 
     @Override
-    public void loadOrCreateTag(TagDto dto) {
+    public List<TagDto> getAll() {
+        return tagDao.getAll().stream()
+                .map(author -> tagConverter.convertToDto(author))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void upload(TagDto dto) {
         Optional<Tag> searchResult = tagDao.findByName(dto.getName());
         if (searchResult.isPresent()) {
             dto.setId(searchResult.get().getId());
@@ -78,7 +87,6 @@ public class TagServiceImpl implements TagService {
             dto.setId(id);
         }
     }
-
 
 
 }

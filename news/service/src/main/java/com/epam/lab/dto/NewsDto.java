@@ -25,12 +25,8 @@ public class NewsDto implements Dto {
     @Size(max = 200)
     private String fullText;
 
-    @NotNull
-    @PastOrPresent
     private Date creationDate;
 
-    @NotNull
-    @PastOrPresent
     private Date modificationDate;
 
     private Set<TagDto> tags;

@@ -1,6 +1,8 @@
 package com.epam.lab.dao;
 
-public interface CrudDao<T> {
+import com.epam.lab.model.Entity;
+
+public interface CrudDao<T extends Entity> {
     long create(T entity);
     T read(long id);
     void update(T entity);

@@ -4,5 +4,5 @@ import com.epam.lab.dto.TagDto;
 
 public interface TagService extends CrudService<TagDto> {
 
-    void loadOrCreateTag(TagDto tagDto);
+    void upload(TagDto tagDto);
 }

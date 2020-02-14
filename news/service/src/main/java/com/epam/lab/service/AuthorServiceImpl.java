@@ -2,7 +2,7 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
-import com.epam.lab.dto.AuthorConverter;
+import com.epam.lab.converter.AuthorConverter;
 import com.epam.lab.dto.AuthorDto;
 import com.epam.lab.model.Author;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthorServiceImpl implements AuthorService {
@@ -66,7 +67,7 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    public void loadOrCreateAuthor(AuthorDto authorDto) {
+    public void upload(AuthorDto authorDto) {
         if (isAuthorIdDefined(authorDto)) {
             loadAuthor(authorDto);
         } else {
@@ -74,6 +75,12 @@ public class AuthorServiceImpl implements AuthorService {
         }
     }
 
+    @Override
+    public List<AuthorDto> getAll() {
+        return authorDao.getAll().stream()
+                .map(author -> authorConverter.convertToDto(author))
+                .collect(Collectors.toList());
+    }
 
     private void loadAuthor(AuthorDto authorDto) {
         long authorId = authorDto.getId();

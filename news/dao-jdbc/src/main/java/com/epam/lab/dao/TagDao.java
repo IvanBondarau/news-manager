@@ -11,4 +11,6 @@ public interface TagDao extends CrudDao<Tag> {
     Optional<Tag> findByName(String name);
 
     List<Long> findNewsIdByTagNames(Set<String> tagNames);
+
+    List<Tag> getAll();
 }

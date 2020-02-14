@@ -2,10 +2,8 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
-import com.epam.lab.dto.AuthorDto;
-import com.epam.lab.dto.TagConverter;
+import com.epam.lab.converter.TagConverter;
 import com.epam.lab.dto.TagDto;
-import com.epam.lab.model.Author;
 import com.epam.lab.model.Tag;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,12 +14,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 
 @RunWith(JUnit4.class)
 public class TagServiceImplTest {
@@ -117,27 +113,33 @@ public class TagServiceImplTest {
     }
 
     @Test
-    public void loadOrCreateTagLoad() {
+    public void saveTagAlreadyExistValid() {
         Tag tag = new Tag(70, "Tag 1");
         Mockito.when(tagDao.findByName("Tag 1")).thenReturn(Optional.of(tag));
 
         TagDto tagDto = new TagDto("Tag 1");
 
-        service.loadOrCreateTag(tagDto);
+        service.upload(tagDto);
 
         assertEquals(70, tagDto.getId());
         Mockito.verify(tagDao).findByName("Tag 1");
     }
 
     @Test
-    public void loadOrCreateTagCreate() {
+    public void saveTagNewTagValid() {
         Mockito.when(tagDao.findByName("Tag 1")).thenReturn(Optional.empty());
 
         TagDto tagDto = new TagDto("Tag 1");
 
-        service.loadOrCreateTag(tagDto);
+        service.upload(tagDto);
 
         Mockito.verify(tagDao).create(new Tag("Tag 1"));
+    }
+
+    @Test
+    public void getAllValid() {
+        service.getAll();
+        Mockito.verify(tagDao).getAll();
     }
 
 

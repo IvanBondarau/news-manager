@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import javax.validation.ValidationException;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -61,10 +60,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(requestError, httpHeaders, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler({TagAlreadyExistException.class})
+    @ExceptionHandler({TagAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
 
-    public ResponseEntity<RequestError> handleTagAlreadyExistException(TagAlreadyExistException e, Locale locale) {
+    public ResponseEntity<RequestError> handleTagAlreadyExistException(TagAlreadyExistsException e, Locale locale) {
         logger.warn("Handling TagAlreadyExistException");
         logger.warn("Tag name = " + e.getName());
 
