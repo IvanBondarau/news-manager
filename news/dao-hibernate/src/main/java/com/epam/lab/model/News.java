@@ -23,9 +23,11 @@ public class News {
     private String fullText;
 
     @Temporal(value = TemporalType.DATE)
+    @Column(name = "creation_date")
     private Date creationDate;
 
     @Temporal(value = TemporalType.DATE)
+    @Column(name = "modification_date")
     private Date modificationDate;
 
     @ManyToMany(cascade = CascadeType.ALL)
@@ -35,6 +37,14 @@ public class News {
             inverseJoinColumns = { @JoinColumn(name = "author_id")}
     )
     private List<Author> authors;
+
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "News_Tag",
+            joinColumns = { @JoinColumn(name = "news_id") },
+            inverseJoinColumns = { @JoinColumn(name = "tag_id")}
+    )
+    private List<Tag> tags;
 
     public News(long id, String title, String shortText, String fullText, Date creationDate, Date modificationDate) {
         this.id = id;
@@ -110,6 +120,14 @@ public class News {
 
     public void setModificationDate(Date modificationDate) {
         this.modificationDate = modificationDate;
+    }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
     }
 
     @Override
