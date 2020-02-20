@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Date;
@@ -39,10 +40,8 @@ public class NewsHibernateDaoTest {
     private static JdbcTemplate jdbcTemplate;
     @Autowired
     private NewsDao newsDao;
-    @Autowired
+    @PersistenceContext
     private EntityManager entityManager;
-    @Autowired
-    private PlatformTransactionManager platformTransactionManager;
 
     @BeforeClass
     public static void initDatabase() {
@@ -75,56 +74,35 @@ public class NewsHibernateDaoTest {
         jdbcTemplate.update("DELETE FROM tag");
         jdbcTemplate.update("DELETE FROM author");
 
-        if (entityManager.getTransaction().isActive()) {
-            entityManager.getTransaction().rollback();
-        }
     }
 
     @Test
+    @Transactional
+    @Rollback(value = true)
     public void createShouldBeValid() {
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
         News news = new News(
                 "title",
                 "text", "textx",
                 Date.valueOf("2019-12-12"), Date.valueOf("2019-12-13"));
 
         newsDao.create(news);
-        transaction.commit();
 
-        List<News> newsList = jdbcTemplate.query("select * from public.news", (resultSet, i) -> {
-                    long id = resultSet.getLong(1);
-                    String title = resultSet.getString(2);
-                    String shortText = resultSet.getString(3);
-                    String fullText = resultSet.getString(4);
-                    Date creationDate = resultSet.getDate(5);
-                    Date modificationDate = resultSet.getDate(6);
-
-                    return new News(id, title, shortText, fullText, creationDate, modificationDate);
-                }
-        );
+        List<News> newsList = newsDao.getAll();
 
         assertEquals(5, newsList.size());
         assertEquals(news, newsList.get(4));
 
     }
 
-    @Test(expected = Exception.class)
-    public void createNullField() {
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        News news = new News(
-                "title",
-                "text", "textx",
-                Date.valueOf("2019-12-12"), null);
-        newsDao.create(news);
-        transaction.commit();
-    }
+
 
     @Test
+    @Transactional
+    @Rollback(value = true)
     public void readShouldBeValid() {
 
         News news = new News(
+                40L,
                 "title",
                 "text", "textx",
                 Date.valueOf("2019-12-12"), Date.valueOf("2019-12-13"));
@@ -149,28 +127,16 @@ public class NewsHibernateDaoTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     public void updateShouldBeValid()  {
 
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
         News news = new News(
-                1,
                 "title",
                 "text", "textx",
                 Date.valueOf("2019-12-12"), Date.valueOf("2019-12-13"));
 
-        jdbcTemplate.update(
-                "INSERT INTO public.news(id, title, short_text, full_text, creation_date, modification_date) "
-                        + "VALUES(?, ?, ?, ?, ?, ?)",
-                news.getId(),
-                news.getTitle(),
-                news.getShortText(),
-                news.getFullText(),
-                news.getCreationDate(),
-                news.getModificationDate()
-        );
-
-        news = newsDao.read(1);
+        newsDao.create(news);
 
         news.setTitle("new title");
         news.setShortText("new text");
@@ -180,24 +146,16 @@ public class NewsHibernateDaoTest {
 
         newsDao.update(news);
 
-        transaction.commit();
 
-        List<News> newsList = jdbcTemplate.query("SELECT * FROM public.news", (resultSet, i) -> {
-            long id = resultSet.getLong(1);
-            String title = resultSet.getString(2);
-            String shortText = resultSet.getString(3);
-            String fullText = resultSet.getString(4);
-            Date creationDate = resultSet.getDate(5);
-            Date modificationDate = resultSet.getDate(6);
-
-            return new News(id, title, shortText, fullText, creationDate, modificationDate);
-        });
+        List<News> newsList = newsDao.getAll();
 
         assertEquals(5, newsList.size());
-        assertEquals(news, newsList.get(0));
+        assertEquals(news, newsList.get(4));
     }
 
     @Test(expected = Exception.class)
+    @Transactional
+    @Rollback
     public void updateNewsNotExist() {
         News news = new News(
                 20,
@@ -207,75 +165,33 @@ public class NewsHibernateDaoTest {
         newsDao.update(news);
     }
 
-    @Test(expected = Exception.class)
-    public void updateNullField() {
-
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        News news = new News(
-                20,
-                "title",
-                "text", "textx",
-                Date.valueOf("2019-12-12"), Date.valueOf("2019-12-13"));
-
-        jdbcTemplate.update("INSERT INTO public.news VALUES(?, ?, ?, ?, ?, ?)",
-                news.getId(),
-                news.getTitle(),
-                news.getShortText(),
-                news.getFullText(),
-                news.getCreationDate(),
-                news.getModificationDate()
-        );
-
-        news = newsDao.read(20);
-
-        news.setCreationDate(null);
-
-        newsDao.update(news);
-        transaction.commit();
-    }
 
     @Test
+    @Transactional
+    @Rollback
     public void deleteShouldBeValid() {
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        long newsId = 32;
 
         News news = new News(
-                newsId,
                 "title",
                 "text", "textx",
                 Date.valueOf("2019-12-12"), Date.valueOf("2019-12-13"));
 
-        jdbcTemplate.update("INSERT INTO public.news VALUES(?, ?, ?, ?, ?, ?)",
-                news.getId(),
-                news.getTitle(),
-                news.getShortText(),
-                news.getFullText(),
-                news.getCreationDate(),
-                news.getModificationDate()
-        );
+        newsDao.create(news);
 
-        newsDao.delete(newsId);
-        transaction.commit();
+        List<News> newsList = newsDao.getAll();
+        assertTrue(newsList.contains(news));
 
-        List<News> newsList = jdbcTemplate.query("select * from public.news", (resultSet, i) -> {
-            long id = resultSet.getLong(1);
-            String title = resultSet.getString(2);
-            String shortText = resultSet.getString(3);
-            String fullText = resultSet.getString(4);
-            Date creationDate = resultSet.getDate(5);
-            Date modificationDate = resultSet.getDate(6);
+        newsDao.delete(news.getId());
 
-            return new News(id, title, shortText, fullText, creationDate, modificationDate);
-        });
-
-        assertEquals(4, newsList.size());
+        newsList = newsDao.getAll();
+        assertFalse(newsList.contains(newsDao));
 
     }
 
 
     @Test
+    @Transactional
+    @Rollback
     public void getNewsAuthorValid() {
 
         News news = newsDao.read(1000);
@@ -291,11 +207,15 @@ public class NewsHibernateDaoTest {
     }
 
     @Test(expected = Exception.class)
+    @Transactional
+    @Rollback
     public void getNewsAuthorNotExist() {
         newsDao.getAuthorIdByNews(1000);
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void getNewsTagsValid() {
 
         jdbcTemplate.update("INSERT INTO news_tag(news_id, tag_id) VALUES(?, ?)",
@@ -307,107 +227,14 @@ public class NewsHibernateDaoTest {
 
     }
 
-    @Test
-    public void setNewsAuthorValid() {
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        News news = newsDao.read(1000);
-
-        newsDao.setNewsAuthor(1000, 1000);
-        transaction.commit();
-        Long count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM news_author WHERE news_id = ? AND author_id = ?",
-                new Object[]{news.getId(), 1000},
-                (resultSet, i) -> resultSet.getLong(1));
-        assertEquals(Long.valueOf(1), count);
-    }
-
-    @Test(expected = Exception.class)
-    public void setNewsAuthorDoubleSet() {
-
-        newsDao.setNewsAuthor(1000, 1000);
-        newsDao.setNewsAuthor(1000, 1000);
-
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void setNewsAuthorInvalidAuthorId() {
-
-        newsDao.setNewsAuthor(1000, 5000);
-    }
-
-    @Test
-    public void setNewsTagValid()  {
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        News news = newsDao.read(1000);
-
-        newsDao.setNewsTag(1000, 1000);
-        transaction.commit();
-
-        Long count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM news_tag WHERE news_id = ? AND tag_id = ?",
-                new Object[]{news.getId(), 1000},
-                (resultSet, i) -> resultSet.getLong(1));
-        assertEquals(Long.valueOf(1), count);
-    }
-
-
-    @Test(expected = RuntimeException.class)
-    public void setNewsAuthorInvalidTagId() {
-
-        newsDao.setNewsTag(1000, 5000);
-    }
-
-
-    @Test
-    public void deleteNewsAuthorValid() {
-
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        jdbcTemplate.update("INSERT INTO news_author(news_id, author_id) VALUES(?, ?)",
-                1000, 1000);
-
-        newsDao.deleteNewsAuthor(1000);
-        transaction.commit();
-        Long count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM news_author WHERE news_id = ? AND author_id = ?",
-                new Object[]{1000, 1000},
-                (resultSet, i) -> resultSet.getLong(1));
-        assertEquals(Long.valueOf(0), count);
-    }
-
-    @Test(expected = Exception.class)
-    public void deleteNewsAuthorNotExist() {
-        newsDao.deleteNewsAuthor(1000);
-    }
 
     @Test(expected = Exception.class)
     public void deleteNewsNotExist() {
         newsDao.delete(5000);
     }
 
-    @Test
-    public void deleteNewsTagValid() {
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        jdbcTemplate.update("INSERT INTO news_tag(news_id, tag_id) VALUES(?, ?)",
-                1000, 1000);
 
-        newsDao.deleteNewsTag(1000, 1000);
-        transaction.commit();
 
-        Long count = jdbcTemplate.queryForObject(
-                "SELECT COUNT(*) FROM news_tag WHERE news_id = ? AND tag_id = ?",
-                new Object[]{1000, 1000},
-                (resultSet, i) -> resultSet.getLong(1));
-        assertEquals(Long.valueOf(0), count);
-    }
-
-    @Test(expected = Exception.class)
-    public void deleteNewsTagNotExist() {
-        newsDao.deleteNewsTag(1000, 5000);
-    }
 
     @Test
     public void getAllValid() {

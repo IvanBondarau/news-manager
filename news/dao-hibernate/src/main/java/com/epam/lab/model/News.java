@@ -1,5 +1,8 @@
 package com.epam.lab.model;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -11,7 +14,7 @@ public class News {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "title")
     private String title;
@@ -30,7 +33,7 @@ public class News {
     @Column(name = "modification_date")
     private Date modificationDate;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "News_Author",
             joinColumns = { @JoinColumn(name = "news_id") },
@@ -38,7 +41,7 @@ public class News {
     )
     private List<Author> authors;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "News_Tag",
             joinColumns = { @JoinColumn(name = "news_id") },
@@ -74,11 +77,11 @@ public class News {
         this.authors = authors;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -135,7 +138,7 @@ public class News {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         News news = (News) o;
-        return id == news.id &&
+        return Objects.equals(id, news.id) &&
                 Objects.equals(title, news.title) &&
                 Objects.equals(shortText, news.shortText) &&
                 Objects.equals(fullText, news.fullText) &&

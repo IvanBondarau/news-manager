@@ -7,7 +7,8 @@ import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class NewsConverter implements EntityDtoConverter<News, NewsDto> {
@@ -16,6 +17,11 @@ public class NewsConverter implements EntityDtoConverter<News, NewsDto> {
     private AuthorConverter authorConverter;
     @Autowired
     private TagConverter tagConverter;
+
+    public NewsConverter(AuthorConverter authorConverter, TagConverter tagConverter) {
+        this.authorConverter = authorConverter;
+        this.tagConverter = tagConverter;
+    }
 
     @Override
     public NewsDto convertToDto(News entity) {
@@ -26,13 +32,40 @@ public class NewsConverter implements EntityDtoConverter<News, NewsDto> {
         newsDto.setFullText(entity.getFullText());
         newsDto.setCreationDate(entity.getCreationDate());
         newsDto.setModificationDate(entity.getModificationDate());
+
+        newsDto.setTags(
+                entity.getTags() == null ? new HashSet<>() :
+                entity.getTags()
+                        .stream()
+                        .map(t -> tagConverter.convertToDto(t))
+                        .collect(Collectors.toSet())
+        );
+
+        newsDto.setAuthor(
+                entity.getAuthors() == null ? null :
+                entity.getAuthors().isEmpty() ? null : authorConverter.convertToDto(entity.getAuthors().get(0))
+        );
         return newsDto;
     }
 
     @Override
     public News convertToEntity(NewsDto dto) {
-        return new News(dto.getId(), dto.getTitle(),
-                dto.getShortText(), dto.getFullText(),
-                dto.getCreationDate(), dto.getModificationDate());
+        News news = new News();
+        news.setId(dto.getId());
+        news.setTitle(dto.getTitle());
+        news.setShortText(dto.getShortText());
+        news.setFullText(dto.getFullText());
+        news.setCreationDate(dto.getCreationDate());
+        news.setModificationDate(dto.getModificationDate());
+        news.setAuthors(dto.getAuthor() == null ? new LinkedList<>()
+                : Collections.singletonList(
+                        authorConverter.convertToEntity(dto.getAuthor())));
+        news.setTags(dto.getTags() == null ? new LinkedList<>()
+                : dto.getTags().stream()
+                                .map(t -> tagConverter.convertToEntity(t))
+                                .collect(Collectors.toList())
+        );
+
+        return news;
     }
 }

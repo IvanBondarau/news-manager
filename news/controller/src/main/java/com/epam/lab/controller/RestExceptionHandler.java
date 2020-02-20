@@ -36,7 +36,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String NEWS_NOT_FOUND_MESSAGE_CODE = "newsNotFound";
     private static final String VALIDATION_EXCEPTION_MESSAGE_CODE = "badRequestParams";
     private final ThreadLocal<ResourceBundle> errorMessagesBundle = new ThreadLocal<>();
-
+/*
     @ExceptionHandler(value = ItemNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<RequestError> handleItemNotFound(ItemNotFoundException e, Locale locale) {
@@ -59,7 +59,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(requestError, httpHeaders, HttpStatus.NOT_FOUND);
     }
-
+*/
     @ExceptionHandler({TagAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
 

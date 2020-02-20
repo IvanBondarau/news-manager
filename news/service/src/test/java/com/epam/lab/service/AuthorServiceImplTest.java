@@ -54,7 +54,7 @@ public class AuthorServiceImplTest {
     @Test
     public void readAuthorValid() {
 
-        Author author = new Author(1, "Test name", "Test surname");
+        Author author = new Author(1L, "Test name", "Test surname");
 
         Mockito.when(authorDao.read(1)).thenReturn(author);
 
@@ -70,13 +70,13 @@ public class AuthorServiceImplTest {
     public void updateAuthorValid() {
 
         AuthorDto authorDto = new AuthorDto();
-        authorDto.setId(1);
+        authorDto.setId(1L);
         authorDto.setName("Test name");
         authorDto.setSurname("Test surname");
 
         service.update(authorDto);
 
-        Author author = new Author(1, "Test name", "Test surname");
+        Author author = new Author(1L, "Test name", "Test surname");
 
         Mockito.verify(authorDao).update(author);
 
@@ -97,10 +97,10 @@ public class AuthorServiceImplTest {
 
     @Test
     public void saveAuthorAlreadyExistsValid() {
-        Author defaultAuthor = new Author(500, "check", "check");
+        Author defaultAuthor = new Author(500L, "check", "check");
         Mockito.when(authorDao.read(500)).thenReturn(defaultAuthor);
 
-        AuthorDto dto = new AuthorDto(500, "check", "check");
+        AuthorDto dto = new AuthorDto(500L, "check", "check");
 
         service.upload(dto);
 
@@ -109,9 +109,9 @@ public class AuthorServiceImplTest {
 
     @Test
     public void saveAuthorNotExistValid() {
-        Author defaultAuthor = new Author(-1, "check", "check");
+        Author defaultAuthor = new Author(-1L, "check", "check");
 
-        AuthorDto dto = new AuthorDto(-1, "check", "check");
+        AuthorDto dto = new AuthorDto(-1L, "check", "check");
 
         service.upload(dto);
 

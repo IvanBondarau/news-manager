@@ -4,8 +4,8 @@ import com.epam.lab.converter.NewsConverter;
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
-import com.epam.lab.dto.NewsDto;
 import com.epam.lab.dto.FilterCriteria;
+import com.epam.lab.dto.NewsDto;
 import com.epam.lab.dto.SortOrder;
 import com.epam.lab.dto.TagDto;
 import com.epam.lab.model.News;
@@ -13,8 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.sql.Date;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,17 +50,15 @@ public class NewsServiceImpl implements NewsService {
 
         setCurrentCreationDate(newsDto);
         News entity = newsConverter.convertToEntity(newsDto);
-        long id = newsDao.create(entity);
-        newsDto.setId(id);
-
-        newsDao.setNewsAuthor(newsDto.getId(), newsDto.getAuthor().getId());
-        newsDto.getTags().forEach(
-                (TagDto tagDto) -> newsDao.setNewsTag(newsDto.getId(), tagDto.getId())
-        );
+        entity.setAuthors(entity.getAuthors().stream().map(author -> authorDao.read(author.getId())).collect(Collectors.toList()));
+        entity.setTags(entity.getTags() ==null ? new LinkedList<>() :
+                entity.getTags().stream().map(tag -> tagDao.read(tag.getId())).collect(Collectors.toList()));
+        newsDao.create(entity);
+        newsDto.setId(entity.getId());
     }
 
     private void setCurrentCreationDate(NewsDto newsDto) {
-        newsDto.setCreationDate(Date.valueOf(LocalDate.now()));
+        newsDto.setCreationDate(new Date());
         newsDto.setModificationDate(newsDto.getCreationDate());
     }
 
@@ -70,40 +66,21 @@ public class NewsServiceImpl implements NewsService {
     @Transactional
     public NewsDto read(long id) {
         News newsEntity = newsDao.read(id);
-        NewsDto newsDto = newsConverter.convertToDto(newsEntity);
 
-        readNewsAuthor(newsDto);
-        readNewsTags(newsDto);
-
-        return newsDto;
-    }
-
-    private void readNewsAuthor(NewsDto newsDto) {
-        long authorId = newsDao.getAuthorIdByNews(newsDto.getId());
-        newsDto.setAuthor(authorService.read(authorId));
-    }
-
-    private void readNewsTags(NewsDto newsDto) {
-        List<Long> tagIds = newsDao.getTagsIdForNews(newsDto.getId());
-
-        newsDto.setTags(
-                tagIds.stream()
-                        .map((Long tagId) -> tagService.read(tagId))
-                        .collect(Collectors.toSet())
-        );
+        return newsConverter.convertToDto(newsEntity);
     }
 
     @Override
+    @Transactional
     public void update(NewsDto newsDto) {
 
         uploadNewsAuthor(newsDto);
         uploadNewsTags(newsDto);
 
-        NewsDto oldNewsDto = read(newsDto.getId());
+        News entity = newsConverter.convertToEntity(newsDto);
+        entity.setModificationDate(new Date());
 
-        updateNewsAuthor(oldNewsDto, newsDto);
-        updateNewsTags(oldNewsDto, newsDto);
-        updateNewsFields(oldNewsDto, newsDto);
+        newsDao.update(newsConverter.convertToEntity(newsDto));
 
     }
 
@@ -116,49 +93,6 @@ public class NewsServiceImpl implements NewsService {
     }
 
 
-    private void updateNewsTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
-        removeOutdatedTags(oldNewsDto, receivedNewsDto);
-        saveUpdatedTags(oldNewsDto, receivedNewsDto);
-    }
-
-    private void removeOutdatedTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
-        Set<TagDto> tagsToRemove = new HashSet<>(oldNewsDto.getTags());
-        tagsToRemove.removeAll(receivedNewsDto.getTags());
-
-        for (TagDto tagDto : tagsToRemove) {
-            newsDao.deleteNewsTag(oldNewsDto.getId(), tagDto.getId());
-        }
-    }
-
-    private void saveUpdatedTags(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
-        Set<TagDto> tagsToAdd = new HashSet<>(receivedNewsDto.getTags());
-        tagsToAdd.removeAll(oldNewsDto.getTags());
-
-        for (TagDto tagDto : tagsToAdd) {
-            newsDao.setNewsTag(oldNewsDto.getId(), tagDto.getId());
-        }
-    }
-
-    private void updateNewsFields(NewsDto oldNewsDto, NewsDto newsDto) {
-        newsDto.setCreationDate(oldNewsDto.getCreationDate());
-        newsDto.setModificationDate(Date.valueOf(LocalDate.now()));
-        News entity = newsConverter.convertToEntity(newsDto);
-        newsDao.update(entity);
-    }
-
-
-    private void updateNewsAuthor(NewsDto oldNewsDto, NewsDto receivedNewsDto) {
-
-        long oldAuthorId = oldNewsDto.getAuthor().getId();
-        long newAuthorId = receivedNewsDto.getAuthor().getId();
-
-        if (oldAuthorId != newAuthorId) {
-            newsDao.deleteNewsAuthor(receivedNewsDto.getId());
-            newsDao.setNewsAuthor(receivedNewsDto.getId(), newAuthorId);
-        }
-    }
-
-
     @Override
     public void delete(long id) {
         newsDao.delete(id);
@@ -167,12 +101,8 @@ public class NewsServiceImpl implements NewsService {
     @Override
     public List<NewsDto> getAll() {
         return newsDao.getAll().stream()
-                .map(newsEntity -> {
-                    NewsDto newsDto = newsConverter.convertToDto(newsEntity);
-                    readNewsTags(newsDto);
-                    readNewsAuthor(newsDto);
-                    return newsDto;
-                }).collect(Collectors.toList());
+                .map(newsEntity -> newsConverter.convertToDto(newsEntity))
+                .collect(Collectors.toList());
     }
 
     @Override

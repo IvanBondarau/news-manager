@@ -6,10 +6,10 @@ import com.epam.lab.model.Tag;
 import com.epam.lab.model.Tag_;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.Tuple;
-import javax.persistence.TypedQuery;
+import javax.persistence.*;
 import javax.persistence.criteria.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -17,7 +17,10 @@ import java.util.stream.Collectors;
 @Repository
 public class TagHibernateDao implements TagDao {
 
-    @Autowired
+    @PersistenceUnit(name = "com.epam.lab.dao")
+    private EntityManagerFactory entityManagerFactory;
+
+    @PersistenceContext
     private EntityManager entityManager;
 
     @Override
@@ -82,11 +85,15 @@ public class TagHibernateDao implements TagDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void create(Tag entity) {
         entityManager.persist(entity);
+        //entityManager.getTransaction().commit();
+        //entityManager.flush();
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public Tag read(long id) {
         Tag result = entityManager.find(Tag.class, id);
         if (result == null) {
@@ -96,6 +103,7 @@ public class TagHibernateDao implements TagDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void update(Tag entity) {
         Tag loaded = entityManager.find(Tag.class, entity.getId());
         if (loaded == null) {
@@ -105,6 +113,7 @@ public class TagHibernateDao implements TagDao {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED)
     public void delete(long id) {
         Tag loaded = entityManager.find(Tag.class, id);
         if (loaded == null) {

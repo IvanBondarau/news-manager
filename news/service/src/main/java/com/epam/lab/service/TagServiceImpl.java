@@ -1,9 +1,8 @@
 package com.epam.lab.service;
 
+import com.epam.lab.converter.TagConverter;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
-import com.epam.lab.converter.TagConverter;
-import com.epam.lab.dto.AuthorDto;
 import com.epam.lab.dto.TagDto;
 import com.epam.lab.exception.TagAlreadyExistsException;
 import com.epam.lab.model.Tag;
@@ -38,8 +37,9 @@ public class TagServiceImpl implements TagService {
             dto.setId(searchResult.get().getId());
             throw new TagAlreadyExistsException(dto.getId(), searchResult.get().getName());
         } else {
-            long id = tagDao.create(new Tag(dto.getName()));
-            dto.setId(id);
+            Tag entity = tagConverter.convertToEntity(dto);
+            tagDao.create(entity);
+            dto.setId(entity.getId());
         }
     }
 
@@ -60,13 +60,6 @@ public class TagServiceImpl implements TagService {
     @Override
     @Transactional
     public void delete(long id) {
-
-        List<Long> dependencies = newsDao.getTagsIdForNews(id);
-
-        for (Long newsId : dependencies) {
-            newsDao.deleteNewsTag(newsId, id);
-        }
-
         tagDao.delete(id);
     }
 
@@ -83,8 +76,9 @@ public class TagServiceImpl implements TagService {
         if (searchResult.isPresent()) {
             dto.setId(searchResult.get().getId());
         } else {
-            long id = tagDao.create(new Tag(dto.getName()));
-            dto.setId(id);
+            Tag tag = tagConverter.convertToEntity(dto);
+            tagDao.create(tag);
+            dto.setId(tag.getId());
         }
     }
 

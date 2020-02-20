@@ -76,7 +76,7 @@ public class TagRestController {
      */
     @PutMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TagDto updateTag(@RequestBody @Valid TagDto tagDto, @PathVariable long id, BindingResult bindingResult) {
+    public TagDto updateTag(@RequestBody @Valid TagDto tagDto, @PathVariable Long id, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             logger.error("Update tag: unsuccessful binding");
             throw new InvalidRequestFormatException(bindingResult.toString());

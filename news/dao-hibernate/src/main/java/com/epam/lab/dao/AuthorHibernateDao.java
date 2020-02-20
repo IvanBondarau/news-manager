@@ -9,9 +9,12 @@ import com.epam.lab.model.Author;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Id;
+import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class AuthorHibernateDao implements AuthorDao {
@@ -23,13 +26,16 @@ public class AuthorHibernateDao implements AuthorDao {
 
     private static final String SELECT_NEWS_ID_BY_AUTHOR_SURNAME = "SELECT news.id FROM News AS news JOIN news.authors AS author WHERE author.surname = :surname ";
 
-    @Autowired
+    @PersistenceContext
     private EntityManager entityManager;
 
+
+    @Transactional(propagation = Propagation.REQUIRED)
     public void create(Author entity) {
         this.entityManager.persist(entity);
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public Author read(long id) {
         Author author = (Author)this.entityManager.find(Author.class, id);
         if (author == null) {
@@ -39,6 +45,7 @@ public class AuthorHibernateDao implements AuthorDao {
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void update(Author entity) {
         Author old = (Author)this.entityManager.find(Author.class, entity.getId());
         if (old != null) {
@@ -48,6 +55,7 @@ public class AuthorHibernateDao implements AuthorDao {
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRED)
     public void delete(long id) {
         Author author = (Author)this.entityManager.find(Author.class, id);
         this.entityManager.remove(author);

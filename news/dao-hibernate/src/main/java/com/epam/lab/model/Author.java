@@ -2,13 +2,7 @@ package com.epam.lab.model;
 
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(
@@ -19,7 +13,7 @@ public class Author {
     @GeneratedValue(
             strategy = GenerationType.IDENTITY
     )
-    private long id;
+    private Long id;
     @Column(
             name = "name",
             nullable = false
@@ -30,9 +24,8 @@ public class Author {
             nullable = false
     )
     private String surname;
-    @ManyToMany(
-            mappedBy = "authors"
-    )
+
+    @ManyToMany(mappedBy = "authors")
     private List<News> news;
 
     public Author() {
@@ -43,17 +36,17 @@ public class Author {
         this.surname = surname;
     }
 
-    public Author(long id, String name, String surname) {
+    public Author(Long id, String name, String surname) {
         this.id = id;
         this.name = name;
         this.surname = surname;
     }
 
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -81,19 +74,19 @@ public class Author {
         this.news = news;
     }
 
+    @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        } else if (o != null && this.getClass() == o.getClass()) {
-            Author author = (Author)o;
-            return this.id == author.id && Objects.equals(this.name, author.name) && Objects.equals(this.surname, author.surname);
-        } else {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Author author = (Author) o;
+        return Objects.equals(id, author.id) &&
+                Objects.equals(name, author.name) &&
+                Objects.equals(surname, author.surname);
     }
 
+    @Override
     public int hashCode() {
-        return Objects.hash(new Object[]{this.id, this.name, this.surname});
+        return Objects.hash(id, name, surname);
     }
 
     public String toString() {

@@ -31,8 +31,9 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public void create(AuthorDto dto) {
-        long id = authorDao.create(authorConverter.convertToEntity(dto));
-        dto.setId(id);
+        Author entity = authorConverter.convertToEntity(dto);
+        authorDao.create(entity);
+        dto.setId(entity.getId());
     }
 
     @Override

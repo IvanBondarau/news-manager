@@ -7,7 +7,7 @@ import java.util.Objects;
 
 public class AuthorDto implements Dto {
 
-    private long id;
+    private Long id;
 
     @NotNull
     @Size(max = 30)
@@ -20,17 +20,17 @@ public class AuthorDto implements Dto {
     public AuthorDto() {
     }
 
-    public AuthorDto(long id, String name, String surname) {
+    public AuthorDto(Long id, String name, String surname) {
         this.id = id;
         this.name = name;
         this.surname = surname;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

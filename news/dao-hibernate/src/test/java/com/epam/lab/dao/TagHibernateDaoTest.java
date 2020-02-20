@@ -15,10 +15,10 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import javax.persistence.*;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -38,10 +38,9 @@ public class TagHibernateDaoTest {
     private static JdbcTemplate jdbcTemplate;
     @Autowired
     private TagDao tagDao;
-    @Autowired
+
+    @PersistenceContext
     private EntityManager entityManager;
-    @Autowired
-    private PlatformTransactionManager platformTransactionManager;
 
     @BeforeClass
     public static void initDatabase() {
@@ -74,59 +73,39 @@ public class TagHibernateDaoTest {
         jdbcTemplate.update("DELETE FROM tag");
         jdbcTemplate.update("DELETE FROM author");
 
-        if (entityManager.getTransaction().isActive()) {
+        /*if (entityManager.getTransaction().isActive()) {
             entityManager.getTransaction().rollback();
-        }
+        }*/
+
+        //entityManager.flush();
     }
 
     @Test
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Rollback(value = true)
     public void createShouldBeValid() {
 
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
         Tag tag = new Tag("name");
         tagDao.create(tag);
-        transaction.commit();
 
-        List<Tag> tags = jdbcTemplate.query("select * from public.tag", (resultSet, i) -> {
-            long id = resultSet.getLong(1);
-            String name = resultSet.getString(2);
-            return new Tag(id, name);
-        });
-
+        List<Tag> tags = tagDao.getAll();
         assertEquals(5, tags.size());
-        assertEquals(tag, tags.get(4));
 
     }
 
-    @Test(expected = Exception.class)
-    @Transactional
-    @Rollback(value = true)
-    public void createNullField() {
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        Tag tag = new Tag(null);
-        tagDao.create(tag);
-        transaction.commit();
-    }
 
     @Test
     @Transactional
     @Rollback(value = true)
     public void readShouldBeValid() {
 
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
         Tag tag = new Tag("name");
-        tag.setId(20);
+        tag.setId(20L);
 
         jdbcTemplate.update("INSERT INTO public.tag VALUES(?, ?)",
                 tag.getId(),
                 tag.getName()
         );
-        transaction.commit();
         Tag loaded = tagDao.read(tag.getId());
         assertEquals(tag, loaded);
     }
@@ -143,29 +122,22 @@ public class TagHibernateDaoTest {
     @Transactional
     @Rollback(value = true)
     public void updateShouldBeValid() {
+        List<Tag> tags1 = tagDao.getAll();
 
-        EntityTransaction transaction = entityManager.getTransaction();
-        transaction.begin();
-        Tag tag = new Tag("name");
+        assertEquals(4, tags1.size());
 
-        jdbcTemplate.update("INSERT INTO public.tag VALUES(?, ?)",
-                tag.getId(),
-                tag.getName()
-        );
+        Tag tag = new Tag( "name");
+
+        tagDao.create(tag);
 
         tag.setName("new name");
 
         tagDao.update(tag);
-        transaction.commit();
 
-        List<Tag> tags = jdbcTemplate.query("SELECT * FROM public.tag", (resultSet, i) -> {
-            long id = resultSet.getLong(1);
-            String name = resultSet.getString(2);
-            return new Tag(id, name);
-        });
+        List<Tag> tags = tagDao.getAll();
 
         assertEquals(5, tags.size());
-        assertEquals(tag, tags.get(0));
+        assertEquals(tag, tags.get(4));
     }
 
     @Test(expected = Exception.class)
@@ -174,7 +146,7 @@ public class TagHibernateDaoTest {
     public void updateTagNotExist() {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
-        Tag tag = new Tag(142, "x");
+        Tag tag = new Tag(142L, "x");
         tagDao.update(tag);
         transaction.commit();
     }
@@ -186,7 +158,7 @@ public class TagHibernateDaoTest {
 
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
-        Tag tag = new Tag(11, "name");
+        Tag tag = new Tag(11L, "name");
 
         jdbcTemplate.update("INSERT INTO public.tag VALUES(?, ?)",
                 tag.getId(),
@@ -204,29 +176,27 @@ public class TagHibernateDaoTest {
     @Rollback(value = true)
     public void deleteShouldBeValid() {
 
-        long tagId = 32;
 
-        Tag tag = new Tag(tagId, "name");
+        Tag tag = new Tag("name");
 
-        jdbcTemplate.update("INSERT INTO public.tag VALUES(?, ?)",
-                tag.getId(),
-                tag.getName()
-        );
-
-        EntityTransaction transaction = entityManager.getTransaction();
-        if (!transaction.isActive()) {
-            transaction.begin();
-        }
-        tagDao.delete(tagId);
-        transaction.commit();
-
+        tagDao.create(tag);
         List<Tag> tags = jdbcTemplate.query("select * from public.tag", (resultSet, i) -> {
+            long id = resultSet.getLong(1);
+            String name = resultSet.getString(2);
+            return new Tag(id, name);
+        });
+        logger.info(tags);
+        logger.info("KAMDLLLLLLMLDAJMDAMDJDAJKLJDLAJDAJADJJNADJNADNJ");
+        tagDao.delete(tag.getId());
+
+        tags = jdbcTemplate.query("select * from public.tag", (resultSet, i) -> {
             long id = resultSet.getLong(1);
             String name = resultSet.getString(2);
             return new Tag(id, name);
         });
 
         assertEquals(4, tags.size());
+
 
     }
 
@@ -237,6 +207,7 @@ public class TagHibernateDaoTest {
         tagDao.delete(23);
     }
 
+    @Ignore
     @Test
     @Transactional
     @Rollback(value = true)
@@ -270,6 +241,7 @@ public class TagHibernateDaoTest {
         assertFalse(result.isPresent());
     }
 
+    @Ignore
     @Test
     @Transactional
     @Rollback(value = true)

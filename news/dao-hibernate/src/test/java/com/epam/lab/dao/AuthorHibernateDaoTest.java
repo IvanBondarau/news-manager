@@ -12,19 +12,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.init.ScriptUtils;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = DaoConfig.class)
@@ -35,10 +38,9 @@ public class AuthorHibernateDaoTest {
     private static JdbcTemplate jdbcTemplate;
     @Autowired
     private AuthorDao authorDao;
-    @Autowired
+    @PersistenceContext
     private EntityManager entityManager;
-    @Autowired
-    private PlatformTransactionManager platformTransactionManager;
+
 
     @BeforeClass
     public static void initDatabase() {
@@ -71,28 +73,19 @@ public class AuthorHibernateDaoTest {
         jdbcTemplate.update("DELETE FROM tag");
         jdbcTemplate.update("DELETE FROM author");
 
-        EntityTransaction transaction = entityManager.unwrap(Session.class).beginTransaction();
-        entityManager.flush();
-        transaction.commit();
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void createShouldBeValid() {
 
-        EntityTransaction transaction = entityManager.unwrap(Session.class).beginTransaction();
 
         Author author = new Author("name", "surname");
         authorDao.create(author);
 
-        transaction.commit();
 
-        List<Author> authors = jdbcTemplate.query("select * from public.author", (resultSet, i) -> {
-            long id = resultSet.getLong(1);
-            String name = resultSet.getString(2);
-            String surname = resultSet.getString(3);
-            return new Author(id, name, surname);
-        });
-
+        List<Author> authors = authorDao.getAll();
 
         assertEquals(2, authors.size());
         assertEquals(author, authors.get(1));
@@ -101,11 +94,11 @@ public class AuthorHibernateDaoTest {
 
 
     @Test
+    @Transactional
+    @Rollback
     public void readShouldBeValid() {
 
-        EntityTransaction transaction = entityManager.unwrap(Session.class).beginTransaction();
-
-        Author author = new Author(7, "name", "surname");
+        Author author = new Author(7L, "name", "surname");
 
         jdbcTemplate.update("INSERT INTO public.author VALUES(?, ?, ?)",
                 author.getId(),
@@ -113,25 +106,23 @@ public class AuthorHibernateDaoTest {
                 author.getSurname()
         );
 
-        entityManager.flush();
-        transaction.commit();
 
         Author loaded = authorDao.read(author.getId());
         assertEquals(author, loaded);
     }
 
     @Test(expected = Exception.class)
+    @Transactional
+    @Rollback
     public void readAuthorNotExist() {
         authorDao.read(11);
     }
 
-
     @Test
     public void updateShouldBeValid() {
 
-        EntityTransaction transaction = entityManager.unwrap(Session.class).beginTransaction();
 
-        Author author = new Author("name", "surname");
+        Author author = new Author(20L, "name", "surname");
 
         jdbcTemplate.update("INSERT INTO public.author VALUES(?, ?, ?)",
                 author.getId(),
@@ -139,79 +130,46 @@ public class AuthorHibernateDaoTest {
                 author.getSurname()
         );
 
-        author = authorDao.read(0);
+        author = authorDao.read(20L);
         author.setSurname("new surname");
 
         authorDao.update(author);
 
-        transaction.commit();
 
-        List<Author> authors = jdbcTemplate.query("SELECT * FROM public.author", (resultSet, i) -> {
-            long id = resultSet.getLong(1);
-            String name = resultSet.getString(2);
-            String surname = resultSet.getString(3);
-            return new Author(id, name, surname);
-        });
-        logger.info(authors);
+        List<Author> authors = authorDao.getAll();
+
         assertEquals(2, authors.size());
         assertEquals(author, authors.get(0));
     }
 
     @Test(expected = Exception.class)
+    @Transactional
+    @Rollback
     public void updateAuthorNotExist() {
-        Author author = new Author(11, "x", "x");
+        Author author = new Author(11L, "x", "x");
         authorDao.update(author);
     }
 
-    @Test(expected = Exception.class)
-    public void updateNullField() {
-
-        EntityTransaction transaction = entityManager.unwrap(Session.class).beginTransaction();
-
-        Author author = new Author("name", "surname");
-
-        jdbcTemplate.update("INSERT INTO public.author VALUES(?, ?, ?)",
-                author.getId(),
-                author.getName(),
-                author.getSurname()
-        );
-
-        author.setName(null);
-        author.setSurname("new surname");
-
-        authorDao.update(author);
-
-        transaction.commit();
-    }
 
     @Test
+    @Transactional
+    @Rollback
     public void deleteShouldBeValid() {
 
 
-        EntityTransaction transaction = entityManager.unwrap(Session.class).beginTransaction();
+        Author author = new Author("name", "surname");
 
-        long authorId = 32;
+        authorDao.create(author);
 
-        Author author = new Author(authorId, "name", "surname");
+        List<Author> authors = authorDao.getAll();
+        assertTrue(authors.contains(author));
 
-        jdbcTemplate.update("INSERT INTO public.author VALUES(?, ?, ?)",
-                author.getId(),
-                author.getName(),
-                author.getSurname()
-        );
+        authorDao.delete(author.getId());
 
-        authorDao.delete(authorId);
 
-        transaction.commit();
+        authors = authorDao.getAll();
 
-        List<Author> authors = jdbcTemplate.query("select * from public.author", (resultSet, i) -> {
-            long id = resultSet.getLong(1);
-            String name = resultSet.getString(2);
-            String surname = resultSet.getString(3);
-            return new Author(id, name, surname);
-        });
-
-        assertEquals(1, authors.size());
+        assertFalse(authors.contains(author));
 
     }
 

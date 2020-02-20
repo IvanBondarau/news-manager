@@ -50,14 +50,14 @@ public class TagServiceImplTest {
         service.create(tag);
 
         Mockito.verify(tagDao).findByName("Test name");
-        Mockito.verify(tagDao).create(resultEntity);
+        Mockito.verify(tagDao).create(any());
 
     }
 
     @Test(expected = RuntimeException.class)
     public void createTagAlreadyExistValid() {
 
-        Tag resultEntity = new Tag(1, "Test name");
+        Tag resultEntity = new Tag(1L, "Test name");
 
         Mockito.when(tagDao.findByName(any())).thenReturn(Optional.of(resultEntity));
 
@@ -71,7 +71,7 @@ public class TagServiceImplTest {
     @Test
     public void readTagValid() {
 
-        Tag tag = new Tag(1, "Test name");
+        Tag tag = new Tag(1L, "Test name");
 
         Mockito.when(tagDao.read(1)).thenReturn(tag);
 
@@ -79,7 +79,7 @@ public class TagServiceImplTest {
 
         Mockito.verify(tagDao).read(1);
 
-        assertEquals(Long.valueOf(tag.getId()), Long.valueOf(result.getId()));
+        assertEquals(tag.getId(), result.getId());
         assertEquals(tag.getName(), result.getName());
 
     }
@@ -88,12 +88,12 @@ public class TagServiceImplTest {
     public void updateTagValid() {
 
         TagDto tag = new TagDto();
-        tag.setId(1);
+        tag.setId(1L);
         tag.setName("New tag name");
 
         service.update(tag);
 
-        Tag resultEntity = new Tag(1, "New tag name");
+        Tag resultEntity = new Tag(1L, "New tag name");
 
         Mockito.verify(tagDao).update(resultEntity);
 
@@ -106,22 +106,20 @@ public class TagServiceImplTest {
 
         service.delete(1);
 
-        Mockito.verify(newsDao).deleteNewsTag(3, 1);
-        Mockito.verify(newsDao).deleteNewsTag(4, 1);
         Mockito.verify(tagDao).delete(1);
 
     }
 
     @Test
     public void saveTagAlreadyExistValid() {
-        Tag tag = new Tag(70, "Tag 1");
+        Tag tag = new Tag(70L, "Tag 1");
         Mockito.when(tagDao.findByName("Tag 1")).thenReturn(Optional.of(tag));
 
         TagDto tagDto = new TagDto("Tag 1");
 
         service.upload(tagDto);
 
-        assertEquals(70, tagDto.getId());
+        assertEquals(Long.valueOf(70L), tagDto.getId());
         Mockito.verify(tagDao).findByName("Tag 1");
     }
 
