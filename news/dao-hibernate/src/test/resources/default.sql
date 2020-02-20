@@ -1,0 +1,5 @@
+INSERT INTO public.author VALUES(1000, 'default name', 'default surname')
+INSERT INTO public.news VALUES(1000, 'title', 'short text', 'long text', '2000-01-01', '2000-01-02')
+INSERT INTO public.tag VALUES(1000, 'tag name')
+INSERT INTO public.users VALUES(1000, 'name', 'surname', 'login', 'password')
+INSERT INTO public.roles VALUES(1000, 'default role name')
