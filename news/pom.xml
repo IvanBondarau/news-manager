@@ -19,7 +19,6 @@
         <module>dao-jdbc</module>
         <module>service</module>
         <module>controller</module>
-        <module>dao-hibernate</module>
     </modules>
     <dependencies>
         <dependency>
