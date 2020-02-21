@@ -72,12 +72,6 @@ public class TagHibernateDaoTest {
         jdbcTemplate.update("DELETE FROM news");
         jdbcTemplate.update("DELETE FROM tag");
         jdbcTemplate.update("DELETE FROM author");
-
-        /*if (entityManager.getTransaction().isActive()) {
-            entityManager.getTransaction().rollback();
-        }*/
-
-        //entityManager.flush();
     }
 
     @Test
@@ -207,20 +201,6 @@ public class TagHibernateDaoTest {
         tagDao.delete(23);
     }
 
-    @Ignore
-    @Test
-    @Transactional
-    @Rollback(value = true)
-    public void getNewsIdByTagShouldBeValid() {
-        Tag tag = tagDao.read(1001);
-
-        jdbcTemplate.update("INSERT INTO news_tag(news_id, tag_id) VALUES(?, ?)",
-                1001, 1001);
-
-        List<Long> ids = tagDao.getNewsIdByTag(tag);
-
-        assertTrue(ids.contains(1001L));
-    }
 
     @Test
     public void findByNameValid() {
@@ -228,7 +208,7 @@ public class TagHibernateDaoTest {
         Optional<Tag> result = tagDao.findByName("tag1");
 
         assertTrue(result.isPresent());
-        assertEquals(Long.valueOf(result.get().getId()), Long.valueOf(1001));
+        assertEquals(result.get().getId(), Long.valueOf(1001));
     }
 
     @Test
@@ -241,7 +221,6 @@ public class TagHibernateDaoTest {
         assertFalse(result.isPresent());
     }
 
-    @Ignore
     @Test
     @Transactional
     @Rollback(value = true)

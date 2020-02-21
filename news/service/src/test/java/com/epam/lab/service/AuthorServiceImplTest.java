@@ -16,6 +16,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 
 @RunWith(JUnit4.class)
 public class AuthorServiceImplTest {
@@ -109,9 +110,11 @@ public class AuthorServiceImplTest {
 
     @Test
     public void saveAuthorNotExistValid() {
-        Author defaultAuthor = new Author(-1L, "check", "check");
+        Author defaultAuthor = new Author(null, "check", "check");
 
-        AuthorDto dto = new AuthorDto(-1L, "check", "check");
+        AuthorDto dto = new AuthorDto(null, "check", "check");
+
+        Mockito.when(authorDao.read(-1)).thenReturn(defaultAuthor);
 
         service.upload(dto);
 

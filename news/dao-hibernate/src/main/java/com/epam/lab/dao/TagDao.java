@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface TagDao extends CrudDao<Tag> {
-    List<Long> getNewsIdByTag(Tag tag);
     Optional<Tag> findByName(String name);
 
     List<Long> findNewsIdByTagNames(Set<String> tagNames);

@@ -1,5 +1,6 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.model.Author;
 import com.epam.lab.model.News;
 import com.epam.lab.model.Tag;
 import org.springframework.stereotype.Repository;
@@ -11,6 +12,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -22,7 +24,8 @@ public class NewsHibernateDao implements NewsDao {
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public long getAuthorIdByNews(long id) {
-        return entityManager.find(News.class, id).getAuthors().get(0).getId();
+        Set<Author> authorSet = entityManager.find(News.class, id).getAuthors();
+        return authorSet.stream().map(Author::getId).findFirst().get();
     }
 
 

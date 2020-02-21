@@ -50,9 +50,9 @@ public class NewsServiceImpl implements NewsService {
 
         setCurrentCreationDate(newsDto);
         News entity = newsConverter.convertToEntity(newsDto);
-        entity.setAuthors(entity.getAuthors().stream().map(author -> authorDao.read(author.getId())).collect(Collectors.toList()));
-        entity.setTags(entity.getTags() ==null ? new LinkedList<>() :
-                entity.getTags().stream().map(tag -> tagDao.read(tag.getId())).collect(Collectors.toList()));
+        entity.setAuthors(entity.getAuthors().stream().map(author -> authorDao.read(author.getId())).collect(Collectors.toSet()));
+        entity.setTags(entity.getTags() ==null ? new HashSet<>() :
+                entity.getTags().stream().map(tag -> tagDao.read(tag.getId())).collect(Collectors.toSet()));
         newsDao.create(entity);
         newsDto.setId(entity.getId());
     }
@@ -99,6 +99,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    @Transactional
     public List<NewsDto> getAll() {
         return newsDao.getAll().stream()
                 .map(newsEntity -> newsConverter.convertToDto(newsEntity))

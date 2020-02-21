@@ -42,8 +42,9 @@ public class NewsConverter implements EntityDtoConverter<News, NewsDto> {
         );
 
         newsDto.setAuthor(
-                entity.getAuthors() == null ? null :
-                entity.getAuthors().isEmpty() ? null : authorConverter.convertToDto(entity.getAuthors().get(0))
+                entity.getAuthors() == null ? null
+                        : entity.getAuthors().isEmpty() ? null
+                        : authorConverter.convertToDto(entity.getAuthors().stream().findFirst().get())
         );
         return newsDto;
     }
@@ -57,13 +58,13 @@ public class NewsConverter implements EntityDtoConverter<News, NewsDto> {
         news.setFullText(dto.getFullText());
         news.setCreationDate(dto.getCreationDate());
         news.setModificationDate(dto.getModificationDate());
-        news.setAuthors(dto.getAuthor() == null ? new LinkedList<>()
-                : Collections.singletonList(
+        news.setAuthors(dto.getAuthor() == null ? new HashSet<>()
+                : Collections.singleton(
                         authorConverter.convertToEntity(dto.getAuthor())));
-        news.setTags(dto.getTags() == null ? new LinkedList<>()
+        news.setTags(dto.getTags() == null ? new HashSet<>()
                 : dto.getTags().stream()
                                 .map(t -> tagConverter.convertToEntity(t))
-                                .collect(Collectors.toList())
+                                .collect(Collectors.toSet())
         );
 
         return news;

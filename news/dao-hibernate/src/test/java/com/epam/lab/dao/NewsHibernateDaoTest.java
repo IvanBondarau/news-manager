@@ -194,11 +194,12 @@ public class NewsHibernateDaoTest {
     @Rollback
     public void getNewsAuthorValid() {
 
-        News news = newsDao.read(1000);
 
         jdbcTemplate.update("INSERT INTO news_author(news_id, author_id) VALUES(?, ?)",
-                news.getId(),
+                1000,
                 1000);
+
+        entityManager.flush();
 
         long loadedId = newsDao.getAuthorIdByNews(1000);
 

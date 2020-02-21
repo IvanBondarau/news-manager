@@ -3,6 +3,7 @@ package com.epam.lab.model;
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "tag")
@@ -19,7 +20,7 @@ public class Tag {
     @ManyToMany(
             mappedBy = "tags"
     )
-    private List<News> news;
+    private Set<News> news;
 
     public Tag() {
     }

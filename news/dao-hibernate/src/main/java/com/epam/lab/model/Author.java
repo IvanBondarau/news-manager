@@ -2,6 +2,7 @@ package com.epam.lab.model;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import javax.persistence.*;
 
 @Entity
@@ -26,7 +27,7 @@ public class Author {
     private String surname;
 
     @ManyToMany(mappedBy = "authors")
-    private List<News> news;
+    private Set<News> news;
 
     public Author() {
     }
@@ -66,11 +67,11 @@ public class Author {
         this.surname = surname;
     }
 
-    public List<News> getNews() {
+    public Set<News> getNews() {
         return this.news;
     }
 
-    public void setNews(List<News> news) {
+    public void setNews(Set<News> news) {
         this.news = news;
     }
 

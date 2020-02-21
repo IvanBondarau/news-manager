@@ -64,7 +64,7 @@ public class AuthorServiceImpl implements AuthorService {
 
 
     private boolean isAuthorIdDefined(@NotNull AuthorDto authorDto) {
-        return authorDto.getId() > 0;
+        return authorDto.getId() != null;
     }
 
     @Override

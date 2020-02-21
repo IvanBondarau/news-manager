@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "news")
@@ -33,13 +34,13 @@ public class News {
     @Column(name = "modification_date")
     private Date modificationDate;
 
-    @ManyToMany(cascade = {CascadeType.MERGE})
+    @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "News_Author",
             joinColumns = { @JoinColumn(name = "news_id") },
             inverseJoinColumns = { @JoinColumn(name = "author_id")}
     )
-    private List<Author> authors;
+    private Set<Author> authors;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @JoinTable(
@@ -47,7 +48,7 @@ public class News {
             joinColumns = { @JoinColumn(name = "news_id") },
             inverseJoinColumns = { @JoinColumn(name = "tag_id")}
     )
-    private List<Tag> tags;
+    private Set<Tag> tags;
 
     public News(long id, String title, String shortText, String fullText, Date creationDate, Date modificationDate) {
         this.id = id;
@@ -69,11 +70,11 @@ public class News {
     public News() {
     }
 
-    public List<Author> getAuthors() {
+    public Set<Author> getAuthors() {
         return authors;
     }
 
-    public void setAuthors(List<Author> authors) {
+    public void setAuthors(Set<Author> authors) {
         this.authors = authors;
     }
 
@@ -125,11 +126,11 @@ public class News {
         this.modificationDate = modificationDate;
     }
 
-    public List<Tag> getTags() {
+    public Set<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
 
