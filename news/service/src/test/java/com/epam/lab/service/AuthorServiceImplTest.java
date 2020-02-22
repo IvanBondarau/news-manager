@@ -86,7 +86,7 @@ public class AuthorServiceImplTest {
     @Test
     public void deleteTagValid() {
 
-        Mockito.when(authorDao.getNewsIdByAuthor(1)).thenReturn(Arrays.asList(3L, 4L));
+        Mockito.when(authorDao.findNewsByAuthorId(1)).thenReturn(Arrays.asList(3L, 4L));
 
         service.delete(1);
 

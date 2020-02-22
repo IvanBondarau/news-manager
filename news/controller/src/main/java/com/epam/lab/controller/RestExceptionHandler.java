@@ -31,35 +31,27 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String INVALID_REQUEST_PARAM_MESSAGE_CODE = "invalidRequestParams";
     private static final String DATA_ACCESS_ERROR_MESSAGE_CODE = "databaseError";
     private static final String TAG_ALREADY_EXIST_MESSAGE_CODE = "tagAlreadyExist";
-    private static final String TAG_NOT_FOUND_MESSAGE_CODE = "tagNotFound";
-    private static final String AUTHOR_NOT_FOUND_MESSAGE_CODE = "authorNotFound";
-    private static final String NEWS_NOT_FOUND_MESSAGE_CODE = "newsNotFound";
     private static final String VALIDATION_EXCEPTION_MESSAGE_CODE = "badRequestParams";
+    private static final String ENTITY_NOT_FOUND_MESSAGE_CODE = "entityNotFound";
+
     private final ThreadLocal<ResourceBundle> errorMessagesBundle = new ThreadLocal<>();
-/*
-    @ExceptionHandler(value = ItemNotFoundException.class)
+
+    @ExceptionHandler(value = DataEntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseEntity<RequestError> handleItemNotFound(ItemNotFoundException e, Locale locale) {
-        logger.warn("Handling ItemNotFoundException");
-        logger.warn("Item id = " + e.getId());
+    public ResponseEntity<RequestError> handleItemNotFound(DataEntityNotFoundException e, Locale locale) {
+        logger.warn("Handling DataEntityNotFoundException");
+        logger.warn("Entity id = " + e.getId());
 
         setLocalizedResourceBundle(locale);
 
-        String errorMessageCode;
-        if (e instanceof AuthorNotFoundException) {
-            errorMessageCode = AUTHOR_NOT_FOUND_MESSAGE_CODE;
-        } else if (e instanceof TagNotFoundException) {
-            errorMessageCode = TAG_NOT_FOUND_MESSAGE_CODE;
-        } else {
-            errorMessageCode = NEWS_NOT_FOUND_MESSAGE_CODE;
-        }
 
-        RequestError requestError = createRequestError(errorMessageCode, e.getId());
+        RequestError requestError = createRequestError(ENTITY_NOT_FOUND_MESSAGE_CODE,
+                e.getEntityType().toString(), e.getId());
         HttpHeaders httpHeaders = getDefaultHeadersJson();
 
         return new ResponseEntity<>(requestError, httpHeaders, HttpStatus.NOT_FOUND);
     }
-*/
+
     @ExceptionHandler({TagAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
 

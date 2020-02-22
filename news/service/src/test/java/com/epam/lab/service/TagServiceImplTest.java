@@ -102,8 +102,6 @@ public class TagServiceImplTest {
     @Test
     public void deleteTagValid() {
 
-        Mockito.when(newsDao.getTagsIdForNews(1)).thenReturn(Arrays.asList(3L, 4L));
-
         service.delete(1);
 
         Mockito.verify(tagDao).delete(1);

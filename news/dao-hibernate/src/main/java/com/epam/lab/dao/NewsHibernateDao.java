@@ -1,6 +1,8 @@
 package com.epam.lab.dao;
 
+import com.epam.lab.exception.DataEntityNotFoundException;
 import com.epam.lab.model.Author;
+import com.epam.lab.model.EntityType;
 import com.epam.lab.model.News;
 import com.epam.lab.model.Tag;
 import org.springframework.stereotype.Repository;
@@ -23,20 +25,9 @@ public class NewsHibernateDao implements NewsDao {
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED)
-    public long getAuthorIdByNews(long id) {
+    public long getAuthorIdByNewsId(long id) {
         Set<Author> authorSet = entityManager.find(News.class, id).getAuthors();
         return authorSet.stream().map(Author::getId).findFirst().get();
-    }
-
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED)
-    public List<Long> getTagsIdForNews(long id) {
-        News news = entityManager.find(News.class, id);
-        if (news == null) {
-            throw new RuntimeException();
-        }
-        return news.getTags().stream().map(Tag::getId).collect(Collectors.toList());
     }
 
 
@@ -69,7 +60,7 @@ public class NewsHibernateDao implements NewsDao {
     public News read(long id) {
         News news = entityManager.find(News.class, id);
         if (news == null) {
-            throw new RuntimeException();
+            throw new DataEntityNotFoundException(EntityType.NEWS, id);
         }
         return news;
     }
@@ -79,7 +70,7 @@ public class NewsHibernateDao implements NewsDao {
     public void update(News entity) {
         News news = entityManager.find(News.class, entity.getId());
         if (news == null) {
-            throw new RuntimeException();
+            throw new DataEntityNotFoundException(EntityType.NEWS, entity.getId());
         }
         entityManager.merge(entity);
     }
@@ -89,7 +80,7 @@ public class NewsHibernateDao implements NewsDao {
     public void delete(long id) {
         News news = entityManager.find(News.class, id);
         if (news == null) {
-            throw new RuntimeException();
+            throw new DataEntityNotFoundException(EntityType.NEWS, id);
         }
         entityManager.remove(news);
     }

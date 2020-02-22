@@ -2,10 +2,8 @@ package com.epam.lab.dao;
 
 import com.epam.lab.configuration.DaoConfig;
 import com.epam.lab.model.News;
-import com.epam.lab.model.Tag;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.apache.log4j.Logger;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,27 +13,21 @@ import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.SQLException;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = DaoConfig.class)
 public class NewsHibernateDaoTest {
-    private static final Logger logger = Logger.getLogger(AuthorHibernateDaoTest.class);
     private static DataSource dataSource;
     private static JdbcTemplate jdbcTemplate;
     @Autowired
@@ -95,7 +87,6 @@ public class NewsHibernateDaoTest {
     }
 
 
-
     @Test
     @Transactional
     @Rollback(value = true)
@@ -121,7 +112,7 @@ public class NewsHibernateDaoTest {
     }
 
     @Test(expected = Exception.class)
-    public void readNewsNotExist()  {
+    public void readNewsNotExist() {
         newsDao.read(11);
     }
 
@@ -129,7 +120,7 @@ public class NewsHibernateDaoTest {
     @Test
     @Transactional
     @Rollback
-    public void updateShouldBeValid()  {
+    public void updateShouldBeValid() {
 
         News news = new News(
                 "title",
@@ -193,15 +184,13 @@ public class NewsHibernateDaoTest {
     @Transactional
     @Rollback
     public void getNewsAuthorValid() {
-
-
         jdbcTemplate.update("INSERT INTO news_author(news_id, author_id) VALUES(?, ?)",
                 1000,
                 1000);
 
         entityManager.flush();
 
-        long loadedId = newsDao.getAuthorIdByNews(1000);
+        long loadedId = newsDao.getAuthorIdByNewsId(1000);
 
         assertEquals(1000, loadedId);
 
@@ -211,21 +200,7 @@ public class NewsHibernateDaoTest {
     @Transactional
     @Rollback
     public void getNewsAuthorNotExist() {
-        newsDao.getAuthorIdByNews(1000);
-    }
-
-    @Test
-    @Transactional
-    @Rollback
-    public void getNewsTagsValid() {
-
-        jdbcTemplate.update("INSERT INTO news_tag(news_id, tag_id) VALUES(?, ?)",
-                1000, 1000);
-
-        List<Long> loadedId = newsDao.getTagsIdForNews(1000);
-
-        assertTrue(loadedId.contains(1000L));
-
+        newsDao.getAuthorIdByNewsId(1000);
     }
 
 
@@ -233,8 +208,6 @@ public class NewsHibernateDaoTest {
     public void deleteNewsNotExist() {
         newsDao.delete(5000);
     }
-
-
 
 
     @Test

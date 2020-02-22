@@ -18,8 +18,6 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.sql.Date;
 import java.util.Arrays;
@@ -124,8 +122,7 @@ public class NewsServiceImplTest {
 
     @Test
     public void readValid() {
-        Mockito.when(newsDao.getTagsIdForNews(100)).thenReturn(Arrays.asList(6L, 7L, 8L));
-        Mockito.when(newsDao.getAuthorIdByNews(100)).thenReturn(100L);
+        Mockito.when(newsDao.getAuthorIdByNewsId(100)).thenReturn(100L);
         Mockito.when(newsDao.read(100)).thenReturn(defaultEntity);
 
         NewsDto result = service.read(100);
@@ -136,8 +133,7 @@ public class NewsServiceImplTest {
     @Test
     public void updateValid() {
         Mockito.when(newsDao.read(100)).thenReturn(defaultEntity);
-        Mockito.when(newsDao.getTagsIdForNews(100)).thenReturn(Arrays.asList(6L, 7L));
-        Mockito.when(newsDao.getAuthorIdByNews(100)).thenReturn(100L);
+        Mockito.when(newsDao.getAuthorIdByNewsId(100)).thenReturn(100L);
         Mockito.when(tagService.read(6)).thenReturn(new TagDto("Tag 2"));
         Mockito.when(tagService.read(7)).thenReturn(new TagDto("Tag 3"));
         Mockito.when(authorService.read(100)).thenReturn(new AuthorDto(6L, "default", "default"));
@@ -174,7 +170,7 @@ public class NewsServiceImplTest {
     @Test
     public void searchShouldBeValid() {
 
-        Mockito.when(authorDao.getNewsIdByAuthorName(any())).thenReturn(Arrays.asList(102L, 103L, 104L));
+        Mockito.when(authorDao.findNewsByAuthorName(any())).thenReturn(Arrays.asList(102L, 103L, 104L));
         Mockito.when(tagDao.findNewsIdByTagNames(any())).thenReturn(Arrays.asList(101L, 102L, 103L));
         Mockito.when(newsDao.read(102)).thenReturn(defaultEntity);
         Mockito.when(newsDao.read(103)).thenReturn(defaultEntity);
@@ -191,7 +187,7 @@ public class NewsServiceImplTest {
     @Test
     public void searchEmptyResult() {
 
-        Mockito.when(authorDao.getNewsIdByAuthorName(any())).thenReturn(Arrays.asList(107L, 108L, 109L));
+        Mockito.when(authorDao.findNewsByAuthorName(any())).thenReturn(Arrays.asList(107L, 108L, 109L));
         Mockito.when(tagDao.findNewsIdByTagNames(any())).thenReturn(Arrays.asList(101L, 102L, 103L));
         Mockito.when(newsDao.read(102)).thenReturn(defaultEntity);
         Mockito.when(newsDao.read(103)).thenReturn(defaultEntity);
@@ -208,7 +204,7 @@ public class NewsServiceImplTest {
 
     @Test
     public void searchEmptySearchCriteria() {
-        Mockito.when(authorDao.getNewsIdByAuthorName(any())).thenReturn(Arrays.asList(107L, 108L, 109L));
+        Mockito.when(authorDao.findNewsByAuthorName(any())).thenReturn(Arrays.asList(107L, 108L, 109L));
         Mockito.when(tagDao.findNewsIdByTagNames(any())).thenReturn(Arrays.asList(101L, 102L, 103L));
         Mockito.when(newsDao.read(102)).thenReturn(defaultEntity);
         Mockito.when(newsDao.read(103)).thenReturn(defaultEntity);

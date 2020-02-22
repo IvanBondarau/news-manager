@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface NewsDao extends CrudDao<News> {
-    long getAuthorIdByNews(long id);
 
-    List<Long> getTagsIdForNews(long id);
+    long getAuthorIdByNewsId(long id);
 
     List<News> getAll();
     Long count();

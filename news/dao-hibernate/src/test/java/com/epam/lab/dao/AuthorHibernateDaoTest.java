@@ -5,7 +5,6 @@ import com.epam.lab.model.Author;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.log4j.Logger;
-import org.hibernate.Session;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,12 +14,9 @@ import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -179,30 +175,37 @@ public class AuthorHibernateDaoTest {
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void getNewsIdByAuthorShouldBeValid() {
         jdbcTemplate.update("INSERT INTO news_author(news_id, author_id) VALUES(?, ?)",
                 1000, 1000);
 
-        List<Long> ids = authorDao.getNewsIdByAuthor(1000);
+        List<Long> ids = authorDao.findNewsByAuthorId(1000);
 
         assertTrue(ids.contains(1000L));
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void getNewsIdByAuthorNameValid() {
         jdbcTemplate.update("INSERT INTO news_author(news_id, author_id) VALUES(?, ?)",
                 1000, 1000);
 
-        List<Long> result = authorDao.getNewsIdByAuthorName("default name");
+        List<Long> result = authorDao.findNewsByAuthorName("default name");
         assertEquals(1, result.size());
+        assertEquals(Long.valueOf(1000L), result.get(0));
     }
 
     @Test
+    @Transactional
+    @Rollback
     public void getNewsIdByAuthorSurnameValid() {
         jdbcTemplate.update("INSERT INTO news_author(news_id, author_id) VALUES(?, ?)",
                 1000, 1000);
 
-        List<Long> result = authorDao.getNewsIdByAuthorSurname("default surname");
+        List<Long> result = authorDao.findNewsByAuthorSurname("default surname");
         assertEquals(1, result.size());
     }
 

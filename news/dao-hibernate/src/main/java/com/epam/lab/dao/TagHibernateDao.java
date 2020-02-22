@@ -1,18 +1,20 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.model.News;
-import com.epam.lab.model.News_;
-import com.epam.lab.model.Tag;
-import com.epam.lab.model.Tag_;
+import com.epam.lab.exception.DataEntityNotFoundException;
+import com.epam.lab.model.*;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.*;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -24,6 +26,7 @@ public class TagHibernateDao implements TagDao {
     private EntityManager entityManager;
 
     @Override
+    @Transactional
     public Optional<Tag> findByName(String name) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tag> query = cb.createQuery(Tag.class);
@@ -48,7 +51,7 @@ public class TagHibernateDao implements TagDao {
         query.multiselect(newsRoot.get("id"))
                 .where(cb.in(newsTagJoin.get(Tag_.NAME)).value(tagNames))
                 .groupBy(newsRoot.get(News_.ID))
-                .having(cb.greaterThanOrEqualTo(cb.count(newsRoot), (long)tagNames.size()));
+                .having(cb.greaterThanOrEqualTo(cb.count(newsRoot), (long) tagNames.size()));
 
         TypedQuery<Tuple> typedQuery = entityManager.createQuery(query);
         LOGGER.info(typedQuery.getResultList());
@@ -59,6 +62,7 @@ public class TagHibernateDao implements TagDao {
     }
 
     @Override
+    @Transactional
     public List<Tag> getAll() {
         CriteriaQuery<Tag> getAllQuery = entityManager.getCriteriaBuilder().createQuery(Tag.class);
         Root<Tag> root = getAllQuery.from(Tag.class);
@@ -79,7 +83,7 @@ public class TagHibernateDao implements TagDao {
     public Tag read(long id) {
         Tag result = entityManager.find(Tag.class, id);
         if (result == null) {
-            throw new RuntimeException();
+            throw new DataEntityNotFoundException(EntityType.TAG, id);
         }
         return result;
     }
@@ -89,7 +93,7 @@ public class TagHibernateDao implements TagDao {
     public void update(Tag entity) {
         Tag loaded = entityManager.find(Tag.class, entity.getId());
         if (loaded == null) {
-            throw new RuntimeException();
+            throw new DataEntityNotFoundException(EntityType.TAG, entity.getId());
         }
         entityManager.merge(entity);
     }
@@ -99,7 +103,7 @@ public class TagHibernateDao implements TagDao {
     public void delete(long id) {
         Tag loaded = entityManager.find(Tag.class, id);
         if (loaded == null) {
-            throw new RuntimeException();
+            throw new DataEntityNotFoundException(EntityType.TAG, id);
         }
         entityManager.remove(loaded);
     }

@@ -5,11 +5,11 @@ import com.epam.lab.model.Author;
 import java.util.List;
 
 public interface AuthorDao extends CrudDao<Author> {
-    List<Long> getNewsIdByAuthor(long authorId);
+    List<Long> findNewsByAuthorId(long authorId);
 
-    List<Long> getNewsIdByAuthorName(String authorName);
+    List<Long> findNewsByAuthorName(String authorName);
 
-    List<Long> getNewsIdByAuthorSurname(String authorSurname);
+    List<Long> findNewsByAuthorSurname(String authorSurname);
 
     List<Author> getAll();
 

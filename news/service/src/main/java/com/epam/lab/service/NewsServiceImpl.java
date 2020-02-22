@@ -170,7 +170,7 @@ public class NewsServiceImpl implements NewsService {
 
     private Set<Long> searchByAuthorId(Long authorId, Set<Long> previousResult) {
         if (authorId != null) {
-            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthor(authorId));
+            Set<Long> searchResult = new HashSet<>(authorDao.findNewsByAuthorId(authorId));
             return joinSearchResults(previousResult, searchResult);
         } else {
             return previousResult;
@@ -179,7 +179,7 @@ public class NewsServiceImpl implements NewsService {
 
     private Set<Long> searchByAuthorName(String authorName, Set<Long> previousResult) {
         if (authorName != null) {
-            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorName(authorName));
+            Set<Long> searchResult = new HashSet<>(authorDao.findNewsByAuthorName(authorName));
             return joinSearchResults(previousResult, searchResult);
         } else {
             return previousResult;
@@ -188,7 +188,7 @@ public class NewsServiceImpl implements NewsService {
 
     private Set<Long> searchByAuthorSurname(String authorSurname, Set<Long> previousResult) {
         if (authorSurname != null) {
-            Set<Long> searchResult = new HashSet<>(authorDao.getNewsIdByAuthorSurname(authorSurname));
+            Set<Long> searchResult = new HashSet<>(authorDao.findNewsByAuthorSurname(authorSurname));
             return joinSearchResults(previousResult, searchResult);
         } else {
             return previousResult;

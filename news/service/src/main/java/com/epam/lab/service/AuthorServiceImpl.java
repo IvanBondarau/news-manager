@@ -53,7 +53,7 @@ public class AuthorServiceImpl implements AuthorService {
     @Override
     @Transactional
     public void delete(long id) {
-        List<Long> dependentNews = authorDao.getNewsIdByAuthor(id);
+        List<Long> dependentNews = authorDao.findNewsByAuthorId(id);
 
         for (Long newsId : dependentNews) {
             newsDao.delete(newsId);

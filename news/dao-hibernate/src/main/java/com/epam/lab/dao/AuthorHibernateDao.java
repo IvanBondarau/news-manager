@@ -1,34 +1,27 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by Fernflower decompiler)
-//
-
 package com.epam.lab.dao;
 
-import com.epam.lab.model.Author;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.Id;
-import javax.persistence.PersistenceContext;
-import javax.persistence.TypedQuery;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.epam.lab.exception.DataEntityNotFoundException;
+import com.epam.lab.model.*;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Tuple;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Root;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Repository
 public class AuthorHibernateDao implements AuthorDao {
-    private static final String READ_ALL_QUERY = "SELECT author FROM Author AS author";
-
-    private static final String SELECT_NEWS_ID_BY_AUTHOR = "SELECT news.id FROM News AS news JOIN news.authors AS author WHERE author.id = :id";
-
-    private static final String SELECT_NEWS_ID_BY_AUTHOR_NAME = "SELECT news.id FROM News AS news JOIN news.authors AS author WHERE author.name = :name ";
-
-    private static final String SELECT_NEWS_ID_BY_AUTHOR_SURNAME = "SELECT news.id FROM News AS news JOIN news.authors AS author WHERE author.surname = :surname ";
 
     @PersistenceContext
     private EntityManager entityManager;
-
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void create(Author entity) {
@@ -37,46 +30,73 @@ public class AuthorHibernateDao implements AuthorDao {
 
     @Transactional(propagation = Propagation.REQUIRED)
     public Author read(long id) {
-        Author author = (Author)this.entityManager.find(Author.class, id);
+        Author author = this.entityManager.find(Author.class, id);
         if (author == null) {
-            throw new RuntimeException();
-        } else {
-            return author;
+            throw new DataEntityNotFoundException(EntityType.AUTHOR, id);
         }
+        return author;
+
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void update(Author entity) {
-        Author old = (Author)this.entityManager.find(Author.class, entity.getId());
+        Author old = this.entityManager.find(Author.class, entity.getId());
         if (old != null) {
             this.entityManager.merge(entity);
         } else {
-            throw new RuntimeException();
+            throw new DataEntityNotFoundException(EntityType.AUTHOR, entity.getId());
         }
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
     public void delete(long id) {
-        Author author = (Author)this.entityManager.find(Author.class, id);
+        Author author = this.entityManager.find(Author.class, id);
+        if (author == null) {
+            throw new DataEntityNotFoundException(EntityType.AUTHOR, id);
+        }
         this.entityManager.remove(author);
     }
 
-    public List<Long> getNewsIdByAuthor(long authorId) {
-        TypedQuery<Long> query = this.entityManager.createQuery(SELECT_NEWS_ID_BY_AUTHOR, Long.class);
-        query.setParameter("id", authorId);
-        return query.getResultList();
+    public List<Long> findNewsByAuthorId(long authorId) {
+        Author author = entityManager.find(Author.class, authorId);
+        if (author == null) {
+            throw new DataEntityNotFoundException(EntityType.AUTHOR, authorId);
+        }
+        return author.getNews().stream()
+                .map(News::getId)
+                .collect(Collectors.toList());
     }
 
-    public List<Long> getNewsIdByAuthorName(String authorName) {
-        TypedQuery<Long> query = this.entityManager.createQuery(SELECT_NEWS_ID_BY_AUTHOR_NAME, Long.class);
-        query.setParameter("name", authorName);
-        return query.getResultList();
+    public List<Long> findNewsByAuthorName(String authorName) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
+        Root<Author> authorRoot = query.from(Author.class);
+        Join<Author, News> join = authorRoot.join(Author_.NEWS);
+
+        query.multiselect(join.get(News_.ID))
+                .where(criteriaBuilder.equal(authorRoot.get(Author_.NAME), authorName))
+                .groupBy(join.get(News_.ID));
+
+        TypedQuery<Tuple> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getResultList().stream()
+                .map(tuple -> (Long) tuple.get(0))
+                .collect(Collectors.toList());
     }
 
-    public List<Long> getNewsIdByAuthorSurname(String authorSurname) {
-        TypedQuery<Long> query = this.entityManager.createQuery(SELECT_NEWS_ID_BY_AUTHOR_SURNAME, Long.class);
-        query.setParameter("surname", authorSurname);
-        return query.getResultList();
+    public List<Long> findNewsByAuthorSurname(String authorSurname) {
+        CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
+        Root<Author> authorRoot = query.from(Author.class);
+        Join<Author, News> join = authorRoot.join(Author_.NEWS);
+
+        query.multiselect(join.get(News_.ID))
+                .where(criteriaBuilder.equal(authorRoot.get(Author_.SURNAME), authorSurname))
+                .groupBy(join.get(News_.ID));
+
+        TypedQuery<Tuple> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getResultList().stream()
+                .map(tuple -> (Long) tuple.get(0))
+                .collect(Collectors.toList());
     }
 
     public List<Author> getAll() {

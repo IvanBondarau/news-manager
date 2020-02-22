@@ -49,11 +49,6 @@ public class TagHibernateDaoTest {
         jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
-    @AfterClass
-    public static void shutdownDatabase() {
-
-    }
-
     @Before
     public void init() throws SQLException {
         jdbcTemplate = new JdbcTemplate(dataSource);
