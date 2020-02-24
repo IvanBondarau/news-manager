@@ -1,19 +1,26 @@
 package com.epam.lab.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public enum SortOrder {
     BY_DATE,
     BY_AUTHOR,
     BY_TAGS;
 
+    private static final Map<String, SortOrder> orderNames = new HashMap<>();
+
+    static {
+        orderNames.put("byDate", BY_DATE);
+        orderNames.put("byAuthor", BY_AUTHOR);
+        orderNames.put("byTags", BY_TAGS);
+    }
+
     public static SortOrder fromString(String str) {
-        if ("byDate".equals(str)) {
-            return BY_DATE;
-        } else if ("byAuthor".equals(str)) {
-            return BY_AUTHOR;
-        } else if ("byTags".equals(str)) {
-            return BY_TAGS;
+        if (orderNames.containsKey(str)) {
+            return orderNames.get(str);
         } else {
-            throw new IllegalArgumentException("No constant for str " + str + " found");
+            throw new IllegalArgumentException("Constant for string " + str + " not found");
         }
     }
 }

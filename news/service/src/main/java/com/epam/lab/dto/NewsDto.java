@@ -1,8 +1,6 @@
 package com.epam.lab.dto;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.PastOrPresent;
 import javax.validation.constraints.Size;
 import java.util.Date;
 import java.util.HashSet;
@@ -42,10 +40,6 @@ public class NewsDto implements Dto {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public void setTags(Set<TagDto> tags) {
-        this.tags = tags;
     }
 
     public String getTitle() {
@@ -90,6 +84,10 @@ public class NewsDto implements Dto {
 
     public Set<TagDto> getTags() {
         return tags;
+    }
+
+    public void setTags(Set<TagDto> tags) {
+        this.tags = tags;
     }
 
     public void addTag(TagDto tag) {
