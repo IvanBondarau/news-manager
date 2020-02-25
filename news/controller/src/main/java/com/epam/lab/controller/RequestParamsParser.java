@@ -23,8 +23,8 @@ public class RequestParamsParser {
 
     public Set<String> parseTagNames(String strTagNames) {
         if (strTagNames == null) {
-            logger.warn("empty parse request");
-            return null;
+            logger.warn("Empty parse request");
+            return new HashSet<>();
         }
         Matcher matcher = tagNamesPattern.matcher(strTagNames);
         if (!matcher.matches()) {

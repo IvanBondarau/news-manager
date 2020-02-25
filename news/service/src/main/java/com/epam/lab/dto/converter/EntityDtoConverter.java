@@ -1,4 +1,4 @@
-package com.epam.lab.converter;
+package com.epam.lab.dto.converter;
 
 import com.epam.lab.dto.Dto;
 

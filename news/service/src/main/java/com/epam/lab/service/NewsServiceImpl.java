@@ -1,6 +1,5 @@
 package com.epam.lab.service;
 
-import com.epam.lab.converter.NewsConverter;
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
@@ -8,6 +7,10 @@ import com.epam.lab.dto.FilterCriteria;
 import com.epam.lab.dto.NewsDto;
 import com.epam.lab.dto.SortOrder;
 import com.epam.lab.dto.TagDto;
+import com.epam.lab.dto.comparator.NewsAuthorComparator;
+import com.epam.lab.dto.comparator.NewsDateComparator;
+import com.epam.lab.dto.comparator.NewsTagComparator;
+import com.epam.lab.dto.converter.NewsConverter;
 import com.epam.lab.model.News;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,15 @@ public class NewsServiceImpl implements NewsService {
 
     private NewsConverter newsConverter;
 
+    private static final EnumMap<SortOrder, Comparator<NewsDto>> SORT_ORDER_COMPARATOR_ENUM_MAP
+            = new EnumMap<>(SortOrder.class);
+
+    static {
+        SORT_ORDER_COMPARATOR_ENUM_MAP.put(SortOrder.BY_DATE, new NewsDateComparator());
+        SORT_ORDER_COMPARATOR_ENUM_MAP.put(SortOrder.BY_AUTHOR, new NewsAuthorComparator());
+        SORT_ORDER_COMPARATOR_ENUM_MAP.put(SortOrder.BY_TAGS, new NewsTagComparator());
+    }
+
     @Autowired
     public NewsServiceImpl(NewsDao newsDao, AuthorDao authorDao, TagDao tagDao,
                            TagService tagService, AuthorService authorService,
@@ -44,15 +56,16 @@ public class NewsServiceImpl implements NewsService {
     @Override
     @Transactional
     public void create(NewsDto newsDto) {
-
-        uploadNewsAuthor(newsDto);
-        uploadNewsTags(newsDto);
-
         setCurrentCreationDate(newsDto);
+
+        saveNewsAuthor(newsDto);
+        saveNewsTags(newsDto);
+
         News entity = newsConverter.convertToEntity(newsDto);
-        entity.setAuthors(entity.getAuthors().stream().map(author -> authorDao.read(author.getId())).collect(Collectors.toSet()));
-        entity.setTags(entity.getTags() ==null ? new HashSet<>() :
-                entity.getTags().stream().map(tag -> tagDao.read(tag.getId())).collect(Collectors.toSet()));
+
+        setNewsAuthor(entity);
+        setNewsTags(entity);
+
         newsDao.create(entity);
         newsDto.setId(entity.getId());
     }
@@ -61,6 +74,22 @@ public class NewsServiceImpl implements NewsService {
         newsDto.setCreationDate(new Date());
         newsDto.setModificationDate(newsDto.getCreationDate());
     }
+
+    private void setNewsAuthor(News entity) {
+        entity.setAuthors(entity.getAuthors()
+                .stream()
+                .map(author -> authorDao.read(author.getId()))
+                .collect(Collectors.toSet()));
+    }
+
+    private void setNewsTags(News entity) {
+        entity.setTags(entity.getTags() == null ? new HashSet<>() :
+                entity.getTags()
+                        .stream()
+                        .map(tag -> tagDao.read(tag.getId()))
+                        .collect(Collectors.toSet()));
+    }
+
 
     @Override
     @Transactional
@@ -74,8 +103,8 @@ public class NewsServiceImpl implements NewsService {
     @Transactional
     public void update(NewsDto newsDto) {
 
-        uploadNewsAuthor(newsDto);
-        uploadNewsTags(newsDto);
+        saveNewsAuthor(newsDto);
+        saveNewsTags(newsDto);
 
         News entity = newsConverter.convertToEntity(newsDto);
         entity.setModificationDate(new Date());
@@ -84,12 +113,12 @@ public class NewsServiceImpl implements NewsService {
 
     }
 
-    private void uploadNewsAuthor(NewsDto newsDto) {
-        authorService.upload(newsDto.getAuthor());
+    private void saveNewsAuthor(NewsDto newsDto) {
+        authorService.save(newsDto.getAuthor());
     }
 
-    private void uploadNewsTags(NewsDto newsDto) {
-        newsDto.getTags().forEach((TagDto tagDto) -> tagService.upload(tagDto));
+    private void saveNewsTags(NewsDto newsDto) {
+        newsDto.getTags().forEach((TagDto tagDto) -> tagService.save(tagDto));
     }
 
 
@@ -107,6 +136,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    @Transactional
     public List<NewsDto> filter(FilterCriteria filterCriteria) {
 
         List<NewsDto> searchResults;
@@ -126,7 +156,7 @@ public class NewsServiceImpl implements NewsService {
         return !(filterCriteria.getAuthorId() == null
                 && filterCriteria.getAuthorName() == null
                 && filterCriteria.getAuthorSurname() == null
-                && filterCriteria.getTagNames() == null);
+                && filterCriteria.getTagNames().isEmpty());
     }
 
     private List<NewsDto> searchByCriteriaParams(FilterCriteria filterCriteria) {
@@ -137,7 +167,7 @@ public class NewsServiceImpl implements NewsService {
         searchResult = searchByAuthorName(filterCriteria.getAuthorName(), searchResult);
         searchResult = searchByAuthorSurname(filterCriteria.getAuthorSurname(), searchResult);
 
-        if (searchResult == null) {
+        if (searchResult.isEmpty()) {
             return new ArrayList<>();
         } else {
             return readAll(searchResult);
@@ -147,19 +177,7 @@ public class NewsServiceImpl implements NewsService {
     private Comparator<NewsDto> addNextComparator(Comparator<NewsDto> comparator, SortOrder sortOrder) {
         Comparator<NewsDto> nextComparator;
 
-        switch (sortOrder) {
-            case BY_DATE:
-                nextComparator = new NewsDateComparator();
-                break;
-            case BY_TAGS:
-                nextComparator = new NewsTagComparator();
-                break;
-            case BY_AUTHOR:
-                nextComparator = new NewsAuthorComparator();
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + sortOrder);
-        }
+        nextComparator = SORT_ORDER_COMPARATOR_ENUM_MAP.get(sortOrder);
 
         if (comparator == null) {
             return nextComparator;
@@ -232,6 +250,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     @Override
+    @Transactional
     public long count() {
         return newsDao.count();
     }

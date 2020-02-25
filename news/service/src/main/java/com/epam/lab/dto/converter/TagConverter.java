@@ -1,4 +1,4 @@
-package com.epam.lab.converter;
+package com.epam.lab.dto.converter;
 
 import com.epam.lab.dto.TagDto;
 import com.epam.lab.model.Tag;

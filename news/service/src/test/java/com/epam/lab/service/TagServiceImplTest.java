@@ -2,7 +2,7 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
-import com.epam.lab.converter.TagConverter;
+import com.epam.lab.dto.converter.TagConverter;
 import com.epam.lab.dto.TagDto;
 import com.epam.lab.model.Tag;
 import org.junit.Before;
@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
@@ -34,7 +33,7 @@ public class TagServiceImplTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        service = new TagServiceImpl(tagDao, newsDao, tagConverter);
+        service = new TagServiceImpl(tagDao, tagConverter);
     }
 
     @Test
@@ -115,7 +114,7 @@ public class TagServiceImplTest {
 
         TagDto tagDto = new TagDto("Tag 1");
 
-        service.upload(tagDto);
+        service.save(tagDto);
 
         assertEquals(Long.valueOf(70L), tagDto.getId());
         Mockito.verify(tagDao).findByName("Tag 1");
@@ -127,7 +126,7 @@ public class TagServiceImplTest {
 
         TagDto tagDto = new TagDto("Tag 1");
 
-        service.upload(tagDto);
+        service.save(tagDto);
 
         Mockito.verify(tagDao).create(new Tag("Tag 1"));
     }

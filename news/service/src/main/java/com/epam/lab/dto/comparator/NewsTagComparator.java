@@ -1,4 +1,4 @@
-package com.epam.lab.service;
+package com.epam.lab.dto.comparator;
 
 import com.epam.lab.dto.NewsDto;
 import com.epam.lab.dto.TagDto;

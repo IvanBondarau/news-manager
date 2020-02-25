@@ -1,12 +1,12 @@
 package com.epam.lab.service;
 
-import com.epam.lab.converter.AuthorConverter;
-import com.epam.lab.converter.TagConverter;
+import com.epam.lab.dto.converter.AuthorConverter;
+import com.epam.lab.dto.converter.TagConverter;
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
 import com.epam.lab.dao.TagDao;
 import com.epam.lab.dto.*;
-import com.epam.lab.converter.NewsConverter;
+import com.epam.lab.dto.converter.NewsConverter;
 import com.epam.lab.model.Author;
 import com.epam.lab.model.News;
 import com.epam.lab.model.Tag;
@@ -21,12 +21,14 @@ import org.mockito.MockitoAnnotations;
 
 import java.sql.Date;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 
 @RunWith(JUnit4.class)
@@ -76,8 +78,6 @@ public class NewsServiceImplTest {
                 "Short text", "Full text",
                 Date.valueOf("2019-02-01"), Date.valueOf("2019-02-01"));
 
-        Author defaultAuthor = new Author(100L, "Test name", "Test surname");
-
         AuthorDto authorDto = new AuthorDto();
         authorDto.setId(100L);
         authorDto.setName("Test name");
@@ -97,25 +97,30 @@ public class NewsServiceImplTest {
         defaultDto.addTag(tag3);
 
         defaultTag1 = new Tag(6L, "Tag 1");
-        Tag defaultTag2 = new Tag(7L, "Tag 2");
-        Tag defaultTag3 = new Tag(8L, "Tag 3");
     }
 
     @Before
     public void defaultSearchCriteria() {
         defaultFilterCriteria = new FilterCriteria();
+        defaultFilterCriteria.setAuthorId(100L);
         defaultFilterCriteria.setAuthorName("Author1");
+        defaultFilterCriteria.setAuthorSurname("Author1");
         defaultFilterCriteria.setTagNames(new HashSet<>(Arrays.asList("Tag 1", "Tag 3")));
         defaultFilterCriteria.setSortParams(Arrays.asList(SortOrder.BY_AUTHOR, SortOrder.BY_DATE, SortOrder.BY_TAGS));
     }
 
     @Test
-    @Ignore
     public void createValid() {
+
+        doAnswer(invocationOnMock -> {
+            TagDto tagDto = invocationOnMock.getArgument(0);
+            tagDto.setId(1L);
+            return null;
+        }).when(tagService).save(any());
 
         service.create(defaultDto);
 
-        Mockito.verify(tagService, times(3)).upload(any());
+        Mockito.verify(tagService, times(3)).save(any());
         Mockito.verify(newsDao, times(1)).create(any());
 
     }
@@ -162,15 +167,17 @@ public class NewsServiceImplTest {
 
         service.update(newsDto);
 
-        Mockito.verify(authorService).upload(any());
-        Mockito.verify(tagService, times(3)).upload(any());
+        Mockito.verify(authorService).save(any());
+        Mockito.verify(tagService, times(3)).save(any());
         Mockito.verify(newsDao).update(any());
     }
 
     @Test
     public void searchShouldBeValid() {
 
+        Mockito.when(authorDao.findNewsByAuthorId(100L)).thenReturn(Arrays.asList(102L, 104L));
         Mockito.when(authorDao.findNewsByAuthorName(any())).thenReturn(Arrays.asList(102L, 103L, 104L));
+        Mockito.when(authorDao.findNewsByAuthorSurname(any())).thenReturn(Collections.singletonList(102L));
         Mockito.when(tagDao.findNewsIdByTagNames(any())).thenReturn(Arrays.asList(101L, 102L, 103L));
         Mockito.when(newsDao.read(102)).thenReturn(defaultEntity);
         Mockito.when(newsDao.read(103)).thenReturn(defaultEntity);
@@ -180,8 +187,28 @@ public class NewsServiceImplTest {
 
         List<NewsDto> result = service.filter(defaultFilterCriteria);
 
-        assertEquals(2, result.size());
+        assertEquals(1, result.size());
 
+    }
+
+
+    @Test
+    public void searchSortingOnlyCriteria() {
+        Mockito.when(authorDao.findNewsByAuthorName(any())).thenReturn(Arrays.asList(107L, 108L, 109L));
+        Mockito.when(tagDao.findNewsIdByTagNames(any())).thenReturn(Arrays.asList(101L, 102L, 103L));
+        Mockito.when(newsDao.read(102)).thenReturn(defaultEntity);
+        Mockito.when(newsDao.read(103)).thenReturn(defaultEntity);
+        Mockito.when(authorDao.read(0)).thenReturn(new Author("A", "B"));
+        Mockito.when(authorDao.read(100)).thenReturn(new Author("A", "C"));
+        Mockito.when(tagDao.read(102)).thenReturn(defaultTag1);
+        Mockito.when(tagDao.read(103)).thenReturn(defaultTag1);
+
+        FilterCriteria filterCriteria = new FilterCriteria();
+        filterCriteria.setSortParams(Collections.singletonList(SortOrder.BY_DATE));
+
+        List<NewsDto> result = service.filter(filterCriteria);
+
+        assertTrue(result.isEmpty());
     }
 
     @Test

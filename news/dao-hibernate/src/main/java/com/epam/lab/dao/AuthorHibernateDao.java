@@ -23,11 +23,13 @@ public class AuthorHibernateDao implements AuthorDao {
     @PersistenceContext
     private EntityManager entityManager;
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public void create(Author entity) {
         this.entityManager.persist(entity);
     }
 
+    @Override
     @Transactional(propagation = Propagation.REQUIRED)
     public Author read(long id) {
         Author author = this.entityManager.find(Author.class, id);
@@ -57,6 +59,7 @@ public class AuthorHibernateDao implements AuthorDao {
         this.entityManager.remove(author);
     }
 
+    @Transactional
     public List<Long> findNewsByAuthorId(long authorId) {
         Author author = entityManager.find(Author.class, authorId);
         if (author == null) {
@@ -67,6 +70,7 @@ public class AuthorHibernateDao implements AuthorDao {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public List<Long> findNewsByAuthorName(String authorName) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
@@ -83,6 +87,7 @@ public class AuthorHibernateDao implements AuthorDao {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public List<Long> findNewsByAuthorSurname(String authorSurname) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Tuple> query = criteriaBuilder.createTupleQuery();
@@ -99,7 +104,13 @@ public class AuthorHibernateDao implements AuthorDao {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public List<Author> getAll() {
-        return this.entityManager.createQuery("SELECT author FROM Author AS author", Author.class).getResultList();
+        CriteriaQuery<Author> getAllQuery = entityManager.getCriteriaBuilder().createQuery(Author.class);
+        Root<Author> root = getAllQuery.from(Author.class);
+        getAllQuery = getAllQuery.select(root);
+
+        TypedQuery<Author> query = entityManager.createQuery(getAllQuery);
+        return query.getResultList();
     }
 }

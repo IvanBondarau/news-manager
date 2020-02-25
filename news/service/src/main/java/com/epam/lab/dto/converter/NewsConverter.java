@@ -1,9 +1,7 @@
-package com.epam.lab.converter;
+package com.epam.lab.dto.converter;
 
 import com.epam.lab.dto.NewsDto;
-import com.epam.lab.model.Author;
 import com.epam.lab.model.News;
-import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

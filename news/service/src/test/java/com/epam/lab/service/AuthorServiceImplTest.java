@@ -2,7 +2,7 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
-import com.epam.lab.converter.AuthorConverter;
+import com.epam.lab.dto.converter.AuthorConverter;
 import com.epam.lab.dto.AuthorDto;
 import com.epam.lab.model.Author;
 import org.junit.Before;
@@ -103,7 +103,7 @@ public class AuthorServiceImplTest {
 
         AuthorDto dto = new AuthorDto(500L, "check", "check");
 
-        service.upload(dto);
+        service.save(dto);
 
         Mockito.verify(authorDao).read(500);
     }
@@ -116,7 +116,7 @@ public class AuthorServiceImplTest {
 
         Mockito.when(authorDao.read(-1)).thenReturn(defaultAuthor);
 
-        service.upload(dto);
+        service.save(dto);
 
         Mockito.verify(authorDao).create(defaultAuthor);
     }
