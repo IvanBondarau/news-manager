@@ -12,7 +12,7 @@
             <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
             <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/news"/>
             <property name="javax.persistence.jdbc.user" value="newsManager"/>
-            <property name="javax.persistence.jdbc.password" value="12345"/>
+            <property name="javax.persistence.jdbc.password" value="pFdev6vcU3EMNk8M"/>
 
             <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL10Dialect"/>
             <property name="hibernate.show_sql" value="true" />
