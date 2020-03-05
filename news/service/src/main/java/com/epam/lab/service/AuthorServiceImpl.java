@@ -2,8 +2,8 @@ package com.epam.lab.service;
 
 import com.epam.lab.dao.AuthorDao;
 import com.epam.lab.dao.NewsDao;
-import com.epam.lab.dto.converter.AuthorConverter;
 import com.epam.lab.dto.AuthorDto;
+import com.epam.lab.dto.converter.AuthorConverter;
 import com.epam.lab.model.Author;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.constraints.NotNull;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service

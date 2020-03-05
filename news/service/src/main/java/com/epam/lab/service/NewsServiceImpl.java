@@ -167,7 +167,7 @@ public class NewsServiceImpl implements NewsService {
         searchResult = searchByAuthorName(filterCriteria.getAuthorName(), searchResult);
         searchResult = searchByAuthorSurname(filterCriteria.getAuthorSurname(), searchResult);
 
-        if (searchResult.isEmpty()) {
+        if (searchResult == null || searchResult.isEmpty()) {
             return new ArrayList<>();
         } else {
             return readAll(searchResult);

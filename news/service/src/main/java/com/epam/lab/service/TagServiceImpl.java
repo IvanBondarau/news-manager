@@ -7,7 +7,6 @@ import com.epam.lab.exception.TagAlreadyExistsException;
 import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionManager;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

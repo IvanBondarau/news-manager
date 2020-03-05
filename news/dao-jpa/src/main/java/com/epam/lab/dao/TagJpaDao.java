@@ -18,9 +18,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
-public class TagHibernateDao implements TagDao {
+public class TagJpaDao implements TagDao {
 
-    private static final Logger LOGGER = Logger.getLogger(TagHibernateDao.class);
+    private static final Logger LOGGER = Logger.getLogger(TagJpaDao.class);
 
     @PersistenceContext
     private EntityManager entityManager;

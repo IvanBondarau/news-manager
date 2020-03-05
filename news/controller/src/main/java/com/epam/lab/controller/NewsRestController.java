@@ -23,7 +23,9 @@ import java.util.Set;
 @RequestMapping(value = "/news")
 public class NewsRestController {
 
-    private static final Logger logger = Logger.getLogger(NewsRestController.class);
+    private static final Logger LOGGER = Logger.getLogger(NewsRestController.class);
+
+    private static final String NEWS_ID_EQUAL = "News id = ";
 
     @Autowired
     private NewsService newsService;
@@ -39,8 +41,8 @@ public class NewsRestController {
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public NewsDto getNews(@PathVariable("id") long id) {
-        logger.info("New get news request");
-        logger.info("News id = " + id);
+        LOGGER.info("New get news request");
+        LOGGER.info(NEWS_ID_EQUAL + id);
         return newsService.read(id);
     }
 
@@ -96,12 +98,12 @@ public class NewsRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<NewsDto> createNews(@RequestBody @NotNull @Valid NewsDto newsDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            logger.error("Create news: unsuccessful binding");
+            LOGGER.error("Create news: unsuccessful binding");
             throw new InvalidRequestFormatException(bindingResult.toString());
         }
 
-        logger.info("New create news request");
-        logger.info("News = " + newsDto);
+        LOGGER.info("New create news request");
+        LOGGER.info(NEWS_ID_EQUAL + newsDto);
         newsService.create(newsDto);
 
         URI recourseLocation = getResourceLocation(newsDto.getId());
@@ -123,13 +125,13 @@ public class NewsRestController {
     public NewsDto updateNews(@RequestBody @NotNull @Valid NewsDto newsDto, @PathVariable long id,
                               BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            logger.error("Update news: unsuccessful binding");
+            LOGGER.error("Update news: unsuccessful binding");
             throw new InvalidRequestFormatException(bindingResult.toString());
         }
 
-        logger.info("New update news request");
-        logger.info("News id = " + id);
-        logger.info("Updated news = " + newsDto);
+        LOGGER.info("New update news request");
+        LOGGER.info(NEWS_ID_EQUAL + id);
+        LOGGER.info("Updated news = " + newsDto);
         newsDto.setId(id);
         newsService.update(newsDto);
         return newsDto;
@@ -143,8 +145,8 @@ public class NewsRestController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteNews(@PathVariable long id) {
-        logger.info("New delete news request");
-        logger.info("News id = " + id);
+        LOGGER.info("New delete news request");
+        LOGGER.info(NEWS_ID_EQUAL + id);
         newsService.delete(id);
     }
 

@@ -2,8 +2,8 @@ package com.epam.lab.exception;
 
 public class TagAlreadyExistsException extends RuntimeException{
 
-    private long tagId;
-    private String name;
+    private final long tagId;
+    private final String name;
 
     public TagAlreadyExistsException(long tagId, String name) {
         super();

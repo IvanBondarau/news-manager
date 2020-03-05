@@ -1,7 +1,12 @@
 package com.epam.lab.dto.converter;
 
+import com.epam.lab.dto.AuthorDto;
 import com.epam.lab.dto.NewsDto;
+import com.epam.lab.dto.TagDto;
+import com.epam.lab.exception.InvalidNumberOfAuthorsException;
+import com.epam.lab.model.Author;
 import com.epam.lab.model.News;
+import com.epam.lab.model.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,19 +36,9 @@ public class NewsConverter implements EntityDtoConverter<News, NewsDto> {
         newsDto.setCreationDate(entity.getCreationDate());
         newsDto.setModificationDate(entity.getModificationDate());
 
-        newsDto.setTags(
-                entity.getTags() == null ? new HashSet<>() :
-                entity.getTags()
-                        .stream()
-                        .map(t -> tagConverter.convertToDto(t))
-                        .collect(Collectors.toSet())
-        );
+        newsDto.setTags(convertTagsToDto(entity.getTags()));
+        newsDto.setAuthor(convertAuthorsToDto(entity.getAuthors()));
 
-        newsDto.setAuthor(
-                entity.getAuthors() == null ? null
-                        : entity.getAuthors().isEmpty() ? null
-                        : authorConverter.convertToDto(entity.getAuthors().stream().findFirst().get())
-        );
         return newsDto;
     }
 
@@ -56,15 +51,58 @@ public class NewsConverter implements EntityDtoConverter<News, NewsDto> {
         news.setFullText(dto.getFullText());
         news.setCreationDate(dto.getCreationDate());
         news.setModificationDate(dto.getModificationDate());
-        news.setAuthors(dto.getAuthor() == null ? new HashSet<>()
-                : Collections.singleton(
-                        authorConverter.convertToEntity(dto.getAuthor())));
-        news.setTags(dto.getTags() == null ? new HashSet<>()
-                : dto.getTags().stream()
-                                .map(t -> tagConverter.convertToEntity(t))
-                                .collect(Collectors.toSet())
-        );
+
+        news.setAuthors(convertAuthorDtoToEntity(dto.getAuthor()));
+        news.setTags(convertTagDtoToEntities(dto.getTags()));
 
         return news;
+    }
+
+    private Set<Author> convertAuthorDtoToEntity(AuthorDto authorDto) {
+        if (authorDto == null) {
+            return new HashSet<>();
+        }
+
+        return Collections.singleton(authorConverter.convertToEntity(authorDto));
+    }
+
+    private Set<Tag> convertTagDtoToEntities(Set<TagDto> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return new HashSet<>();
+        }
+
+        return tags.stream()
+                .map(t -> tagConverter.convertToEntity(t))
+                .collect(Collectors.toSet());
+    }
+
+    private AuthorDto convertAuthorsToDto(Set<Author> authors) {
+        if (authors == null || authors.isEmpty()) {
+            return null;
+        }
+
+        if (authors.size() != 1) {
+            throw new InvalidNumberOfAuthorsException("News must contain only one author, but "
+                    + authors.size() + " found");
+        }
+
+        AuthorDto result = null;
+
+        for (Author author : authors) {
+            result = authorConverter.convertToDto(author);
+        }
+
+        return result;
+    }
+
+
+    private Set<TagDto> convertTagsToDto(Set<Tag> tags) {
+        if (tags == null || tags.isEmpty()) {
+            return new HashSet<>();
+        }
+
+        return tags.stream()
+                .map(t -> tagConverter.convertToDto(t))
+                .collect(Collectors.toSet());
     }
 }

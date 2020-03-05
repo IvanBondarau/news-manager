@@ -19,7 +19,9 @@ import java.util.List;
 @RequestMapping(value = "/author")
 public class AuthorRestController {
 
-    private static final Logger logger = Logger.getLogger(AuthorRestController.class);
+    private static final Logger LOGGER = Logger.getLogger(AuthorRestController.class);
+
+    private static final String AUTHOR_ID_EQUAL = "Author id = ";
 
     @Autowired
     private AuthorService authorService;
@@ -33,8 +35,8 @@ public class AuthorRestController {
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public AuthorDto getAuthor(@PathVariable("id") long id) {
-        logger.info("New get author request");
-        logger.info("Author id = " + id);
+        LOGGER.info("New get author request");
+        LOGGER.info(AUTHOR_ID_EQUAL + id);
         return authorService.read(id);
     }
 
@@ -60,11 +62,11 @@ public class AuthorRestController {
     public ResponseEntity<AuthorDto> createAuthor(@RequestBody @Valid AuthorDto authorDto,
                                                   BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            logger.error("Create author: unsuccessful binding");
+            LOGGER.error("Create author: unsuccessful binding");
             throw new InvalidRequestFormatException(bindingResult.toString());
         }
-        logger.info("New create author request");
-        logger.info("Author = " + authorDto);
+        LOGGER.info("New create author request");
+        LOGGER.info(AUTHOR_ID_EQUAL + authorDto);
         authorService.create(authorDto);
 
         URI resourceLocation = getResourceLocation(authorDto.getId());
@@ -84,13 +86,13 @@ public class AuthorRestController {
                                   @PathVariable long id,
                                   BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            logger.error("Update author: unsuccessful binding");
+            LOGGER.error("Update author: unsuccessful binding");
             throw new InvalidRequestFormatException(bindingResult.toString());
         }
 
-        logger.info("New update author request");
-        logger.info("Author id = " + id);
-        logger.info("Updated author = " + authorDto);
+        LOGGER.info("New update author request");
+        LOGGER.info(AUTHOR_ID_EQUAL + id);
+        LOGGER.info("Updated author = " + authorDto);
         authorDto.setId(id);
         authorService.update(authorDto);
         return authorDto;
@@ -105,8 +107,8 @@ public class AuthorRestController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteAuthor(@PathVariable long id) {
-        logger.info("New delete author request");
-        logger.info("Author id = " + id);
+        LOGGER.info("New delete author request");
+        LOGGER.info(AUTHOR_ID_EQUAL + id);
         authorService.delete(id);
     }
 

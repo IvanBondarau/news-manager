@@ -31,6 +31,9 @@ public class NewsDto implements Dto {
     private AuthorDto author;
 
     public NewsDto() {
+        title = "";
+        shortText = "";
+        fullText = "";
         tags = new HashSet<>();
     }
 

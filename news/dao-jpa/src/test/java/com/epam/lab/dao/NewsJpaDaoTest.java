@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = DaoConfig.class)
-public class NewsHibernateDaoTest {
+public class NewsJpaDaoTest {
     private static DataSource dataSource;
     private static JdbcTemplate jdbcTemplate;
     @Autowired

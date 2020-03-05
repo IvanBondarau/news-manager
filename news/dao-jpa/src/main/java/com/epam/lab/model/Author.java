@@ -1,9 +1,8 @@
 package com.epam.lab.model;
 
-import java.util.List;
+import javax.persistence.*;
 import java.util.Objects;
 import java.util.Set;
-import javax.persistence.*;
 
 @Entity
 @Table(

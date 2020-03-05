@@ -17,6 +17,8 @@ public class AuthorDto implements Dto {
     private String surname;
 
     public AuthorDto() {
+        name = "";
+        surname = "";
     }
 
     public AuthorDto(Long id, String name, String surname) {

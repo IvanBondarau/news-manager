@@ -24,7 +24,7 @@ import java.util.ResourceBundle;
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger logger = Logger.getLogger(RestExceptionHandler.class);
+    private static final Logger LOGGER = Logger.getLogger(RestExceptionHandler.class);
 
     private static final String ERROR_MESSAGES_BUNDLE_NAME = "errorMessages";
     private static final String INTERNAL_ERROR_MESSAGE_CODE = "internalServerError";
@@ -39,8 +39,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = DataEntityNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<RequestError> handleItemNotFound(DataEntityNotFoundException e, Locale locale) {
-        logger.warn("Handling DataEntityNotFoundException");
-        logger.warn("Entity id = " + e.getId());
+        LOGGER.warn("Handling DataEntityNotFoundException");
+        LOGGER.warn("Entity id = " + e.getId());
 
         setLocalizedResourceBundle(locale);
 
@@ -56,8 +56,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
 
     public ResponseEntity<RequestError> handleTagAlreadyExistException(TagAlreadyExistsException e, Locale locale) {
-        logger.warn("Handling TagAlreadyExistException");
-        logger.warn("Tag name = " + e.getName());
+        LOGGER.warn("Handling TagAlreadyExistException");
+        LOGGER.warn("Tag name = " + e.getName());
 
         setLocalizedResourceBundle(locale);
         RequestError requestError = createRequestError(TAG_ALREADY_EXIST_MESSAGE_CODE,
@@ -69,8 +69,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({DataAccessException.class})
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<RequestError> handleDataAccessException(DataAccessException e, Locale locale) {
-        logger.warn("Handling DataAccessException");
-        logger.warn("Message: " + e.getLocalizedMessage());
+        LOGGER.warn("Handling DataAccessException");
+        LOGGER.warn("Message: " + e.getLocalizedMessage());
         setLocalizedResourceBundle(locale);
 
         RequestError requestError = createRequestError(DATA_ACCESS_ERROR_MESSAGE_CODE, e.getLocalizedMessage());
@@ -83,9 +83,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ParseException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<RequestError> handleParseException(ParseException e, Locale locale) {
-        logger.warn("Handling ParseException");
-        logger.warn("Invalid param name = " + e.getParamName());
-        logger.warn("Invalid param value = " + e.getValue());
+        LOGGER.warn("Handling ParseException");
+        LOGGER.warn("Invalid param name = " + e.getParamName());
+        LOGGER.warn("Invalid param value = " + e.getValue());
 
         setLocalizedResourceBundle(locale);
 
@@ -100,8 +100,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = InvalidRequestFormatException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<RequestError> handleValidationException(InvalidRequestFormatException e, Locale locale) {
-        logger.warn("Handling ValidationException");
-        logger.error(e.getMessage(), e);
+        LOGGER.warn("Handling ValidationException");
+        LOGGER.error(e.getMessage(), e);
 
         setLocalizedResourceBundle(locale);
 
@@ -114,8 +114,8 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = RuntimeException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseEntity<RequestError> handleInternalException(RuntimeException e, Locale locale) {
-        logger.error("Handling unexpected RuntimeException");
-        logger.error(e.getMessage(), e);
+        LOGGER.error("Handling unexpected RuntimeException");
+        LOGGER.error(e.getMessage(), e);
 
         setLocalizedResourceBundle(locale);
 

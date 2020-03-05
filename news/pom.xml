@@ -16,7 +16,7 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>dao-hibernate</module>
+        <module>dao-jpa</module>
         <module>service</module>
         <module>controller</module>
     </modules>
@@ -69,12 +69,6 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.5</version>
-                <configuration>
-                    <excludes>
-                        <exclude>controller/*</exclude>
-                        <exclude>com/epam/lab/configuration/*</exclude>
-                    </excludes>
-                </configuration>
                 <executions>
 
                     <execution>

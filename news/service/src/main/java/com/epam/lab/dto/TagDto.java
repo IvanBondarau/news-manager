@@ -13,7 +13,7 @@ public class TagDto implements Dto {
     private String name;
 
     public TagDto() {
-
+        name = "";
     }
 
     public TagDto(String name) {

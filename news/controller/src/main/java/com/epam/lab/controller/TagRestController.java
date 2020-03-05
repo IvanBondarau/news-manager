@@ -19,6 +19,8 @@ public class TagRestController {
 
     private static final Logger logger = Logger.getLogger(TagRestController.class);
 
+    private static final String TAG_ID_EQUAL = "Tag id = ";
+
     @Autowired
     private TagService tagService;
 
@@ -32,7 +34,7 @@ public class TagRestController {
     @ResponseStatus(HttpStatus.OK)
     public TagDto getTag(@PathVariable("id") long id) {
         logger.info("New get tag request");
-        logger.info("Tag id = " + id);
+        logger.info(TAG_ID_EQUAL + id);
         return tagService.read(id);
     }
 
@@ -62,7 +64,7 @@ public class TagRestController {
         }
 
         logger.info("New create tag request");
-        logger.info("Tag = " + tagDto);
+        logger.info(TAG_ID_EQUAL + tagDto);
         tagService.create(tagDto);
         return tagDto;
     }
@@ -83,7 +85,7 @@ public class TagRestController {
         }
 
         logger.info("New update tag request");
-        logger.info("Tag id = " + id);
+        logger.info(TAG_ID_EQUAL + id);
         logger.info("Updated tag = " + tagDto);
         tagDto.setId(id);
         tagService.update(tagDto);
@@ -99,7 +101,7 @@ public class TagRestController {
     @ResponseStatus(HttpStatus.OK)
     public void deleteTag(@PathVariable long id) {
         logger.info("New delete tag request");
-        logger.info("Tag id = " + id);
+        logger.info(TAG_ID_EQUAL + id);
         tagService.delete(id);
     }
 }

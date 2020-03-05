@@ -4,8 +4,8 @@ import com.epam.lab.model.EntityType;
 
 public class DataEntityNotFoundException extends RuntimeException {
 
-    private EntityType entityType;
-    private Long id;
+    private final EntityType entityType;
+    private final Long id;
 
     public DataEntityNotFoundException(EntityType entityType, Long id) {
         this.entityType = entityType;

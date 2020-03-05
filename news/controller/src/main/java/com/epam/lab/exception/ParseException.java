@@ -1,8 +1,8 @@
 package com.epam.lab.exception;
 
 public class ParseException extends RuntimeException {
-    private String paramName;
-    private String value;
+    private final String paramName;
+    private final String value;
 
     public ParseException(String paramName, String value) {
         this.paramName = paramName;

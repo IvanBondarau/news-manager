@@ -2,8 +2,8 @@ package com.epam.lab.dto.converter;
 
 import com.epam.lab.dto.Dto;
 
-public interface EntityDtoConverter<EntityType, DtoType extends Dto> {
-    DtoType convertToDto(EntityType entity);
+public interface EntityDtoConverter<E, D extends Dto> {
+    D convertToDto(E entity);
 
-    EntityType convertToEntity(DtoType dto);
+    E convertToEntity(D dto);
 }

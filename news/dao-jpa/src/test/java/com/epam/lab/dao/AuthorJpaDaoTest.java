@@ -27,9 +27,9 @@ import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = DaoConfig.class)
-public class AuthorHibernateDaoTest {
+public class AuthorJpaDaoTest {
 
-    private static final Logger logger = Logger.getLogger(AuthorHibernateDaoTest.class);
+    private static final Logger logger = Logger.getLogger(AuthorJpaDaoTest.class);
     private static DataSource dataSource;
     private static JdbcTemplate jdbcTemplate;
     @Autowired

@@ -1,10 +1,10 @@
 package com.epam.lab.dao;
 
 import com.epam.lab.exception.DataEntityNotFoundException;
+import com.epam.lab.exception.NewsAuthorNotFoundException;
 import com.epam.lab.model.Author;
 import com.epam.lab.model.EntityType;
 import com.epam.lab.model.News;
-import com.epam.lab.model.Tag;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,11 +14,11 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Repository
-public class NewsHibernateDao implements NewsDao {
+public class NewsJpaDao implements NewsDao {
 
     @PersistenceContext
     private EntityManager entityManager;
@@ -27,7 +27,12 @@ public class NewsHibernateDao implements NewsDao {
     @Transactional(propagation = Propagation.REQUIRED)
     public long getAuthorIdByNewsId(long id) {
         Set<Author> authorSet = entityManager.find(News.class, id).getAuthors();
-        return authorSet.stream().map(Author::getId).findFirst().get();
+        Optional<Author> author = authorSet.stream().findFirst();
+        if (author.isPresent()) {
+            return author.get().getId();
+        } else {
+            throw new NewsAuthorNotFoundException("Author for news with id " + id + " not found");
+        }
     }
 
 

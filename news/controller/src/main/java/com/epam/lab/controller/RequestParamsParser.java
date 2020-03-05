@@ -5,23 +5,20 @@ import com.epam.lab.exception.ParseException;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-public class RequestParamsParser {
+class RequestParamsParser {
 
     private static final Logger logger = Logger.getLogger(RequestParamsParser.class);
 
     private static final Pattern tagNamesPattern = Pattern.compile("([a-zA-Z0-9]+)(,[a-zA-Z0-9]+)*");
     private static final Pattern orderParamsPattern = Pattern.compile("([a-zA-Z]+)(,[a-zA-Z]+)*");
 
-    public Set<String> parseTagNames(String strTagNames) {
+    Set<String> parseTagNames(String strTagNames) {
         if (strTagNames == null) {
             logger.warn("Empty parse request");
             return new HashSet<>();
@@ -37,9 +34,9 @@ public class RequestParamsParser {
         return new HashSet<>(Arrays.asList(tagNamesArr));
     }
 
-    public List<SortOrder> parseOrderParams(String orderParams) {
+     List<SortOrder> parseOrderParams(String orderParams) {
         if (orderParams == null) {
-            return null;
+            return Collections.emptyList();
         }
         Matcher matcher = orderParamsPattern.matcher(orderParams);
         if (!matcher.matches()) {

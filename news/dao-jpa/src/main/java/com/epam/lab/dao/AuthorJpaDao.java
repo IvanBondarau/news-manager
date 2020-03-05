@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
-public class AuthorHibernateDao implements AuthorDao {
+public class AuthorJpaDao implements AuthorDao {
 
     @PersistenceContext
     private EntityManager entityManager;

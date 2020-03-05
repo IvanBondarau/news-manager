@@ -1,11 +1,7 @@
 package com.epam.lab.model;
 
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
-
 import javax.persistence.*;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -37,16 +33,16 @@ public class News {
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "News_Author",
-            joinColumns = { @JoinColumn(name = "news_id") },
-            inverseJoinColumns = { @JoinColumn(name = "author_id")}
+            joinColumns = {@JoinColumn(name = "news_id")},
+            inverseJoinColumns = {@JoinColumn(name = "author_id")}
     )
     private Set<Author> authors;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = {CascadeType.MERGE})
     @JoinTable(
             name = "News_Tag",
-            joinColumns = { @JoinColumn(name = "news_id") },
-            inverseJoinColumns = { @JoinColumn(name = "tag_id")}
+            joinColumns = {@JoinColumn(name = "news_id")},
+            inverseJoinColumns = {@JoinColumn(name = "tag_id")}
     )
     private Set<Tag> tags;
 
