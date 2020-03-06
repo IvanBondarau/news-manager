@@ -240,7 +240,7 @@ public class NewsServiceImpl implements NewsService {
     }
 
     private void sortBySortParams(List<NewsDto> news, List<SortOrder> sortParams) {
-        if (sortParams != null) {
+        if (sortParams != null && !sortParams.isEmpty()) {
             Comparator<NewsDto> comparator = null;
             for (SortOrder sortOrder : sortParams) {
                 comparator = addNextComparator(comparator, sortOrder);
