@@ -15,7 +15,7 @@ class RequestParamsParser {
 
     private static final Logger logger = Logger.getLogger(RequestParamsParser.class);
 
-    private static final Pattern tagNamesPattern = Pattern.compile("([a-zA-Z0-9]+)(,[a-zA-Z0-9]+)*");
+    private static final Pattern tagNamesPattern = Pattern.compile("([a-zA-Z0-9-]+)(,[a-zA-Z0-9-]+)*");
     private static final Pattern orderParamsPattern = Pattern.compile("([a-zA-Z]+)(,[a-zA-Z]+)*");
 
     Set<String> parseTagNames(String strTagNames) {
