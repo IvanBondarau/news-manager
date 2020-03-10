@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 @RestController
+@CrossOrigin
 @RequestMapping(value = "/news")
 public class NewsRestController {
 

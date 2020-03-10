@@ -14,6 +14,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping(value = "/tag")
 public class TagRestController {
 
