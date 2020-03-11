@@ -18,7 +18,7 @@ import java.util.List;
 @RequestMapping(value = "/tag")
 public class TagRestController {
 
-    private static final Logger logger = Logger.getLogger(TagRestController.class);
+    private static final Logger LOGGER = Logger.getLogger(TagRestController.class);
 
     private static final String TAG_ID_EQUAL = "Tag id = ";
 
@@ -34,8 +34,8 @@ public class TagRestController {
     @GetMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public TagDto getTag(@PathVariable("id") long id) {
-        logger.info("New get tag request");
-        logger.info(TAG_ID_EQUAL + id);
+        LOGGER.info("New get tag request");
+        LOGGER.info(TAG_ID_EQUAL + id);
         return tagService.read(id);
     }
 
@@ -60,12 +60,12 @@ public class TagRestController {
     @ResponseStatus(HttpStatus.CREATED)
     public TagDto createTag(@RequestBody @NotNull @Valid TagDto tagDto, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            logger.error("Create tag: unsuccessful binding");
+            LOGGER.error("Create tag: unsuccessful binding");
             throw new InvalidRequestFormatException(bindingResult.toString());
         }
 
-        logger.info("New create tag request");
-        logger.info(TAG_ID_EQUAL + tagDto);
+        LOGGER.info("New create tag request");
+        LOGGER.info(TAG_ID_EQUAL + tagDto);
         tagService.create(tagDto);
         return tagDto;
     }
@@ -81,13 +81,13 @@ public class TagRestController {
     @ResponseStatus(HttpStatus.OK)
     public TagDto updateTag(@RequestBody @Valid TagDto tagDto, @PathVariable Long id, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            logger.error("Update tag: unsuccessful binding");
+            LOGGER.error("Update tag: unsuccessful binding");
             throw new InvalidRequestFormatException(bindingResult.toString());
         }
 
-        logger.info("New update tag request");
-        logger.info(TAG_ID_EQUAL + id);
-        logger.info("Updated tag = " + tagDto);
+        LOGGER.info("New update tag request");
+        LOGGER.info(TAG_ID_EQUAL + id);
+        LOGGER.info("Updated tag = " + tagDto);
         tagDto.setId(id);
         tagService.update(tagDto);
         return tagDto;
@@ -101,8 +101,8 @@ public class TagRestController {
     @DeleteMapping(value = "/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteTag(@PathVariable long id) {
-        logger.info("New delete tag request");
-        logger.info(TAG_ID_EQUAL + id);
+        LOGGER.info("New delete tag request");
+        LOGGER.info(TAG_ID_EQUAL + id);
         tagService.delete(id);
     }
 }
