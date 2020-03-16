@@ -2,7 +2,7 @@ import React from 'react';
 import $ from 'jquery'
 import Tag from './tag.js'
 
-const TAG_URL = 'http://localhost:8090/news-manager/tag'
+const TAG_URL = 'http://localhost:8080/news-manager/tag'
 
 export default class TagList extends React.Component {
 
