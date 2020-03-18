@@ -1,5 +1,7 @@
 import React from 'react'
 import TagPage from './tag/tagpage.js'
+import AuthorPage from './author/author_page.js'
+import NewsPage from './news/news_page.js'
 
 import {
     Route,
@@ -23,6 +25,8 @@ export default class App extends React.Component {
                     </div>
                 </header>
                 <Route path="/tags" component={TagPage}/>
+                <Route path="/authors" component={AuthorPage}/>
+                <Route path="/news" component={NewsPage}/>
             </div>
             </HashRouter>
                 

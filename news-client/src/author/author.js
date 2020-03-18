@@ -1,9 +1,9 @@
 import React from 'react';
 import $ from 'jquery'
 
-const TAG_URL = 'http://localhost:8080/news-manager/tag'
+const AUTHOR_URL = 'http://localhost:8080/news-manager/author'
 
-export default class Tag extends React.Component {
+export default class Author extends React.Component {
 
     constructor() {
         super()
@@ -12,10 +12,10 @@ export default class Tag extends React.Component {
 
     render() {
         return (
-            <div class="tag-card mdl-card mdl-shadow--2dp">
+            <div class="author-card mdl-card mdl-shadow--2dp">
                 <div class="mdl-card__title">
                     <h2 class="mdl-card__title-text">
-                        {this.props.name}
+                        {this.props.name + ' ' + this.props.surname} 
                     </h2>
                 </div>
 
@@ -37,7 +37,7 @@ export default class Tag extends React.Component {
 
                 <div class="mdl-card__actions mdl-card--border">
                     <div class="mdl-textfield mdl-js-textfield">
-                        <input class="mdl-textfield__input" placeholder={this.props.name} id={"tag-name-input-" + this.props.id} type="text"/>
+                        <input class="mdl-textfield__input" placeholder={this.props.name + ' ' + this.props.surname} id={"author-name-input-" + this.props.id} type="text"/>
                     </div>
                 </div>
             </div>
@@ -50,7 +50,7 @@ export default class Tag extends React.Component {
         $.ajax(
             {
                 method: 'DELETE',
-                url: TAG_URL + "/" + this.props.id
+                url: AUTHOR_URL + "/" + this.props.id
             }
         ).fail((responce) => {
             alert('FAIL')
@@ -62,18 +62,19 @@ export default class Tag extends React.Component {
     }
 
     edit() {
-        var newName = $("#tag-name-input-" + this.props.id).val()
+        var newName = $("#author-name-input-" + this.props.id).val().split(' ')
         $.ajax(
             {
                 method: 'PUT',
-                url: TAG_URL + "/" + this.props.id,
+                url: AUTHOR_URL + "/" + this.props.id,
                 headers: { 
                     'Content-Type': 'application/json' 
                 },
                 dataType: 'json',
                 data: JSON.stringify(
                     {
-                        name: newName
+                        name: newName[0],
+                        surname: newName[1]
                     }
                 )
             }

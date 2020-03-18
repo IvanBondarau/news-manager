@@ -18,6 +18,18 @@ code {
   min-height: fit-content;
 }
 
+.author-card {
+  height: auto;
+  width: 1000px;
+  min-height: fit-content;
+}
+
+.news-card {
+  height: auto;
+  width: 1500px;
+  min-height: fit-content;
+}
+
 .create-tag-form {
   margin-top: 130px;
 }
