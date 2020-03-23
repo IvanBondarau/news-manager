@@ -77,9 +77,11 @@ export default class NewsRouteList extends React.Component {
                     {
                         this.state.news.map((newsItem, i) => {
                             return (
-                                <Route exact path={'/news/' + newsItem.id}>
-                                    <NewsFullCard item={newsItem}></NewsFullCard>
-                                </Route>
+                                <li key={i}>
+                                    <Route exact path={'/news/' + newsItem.id}>
+                                        <NewsFullCard item={newsItem}></NewsFullCard>
+                                    </Route>
+                                </li>
                             )
                         })
                     }

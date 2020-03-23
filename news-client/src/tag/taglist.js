@@ -32,7 +32,7 @@ export default class TagList extends React.Component {
                         error: {
                             code: responce.statusCode,
                             text: responce.statusText,
-                            comment: responce.responseJSON.error
+                            comment: null
                         }
                     }
                 )

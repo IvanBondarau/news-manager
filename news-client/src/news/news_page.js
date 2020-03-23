@@ -13,19 +13,12 @@ export default class NewsPage extends React.Component {
     render() {
         return (
             <HashRouter>
-            <div class="mdl-grid" id='tag-page'>
-                <div class="mdl-cell mdl-cell--4-col"/>
-                <div class="mdl-cell mdl-cell--4-col">
-                    <Route exact path="/news">
-                        <NewsList ref={this.newsListRef}></NewsList>
-                    </Route>
-                    <NewsRouteList></NewsRouteList>
-                </div>
                 
-                <div class="mdl-cell mdl-cell--2-col"/>
-                <div class="mdl-cell mdl-cell--2-col"/>
-                
-            </div>
+            <Route exact path="/news">
+                <NewsList ref={this.newsListRef}></NewsList>
+            </Route>
+            
+            <NewsRouteList></NewsRouteList>
             </HashRouter>
         )
     }

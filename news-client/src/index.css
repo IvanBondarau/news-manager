@@ -25,8 +25,7 @@ code {
 }
 
 .news-card {
-  height: auto;
-  width: 1500px;
+  width: stretch;
   min-height: fit-content;
 }
 
@@ -34,3 +33,31 @@ code {
   margin-top: 130px;
 }
 
+.news-full-card {
+  width: stretch;
+  background-color: #0091ea;
+  border-radius: 10px;
+  padding-bottom: 50px;
+}
+
+.news-full-card-title {
+  align-content: center;
+}
+
+.news_textfield {
+  background-color: lightblue;
+  width: stretch;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+
+.last {
+  padding-top: 20px;
+  padding-bottom: 50px;
+}
+
+.news-button {
+  padding-left: 20px;
+  padding-right: 20px;
+}

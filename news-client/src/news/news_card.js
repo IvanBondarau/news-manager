@@ -14,29 +14,30 @@ export default class NewsCard extends React.Component {
     render() {
         let date = new Date(this.props.item.creationDate); 
         return (
-            <div class="news-card mdl-card mdl-shadow--2dp">
-                <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text">
-                        {this.props.item.title}
-                    </h2>
+            
+            <div class="mdl-grid" id='tag-page'>
+                <div class="mdl-cell mdl-cell--4-col"/>
+                <div class="mdl-cell mdl-cell--4-col">
+                    <div class="mdl-card mdl-shadow--2dp">
+                        <div class="mdl-card__title">
+                            <h4 class="mdl-card__title-text">{this.props.item.title}</h4>
+                        </div>
+                        <div class="mdl-card__supporting-text mdl-card--border">
+                            {date.toDateString()} 
+                        </div>
+                        <div class="mdl-card__supporting-text ">
+                            <span>
+                                {this.props.item.shortText}
+                            </span>    
+                        </div>
+                        <div class="mdl-card__actions mdl-card--border">
+                            <NavLink className="mdl-button mdl-js-button mdl-button--primary" to={'news/' + this.props.item.id}>Edit</NavLink>
+                            <button class="mdl-button mdl-js-button mdl-button--primary">Delete</button>
+                        </div>
+                    </div>
                 </div>
-
-                <div class="mdl-card__menu">
-                    <span>
-                        {date.toDateString()}
-                    </span>
-                </div>
-
-                <div class="mdl-card__actions mdl-card--border">
-                    <span>
-                        {this.props.item.shortText}
-                    </span>    
-                </div>
-                <div class="mdl-card__actions mdl-card--border">
-                    <NavLink className="mdl-button mdl-js-button mdl-button--primary" to={'news/' + this.props.item.id}>Edit</NavLink>
-                    <button class="mdl-button mdl-js-button mdl-button--primary">Delete</button>
-                </div>
-            </div>
+                <div class="mdl-cell mdl-cell--4-col"/>
+             </div>
         )
     
     }
