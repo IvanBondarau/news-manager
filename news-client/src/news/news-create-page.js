@@ -1,19 +1,16 @@
 import React from 'react';
 import $ from 'jquery'
-//import { NavLink, HashRouter } from 'react-router-dom';
 import TagCheckList from './tag_check_list.js'
 
 const NEWS_URL = 'http://localhost:8080/news-manager/news'
 
-export default class NewsCard extends React.Component {
+export default class NewsCreatePage extends React.Component {
     constructor() {
         super()
         this.news_tags_ref = React.createRef()
     }
 
     render() {
-        let creationDate = new Date(this.props.item.creationDate); 
-        let modificationDate = new Date(this.props.item.modificationDate); 
         return (
             <div class="mdl-grid">
                 <div class="mdl-cell mdl-cell--2-col">
@@ -27,7 +24,6 @@ export default class NewsCard extends React.Component {
                             <div class="mdl-textfield mdl-js-textfield">
                                     <h4>Title</h4>
                                     <input class="mdl-textfield__input news-title-input" 
-                                        placeholder={this.props.item.title} 
                                         id={"news-title-input-" + this.props.id} type="text"/>
                                 
                             </div>
@@ -36,18 +32,8 @@ export default class NewsCard extends React.Component {
 
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--8-col">
-                            <h5>
-                                {'Author: ' + this.props.item.author.name + ' ' + this.props.item.author.surname}
-                            </h5>
                         </div>
-                        <div class="mdl-cell mdl-cell--3-col">
-                            <h5 class="news-full-card-title">{
-                                'Created: ' + creationDate.toLocaleDateString()
-                            }</h5>
-                            <h5 class="news-full-card-title">{
-                                'Last edited: ' + modificationDate.toLocaleDateString()
-                            }</h5>
-                        </div>
+                        <div class="mdl-cell mdl-cell--3-col"></div>
                         
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--11-col">
@@ -59,7 +45,7 @@ export default class NewsCard extends React.Component {
                             <form action = "#">
                                 <div class = "mdl-textfield mdl-js-textfield news_textfield">
                                     <textarea class = "news_textfield mdl-textfield__input" type = "text" rows =  "5" 
-                                        id = "short_text_input" placeholder={this.props.item.shortText}></textarea>
+                                        id = "short_text_input"></textarea>
                                 </div>
                             </form>
                         </div>
@@ -77,7 +63,7 @@ export default class NewsCard extends React.Component {
                             <form action = "#">
                                 <div class = "mdl-textfield mdl-js-textfield news_textfield">
                                     <textarea class = "news_textfield mdl-textfield__input" type = "text" rows =  "5" 
-                                        id = "full_text_input" placeholder={this.props.item.fullText}></textarea>
+                                        id = "full_text_input"></textarea>
                                 </div>
                             </form>
                         </div>
@@ -87,13 +73,12 @@ export default class NewsCard extends React.Component {
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--11-col">
                             <h4>Tags</h4>
-                            <TagCheckList ref={this.news_tags_ref} selectedTags={this.props.item.tags}/>
+                            <TagCheckList ref={this.news_tags_ref} selectedTags={[]}/>
                         </div>
 
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--11-col last">
-                            <button onClick={this.edit.bind(this)} class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored news-button">Edit</button>
-                            <button onClick={this.delete.bind(this)} class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored news-button">Delete</button>
+                            <button onClick={this.create.bind(this)} class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored news-button">Create</button>
                         </div>
                         
                     </div>
@@ -106,44 +91,29 @@ export default class NewsCard extends React.Component {
     
     }
 
-    delete() {
 
-        $.ajax(
-            {
-                method: 'DELETE',
-                url: NEWS_URL + "/" + this.props.item.id
-            }
-        ).fail((responce) => {
-            alert('FAIL')
-        }).done(responce => {
-            this.props.notifyAboutChanges()
-        })
-        
-        
-    }
-
-    edit() {
+    create() {
         let newTitle = $('#news-title-input-' + this.props.id).val()
         let newShortText = $('#short_text_input').val()
         let newFullText = $('#full_text_input').val()
 
         $.ajax(
             {
-                method: 'PUT',
-                url: NEWS_URL + "/" + this.props.item.id,
+                method: 'POST',
+                url: NEWS_URL,
                 headers: { 
                     'Content-Type': 'application/json' 
                 },
                 dataType: 'json',
                 data: JSON.stringify(
                     {
-                        id: this.props.item.id,
-                        title: newTitle === '' ? this.props.item.title : newTitle,
-                        shortText: newShortText === '' ? this.props.item.shortText : newShortText,
-                        fullText: newFullText === '' ? this.props.item.fullText: newFullText,
-                        creationDate: this.props.item.creationDate,
-                        modificationDate: this.props.item.modificationDate,
-                        author: this.props.item.author,
+                        title: newTitle,
+                        shortText: newShortText,
+                        fullText: newFullText,
+                        author: {
+                            name: 'admin',
+                            surname: 'admin'
+                        },
                         tags: this.news_tags_ref.current.getSelected()
                     }
                 )
@@ -151,7 +121,8 @@ export default class NewsCard extends React.Component {
         ).fail((responce) => {
             alert('FAIL')
         }).done(responce => {
-            this.props.notifyAboutChanges()
+            window.location.href='/#/news'
+
         })
     }
 

@@ -79,7 +79,8 @@ export default class NewsRouteList extends React.Component {
                             return (
                                 <li key={i}>
                                     <Route exact path={'/news/' + newsItem.id}>
-                                        <NewsFullCard item={newsItem}></NewsFullCard>
+                                        <NewsFullCard item={newsItem}
+                                                    notifyAboutChanges={this.setUpdateNeeded.bind(this)}></NewsFullCard>
                                     </Route>
                                 </li>
                             )

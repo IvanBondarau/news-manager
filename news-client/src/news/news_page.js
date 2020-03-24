@@ -1,7 +1,8 @@
 import React from 'react'
 import NewsList from './news_list'
-import { HashRouter, Route } from 'react-router-dom'
+import { HashRouter, NavLink, Route } from 'react-router-dom'
 import NewsRouteList from './news_route_list'
+import NewsCreatePage from './news-create-page'
 
 export default class NewsPage extends React.Component {
 
@@ -14,11 +15,25 @@ export default class NewsPage extends React.Component {
         return (
             <HashRouter>
                 
-            <Route exact path="/news">
-                <NewsList ref={this.newsListRef}></NewsList>
-            </Route>
-            
-            <NewsRouteList></NewsRouteList>
+                <Route exact path="/news">
+                    <div class='mdl-grid mdl-grid--no-spacing'>
+                        
+                    <NavLink className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored news-button" to='/news/create'>Create</NavLink>
+                        
+                        <div class="mdl-cell mdl-cell--12-col">
+                            <NewsList ref={this.newsListRef}></NewsList>
+                        </div>
+
+                        
+                        
+                    </div>
+                </Route>
+                
+                <NewsRouteList></NewsRouteList>
+                <Route exact path="/news/create">
+                    <NewsCreatePage></NewsCreatePage>
+                </Route>
+                
             </HashRouter>
         )
     }

@@ -71,14 +71,16 @@ export default class NewsList extends React.Component {
 
         if (this.state.isLoaded) {
             return (
-                <div id="tags-table">
+                <div class="mdl-grid mdl-grid--no-spacing" id="news-table">
                     
                     {
                         this.state.news.map((newsItem, i) => {
                             return (
+                                <div class='mdl-cell--12-col'>
                                     <NewsCard id={newsItem.id} 
                                               item={newsItem} 
                                               notifyAboutChanges={this.setUpdateNeeded.bind(this)} />
+                                </div>
                             )
                         })
                     }

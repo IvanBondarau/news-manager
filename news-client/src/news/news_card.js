@@ -32,7 +32,7 @@ export default class NewsCard extends React.Component {
                         </div>
                         <div class="mdl-card__actions mdl-card--border">
                             <NavLink className="mdl-button mdl-js-button mdl-button--primary" to={'news/' + this.props.item.id}>Edit</NavLink>
-                            <button class="mdl-button mdl-js-button mdl-button--primary">Delete</button>
+                            <button onClick={this.delete.bind(this)} class="mdl-button mdl-js-button mdl-button--primary">Delete</button>
                         </div>
                     </div>
                 </div>
@@ -58,8 +58,5 @@ export default class NewsCard extends React.Component {
         
     }
 
-    edit() {
-        alert('Unsupported')
-    }
 
 }
