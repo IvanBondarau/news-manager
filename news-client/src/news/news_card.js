@@ -1,6 +1,7 @@
 import React from 'react';
 import $ from 'jquery'
 import { NavLink } from 'react-router-dom';
+import i18n from '../i18n';
 
 const NEWS_URL = 'http://localhost:8080/news-manager/news'
 
@@ -31,8 +32,12 @@ export default class NewsCard extends React.Component {
                             </span>    
                         </div>
                         <div class="mdl-card__actions mdl-card--border">
-                            <NavLink className="mdl-button mdl-js-button mdl-button--primary" to={'news/' + this.props.item.id}>Edit</NavLink>
-                            <button onClick={this.delete.bind(this)} class="mdl-button mdl-js-button mdl-button--primary">Delete</button>
+                            <NavLink className="mdl-button mdl-js-button mdl-button--primary" to={'news/' + this.props.item.id}>
+                                {i18n.Edit}
+                            </NavLink>
+                            <button onClick={this.delete.bind(this)} class="mdl-button mdl-js-button mdl-button--primary">
+                                {i18n.Delete}
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -1,5 +1,6 @@
 import React from 'react'
 import $ from 'jquery'
+import i18n from '../i18n'
 
 const AUTHOR_URL = 'http://localhost:8080/news-manager/author'
 
@@ -8,7 +9,9 @@ export default class CreateAuthorForm extends React.Component {
         return (
             <div class="create-tag-form mdl-card mdl-shadow--2dp">
                 <div class="mdl-card__title">
-                    <h2 class="mdl-card__title-text">Create new author</h2>
+                    <h2 class="mdl-card__title-text">
+                        {i18n['Create new author']}
+                    </h2>
                 </div>
                 <div class="mdl-card__actions mdl-card--border">
                     <div class="mdl-textfield mdl-js-textfield">
@@ -17,7 +20,9 @@ export default class CreateAuthorForm extends React.Component {
                 </div>
 
                 <div class="mdl-card__actions mdl-card--border">
-                    <button onClick={this.handleCreate.bind(this)} class="mdl-button mdl-js-button mdl-button--primary">Submit</button>
+                    <button onClick={this.handleCreate.bind(this)} class="mdl-button mdl-js-button mdl-button--primary">
+                        {i18n.Create}
+                    </button>
                 </div>
             </div>
         )

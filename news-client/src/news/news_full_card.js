@@ -2,6 +2,7 @@ import React from 'react';
 import $ from 'jquery'
 //import { NavLink, HashRouter } from 'react-router-dom';
 import TagCheckList from './tag_check_list.js'
+import i18n from '../i18n.js';
 
 const NEWS_URL = 'http://localhost:8080/news-manager/news'
 
@@ -25,7 +26,9 @@ export default class NewsCard extends React.Component {
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--10-col">
                             <div class="mdl-textfield mdl-js-textfield">
-                                    <h4>Title</h4>
+                                    <h4>
+                                        {i18n.Title}
+                                    </h4>
                                     <input class="mdl-textfield__input news-title-input" 
                                         placeholder={this.props.item.title} 
                                         id={"news-title-input-" + this.props.id} type="text"/>
@@ -37,21 +40,21 @@ export default class NewsCard extends React.Component {
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--8-col">
                             <h5>
-                                {'Author: ' + this.props.item.author.name + ' ' + this.props.item.author.surname}
+                                {i18n.Author + ': ' + this.props.item.author.name + ' ' + this.props.item.author.surname}
                             </h5>
                         </div>
                         <div class="mdl-cell mdl-cell--3-col">
                             <h5 class="news-full-card-title">{
-                                'Created: ' + creationDate.toLocaleDateString()
+                                i18n.Created + ': ' + creationDate.toLocaleDateString()
                             }</h5>
                             <h5 class="news-full-card-title">{
-                                'Last edited: ' + modificationDate.toLocaleDateString()
+                                i18n.Edited + ': ' + modificationDate.toLocaleDateString()
                             }</h5>
                         </div>
                         
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--11-col">
-                            <h5>Short text</h5>
+                            <h5>{i18n["Short text"]}</h5>
                         </div>
 
                         <div class="mdl-cell mdl-cell--1-col"></div>
@@ -69,7 +72,9 @@ export default class NewsCard extends React.Component {
                         
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--11-col">
-                            <h5>Full text</h5>
+                            <h5>
+                                {i18n["Full text"]}
+                            </h5>
                         </div>
 
                         <div class="mdl-cell mdl-cell--1-col"></div>
@@ -86,14 +91,20 @@ export default class NewsCard extends React.Component {
             
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--11-col">
-                            <h4>Tags</h4>
+                            <h4>
+                                {i18n.Tags}
+                            </h4>
                             <TagCheckList ref={this.news_tags_ref} selectedTags={this.props.item.tags}/>
                         </div>
 
                         <div class="mdl-cell mdl-cell--1-col"></div>
                         <div class="mdl-cell mdl-cell--11-col last">
-                            <button onClick={this.edit.bind(this)} class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored news-button">Edit</button>
-                            <button onClick={this.delete.bind(this)} class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored news-button">Delete</button>
+                            <button onClick={this.edit.bind(this)} class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored news-button">
+                                {i18n.Edit}
+                            </button>
+                            <button onClick={this.delete.bind(this)} class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored news-button">
+                                {i18n.Delete}
+                            </button>
                         </div>
                         
                     </div>
