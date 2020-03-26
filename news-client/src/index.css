@@ -69,3 +69,8 @@ code {
   padding: 10px;
   border-radius: 10px;
 }
+
+.news-table {
+  align-self: flex-start;
+  align-content: flex-start;
+}

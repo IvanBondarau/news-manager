@@ -56,7 +56,7 @@ export default class NewsList extends React.Component {
             {
                 news: this.state.news,
                 isUpdateNeeded: true,
-                isLoaded: this.state.isUpdateNeeded,
+                isLoaded: false,
                 error: this.state.error
             }
         )

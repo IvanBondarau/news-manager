@@ -116,6 +116,7 @@ export default class NewsCreatePage extends React.Component {
                         shortText: newShortText,
                         fullText: newFullText,
                         author: {
+                            id: 9,
                             name: 'admin',
                             surname: 'admin'
                         },
