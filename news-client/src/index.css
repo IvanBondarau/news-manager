@@ -35,7 +35,8 @@ code {
 
 .news-full-card {
   width: stretch;
-  background-color: #0091ea;
+  background-color: #3f51b5;
+  text-decoration-color: white;
   border-radius: 10px;
   padding-bottom: 50px;
 }
@@ -45,10 +46,16 @@ code {
 }
 
 .news_textfield {
-  background-color: lightblue;
+  text-decoration-color: white;
+  background-color: #757de8;
   width: stretch;
   padding: 10px;
   border-radius: 10px;
+}
+
+.news-create-button {
+  margin-left: 300px;
+  margin-top: 30px;
 }
 
 
@@ -65,7 +72,7 @@ code {
 .news-title-input {
   font-size: 30px;
   color: black;
-  background-color: lightblue;
+  background-color: #757de8;
   padding: 10px;
   border-radius: 10px;
 }

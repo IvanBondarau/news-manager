@@ -16,6 +16,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -68,7 +70,9 @@ public class NewsRestController {
             @RequestParam(name = "authorName", required = false) String authorName,
             @RequestParam(name = "authorSurname", required = false) String authorSurname,
             @RequestParam(name = "tagNames", required = false) String tagNames,
-            @RequestParam(name = "order", required = false) String orderParams) {
+            @RequestParam(name = "order", required = false) String orderParams,
+            @RequestParam(name="page", required = false) Integer page,
+            @RequestParam(name="limit", required = false) Integer limit) {
 
         FilterCriteria filterCriteria = new FilterCriteria();
 
@@ -81,7 +85,13 @@ public class NewsRestController {
         List<SortOrder> sortOrders = parser.parseOrderParams(orderParams);
         filterCriteria.setSortParams(sortOrders);
 
-        return newsService.filter(filterCriteria);
+        List<NewsDto> news = newsService.filter(filterCriteria);
+
+        if (page != null && limit != null) {
+            news = this.paginate(page, limit, news);
+        }
+
+        return news;
     }
 
     /**
@@ -168,6 +178,16 @@ public class NewsRestController {
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(resourceId).toUri();
+    }
+
+    private List<NewsDto> paginate(Integer page, Integer limit, List<NewsDto> result) {
+        int startIndex = (page-1)*limit;
+        int endIndex = Math.min(page*limit, result.size());
+        if (startIndex >= result.size()) {
+            return new ArrayList<>();
+        }
+
+        return result.subList(startIndex, endIndex);
     }
 
 

@@ -12,15 +12,41 @@ export default class NewsList extends React.Component {
             isLoaded: false,
             isUpdateNeeded: true,
             error: null,
-            news: []
+            news: [],
+            page: 1,
+            pageSize: 5
         }
     }
 
     updateData() {
+        var firstParam = true;
+        var searchUrl = NEWS_URL
+        if (this.props.author !== null) {
+
+            firstParam = false
+            searchUrl += "?authorName=" + this.props.author.name + "&authorSurname=" + this.props.author.surname
+        }
+        if (this.props.tags !== null && this.props.tags.length>0) {
+            var tagNames = this.props.tags.map(tag => tag.name).join(',')
+
+            if (firstParam) {
+                searchUrl += "?tagNames="+tagNames
+            } else {
+                searchUrl += "&tagNames="+tagNames
+            }
+            firstParam = false;
+        } 
+
+        if (firstParam) {
+            searchUrl += "?page=" + this.props.page + "&limit=" + this.props.limit;
+        } else {
+            searchUrl += "&page=" + this.props.page + "&limit=" + this.props.limit;
+        }
+
         $.ajax(
             {
                 method: 'GET',
-                url: NEWS_URL
+                url: searchUrl
             }
         ).fail(
             (responce) => {
@@ -33,7 +59,9 @@ export default class NewsList extends React.Component {
                             code: responce.statusCode,
                             text: responce.statusText,
                             comment: null
-                        }
+                        },
+                        page: this.state.page,
+                        pageSize: this.state.pageSize
                     }
                 )
             }
@@ -44,7 +72,9 @@ export default class NewsList extends React.Component {
                         news: responce,
                         isUpdateNeeded: false,
                         isLoaded: true,
-                        error: null
+                        error: null,
+                        page: this.state.page,
+                        pageSize: this.state.pageSize
                     }
                 )
             }
@@ -57,7 +87,9 @@ export default class NewsList extends React.Component {
                 news: this.state.news,
                 isUpdateNeeded: true,
                 isLoaded: false,
-                error: this.state.error
+                error: this.state.error,
+                page: this.state.page,
+                pageSize: this.state.pageSize
             }
         )
     }
@@ -107,6 +139,10 @@ export default class NewsList extends React.Component {
         }
 
     }
+
+
+
+
 
 
 } 

@@ -18,6 +18,8 @@ let i18n = new LocalizedStrings({
       'Created': 'Created',
       'Edited': 'Edited',
       'Author': 'Author',
+      'Page': 'Page',
+      'PageSize': 'Page size'
   },
   ru: {
       'Home': 'В начало',
@@ -36,6 +38,8 @@ let i18n = new LocalizedStrings({
       'Created': 'Создано',
       'Edited': 'Изменено',
       'Author': 'Автор',
+      'Page': 'Страница',
+      'PageSize': 'Размер страницы'
   },
   fr: {
       'Home': 'Accueil',
@@ -54,6 +58,8 @@ let i18n = new LocalizedStrings({
       'Created': 'Créé',
       'Edited': 'Édité',
       'Author': 'Auteur',
+      'Page': 'Page',
+      'PageSize': 'Taille de la page'
   }
 
  });

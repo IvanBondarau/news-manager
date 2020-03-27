@@ -74,31 +74,16 @@ export default class TagCheckList extends React.Component {
                     
                     {
                         this.state.tags.map((tag, i) => {
-
-                            if (this.props.selectedTags.some(e => e.name === tag.name)) {
-                                return (
-                                        <div class='mdl-cell mdl-cell--3-col'>
-                                            <label class = "mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" 
-                                                for = {tag.name + '-tag-checkbox'}>
-                                                <input type = "checkbox" id = {tag.name + '-tag-checkbox'} class = "mdl-checkbox__input" checked/>
-                                                <span class = "mdl-checkbox__label">{tag.name}</span>
-                                            </label>	  
-                                        </div>
-                                    
-                                )
-
-                            } else {
-                                return (
-                                    <div class='mdl-cell mdl-cell--3-col'>
-                                        <label class = "mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" 
-                                            for = {tag.name + '-tag-checkbox'}>
-                                            <input type = "checkbox" id = {tag.name + '-tag-checkbox'} class = "mdl-checkbox__input"/>
-                                            <span class = "mdl-checkbox__label">{tag.name}</span>
-                                        </label>	  
-                                    </div>
-                                
+                            return (
+                                <div class='mdl-cell mdl-cell--3-col'>
+                                    <label class = "mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect" 
+                                        htmlFor  = {tag.name + '-tag-checkbox'}>
+                                        <input type = "checkbox" id = {tag.name + '-tag-checkbox'} class = "mdl-checkbox__input" 
+                                            defaultChecked={this.props.selectedTags.some(e => e.name === tag.name)}/>
+                                        <span class = "mdl-checkbox__label">{tag.name}</span>
+                                    </label>	  
+                                </div>
                             )
-                            }
                         })
                     }
                     

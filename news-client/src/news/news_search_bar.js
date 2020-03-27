@@ -1,5 +1,6 @@
 import React from 'react'
 import $ from 'jquery'
+import i18n from '../i18n'
 
 const AUTHOR_URL = 'http://localhost:8080/news-manager/author'
 
@@ -18,8 +19,9 @@ export default class NewsSearchBar extends React.Component {
         }
         
         return (
-            <div class="mdl-selectfield mdl-js-selectfield">
-                <select id="author-select" name="author-select" class="mdl-selectfield__select">
+            <div class="mdl-textfield mdl-js-textfield">
+                <label htmlFor="author-select" class="mdl-textfield__label">{i18n.Author}</label>
+                <select id="author-select" name="author-select" class="mdl-textfield__input">
                     <option></option>
                     {this.state.authors.map(
                         item => {
@@ -69,6 +71,14 @@ export default class NewsSearchBar extends React.Component {
     }
 
     getSelected() {
-        return $('#author-select').children("option:selected").val();
+        let author = $('#author-select').children("option:selected").val();
+        if (author === '') {
+            return null
+        } else {
+            return {
+                name: author.split(' ')[0],
+                surname: author.split(' ')[1]
+            }
+        }
     }
 }

@@ -11,8 +11,8 @@ export default class TagPage extends React.Component{
     render() {
         return (
             <div class="mdl-grid" id='tag-page'>
-                <div class="mdl-cell mdl-cell--3-col"/>
-                <div class="mdl-cell mdl-cell--4-col">
+                <div class="mdl-cell mdl-cell--2-col"/>
+                <div class="mdl-cell mdl-cell--5-col">
                     <AuthorList ref={this.tagListRef}/>
                 </div>
                 
