@@ -1,10 +1,7 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.configuration.DaoConfig;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import com.epam.lab.config.DaoTestConfig;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
@@ -18,7 +15,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DaoConfig.class)
+@ContextConfiguration(classes = DaoTestConfig.class)
 abstract public class AbstractDatabaseTest {
 
     @Autowired
