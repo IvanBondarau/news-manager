@@ -1,28 +1,28 @@
 package com.epam.lab.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table(
-        name = "author"
-)
+@Table(name = "author")
 public class Author {
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
-    )
+    @SequenceGenerator(name = "author_sequence", sequenceName = "author_sequence", allocationSize = 1)
+    @GeneratedValue(generator = "author_sequence")
+    @Column(name = "id")
     private Long id;
-    @Column(
-            name = "name",
-            nullable = false
-    )
+
+    @Column(name = "name", nullable = false)
     private String name;
-    @Column(
-            name = "surname",
-            nullable = false
-    )
+
+    @Column(name = "surname", nullable = false)
     private String surname;
 
     @ManyToMany(mappedBy = "authors")
@@ -77,11 +77,9 @@ public class Author {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Author)) return false;
         Author author = (Author) o;
-        return Objects.equals(id, author.id) &&
-                Objects.equals(name, author.name) &&
-                Objects.equals(surname, author.surname);
+        return Objects.equals(id, author.id) && Objects.equals(name, author.name) && Objects.equals(surname, author.surname);
     }
 
     @Override

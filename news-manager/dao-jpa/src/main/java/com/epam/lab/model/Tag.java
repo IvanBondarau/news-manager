@@ -1,6 +1,12 @@
 package com.epam.lab.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.SequenceGenerator;
+import javax.persistence.Table;
 import java.util.Objects;
 import java.util.Set;
 
@@ -9,17 +15,13 @@ import java.util.Set;
 public class Tag {
 
     @Id
-    @GeneratedValue(
-            strategy = GenerationType.IDENTITY
-    )
+    @SequenceGenerator(name = "tag_sequence", sequenceName = "tag_sequence", allocationSize = 1)
+    @GeneratedValue(generator = "tag_sequence")
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "name")
     private String name;
-    @ManyToMany(
-            mappedBy = "tags"
-    )
-    private Set<News> news;
 
     public Tag() {
     }
@@ -67,8 +69,7 @@ public class Tag {
     public String toString() {
         return "Tag{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
-                ", news=" + news +
+                ", name='" + name +
                 '}';
     }
 }

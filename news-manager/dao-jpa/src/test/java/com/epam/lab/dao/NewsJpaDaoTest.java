@@ -1,72 +1,25 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.configuration.DaoConfig;
 import com.epam.lab.model.News;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.Date;
-import java.sql.SQLException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DaoConfig.class)
-public class NewsJpaDaoTest {
-    private static DataSource dataSource;
-    private static JdbcTemplate jdbcTemplate;
+public class NewsJpaDaoTest extends AbstractDatabaseTest {
     @Autowired
     private NewsDao newsDao;
     @PersistenceContext
     private EntityManager entityManager;
-
-    @BeforeClass
-    public static void initDatabase() {
-        HikariConfig config = new HikariConfig("/database.properties");
-        dataSource = new HikariDataSource(config);
-        jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-
-    @AfterClass
-    public static void shutdownDatabase() {
-
-    }
-
-    @Before
-    public void init() throws SQLException {
-        jdbcTemplate = new JdbcTemplate(dataSource);
-
-        Connection connection = dataSource.getConnection();
-        ScriptUtils.executeSqlScript(connection, new ClassPathResource("test_data.sql"));
-        connection.close();
-    }
-
-    @After
-    public void clear() {
-        jdbcTemplate.update("DELETE FROM roles");
-        jdbcTemplate.update("DELETE FROM users");
-        jdbcTemplate.update("DELETE FROM news_tag");
-        jdbcTemplate.update("DELETE FROM news_author");
-        jdbcTemplate.update("DELETE FROM news");
-        jdbcTemplate.update("DELETE FROM tag");
-        jdbcTemplate.update("DELETE FROM author");
-
-    }
 
     @Test
     @Transactional
@@ -98,7 +51,7 @@ public class NewsJpaDaoTest {
                 "text", "textx",
                 Date.valueOf("2019-12-12"), Date.valueOf("2019-12-13"));
 
-        jdbcTemplate.update("INSERT INTO public.news VALUES(?, ?, ?, ?, ?, ?)",
+        jdbcTemplate.update("INSERT INTO news VALUES(?, ?, ?, ?, ?, ?)",
                 news.getId(),
                 news.getTitle(),
                 news.getShortText(),
@@ -161,21 +114,10 @@ public class NewsJpaDaoTest {
     @Transactional
     @Rollback
     public void deleteShouldBeValid() {
-
-        News news = new News(
-                "title",
-                "text", "textx",
-                Date.valueOf("2019-12-12"), Date.valueOf("2019-12-13"));
-
-        newsDao.create(news);
+        newsDao.delete(1000);
 
         List<News> newsList = newsDao.getAll();
-        assertTrue(newsList.contains(news));
-
-        newsDao.delete(news.getId());
-
-        newsList = newsDao.getAll();
-        assertFalse(newsList.contains(newsDao));
+        assertFalse(newsList.stream().map(News::getId).anyMatch(id -> id.equals(1000L)));
 
     }
 

@@ -1,72 +1,33 @@
 package com.epam.lab.dao;
 
-import com.epam.lab.configuration.DaoConfig;
 import com.epam.lab.model.Tag;
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import org.apache.log4j.Logger;
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.persistence.*;
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
+import javax.persistence.PersistenceContext;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(classes = DaoConfig.class)
-public class TagJpaDaoTest {
+public class TagJpaDaoTest extends AbstractDatabaseTest {
 
     private static final Logger logger = Logger.getLogger(AuthorJpaDaoTest.class);
-    private static DataSource dataSource;
-    private static JdbcTemplate jdbcTemplate;
     @Autowired
     private TagDao tagDao;
 
     @PersistenceContext
     private EntityManager entityManager;
-
-    @BeforeClass
-    public static void initDatabase() {
-        HikariConfig config = new HikariConfig("/database.properties");
-        dataSource = new HikariDataSource(config);
-        jdbcTemplate = new JdbcTemplate(dataSource);
-    }
-
-    @Before
-    public void init() throws SQLException {
-        jdbcTemplate = new JdbcTemplate(dataSource);
-
-        Connection connection = dataSource.getConnection();
-        ScriptUtils.executeSqlScript(connection, new ClassPathResource("test_data.sql"));
-        connection.close();
-    }
-
-    @After
-    public void clear() {
-        jdbcTemplate.update("DELETE FROM roles");
-        jdbcTemplate.update("DELETE FROM users");
-        jdbcTemplate.update("DELETE FROM news_tag");
-        jdbcTemplate.update("DELETE FROM news_author");
-        jdbcTemplate.update("DELETE FROM news");
-        jdbcTemplate.update("DELETE FROM tag");
-        jdbcTemplate.update("DELETE FROM author");
-    }
 
     @Test
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -90,7 +51,7 @@ public class TagJpaDaoTest {
         Tag tag = new Tag("name");
         tag.setId(20L);
 
-        jdbcTemplate.update("INSERT INTO public.tag VALUES(?, ?)",
+        jdbcTemplate.update("INSERT INTO tag VALUES(?, ?)",
                 tag.getId(),
                 tag.getName()
         );
@@ -114,7 +75,7 @@ public class TagJpaDaoTest {
 
         assertEquals(4, tags1.size());
 
-        Tag tag = new Tag( "name");
+        Tag tag = new Tag("name");
 
         tagDao.create(tag);
 
@@ -148,7 +109,7 @@ public class TagJpaDaoTest {
         transaction.begin();
         Tag tag = new Tag(11L, "name");
 
-        jdbcTemplate.update("INSERT INTO public.tag VALUES(?, ?)",
+        jdbcTemplate.update("INSERT INTO news_tag VALUES(?, ?)",
                 tag.getId(),
                 tag.getName()
         );
@@ -163,29 +124,15 @@ public class TagJpaDaoTest {
     @Transactional
     @Rollback(value = true)
     public void deleteShouldBeValid() {
+        tagDao.delete(1000);
 
-
-        Tag tag = new Tag("name");
-
-        tagDao.create(tag);
-        List<Tag> tags = jdbcTemplate.query("select * from public.tag", (resultSet, i) -> {
-            long id = resultSet.getLong(1);
-            String name = resultSet.getString(2);
-            return new Tag(id, name);
-        });
-        logger.info(tags);
-        logger.info("KAMDLLLLLLMLDAJMDAMDJDAJKLJDLAJDAJADJJNADJNADNJ");
-        tagDao.delete(tag.getId());
-
-        tags = jdbcTemplate.query("select * from public.tag", (resultSet, i) -> {
+        List<Tag> tags = jdbcTemplate.query("select * from tag", (resultSet, i) -> {
             long id = resultSet.getLong(1);
             String name = resultSet.getString(2);
             return new Tag(id, name);
         });
 
         assertEquals(4, tags.size());
-
-
     }
 
     @Test(expected = Exception.class)

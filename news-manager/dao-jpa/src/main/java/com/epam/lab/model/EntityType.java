@@ -2,7 +2,7 @@ package com.epam.lab.model;
 
 import java.util.EnumMap;
 
-public enum  EntityType {
+public enum EntityType {
     AUTHOR,
     TAG,
     NEWS;

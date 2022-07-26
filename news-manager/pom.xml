@@ -8,7 +8,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.version>5.2.2.RELEASE</spring.version>
+        <spring.version>5.3.20</spring.version>
     </properties>
 
     <groupId>com.epam.lab</groupId>
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13-rc-2</version>
+            <version>4.13.2</version>
         </dependency>
         <dependency>
             <groupId>log4j</groupId>
@@ -40,14 +40,14 @@
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.30</version>
+            <artifactId>slf4j-reload4j</artifactId>
+            <version>1.7.36</version>
         </dependency>
 
         <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.0.2.Final</version>
+            <version>7.0.4.Final</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish</groupId>

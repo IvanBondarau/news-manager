@@ -9,12 +9,13 @@
         <class>com.epam.lab.model.News</class>
         <class>com.epam.lab.model.Tag</class>
         <properties>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
-            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
-            <property name="javax.persistence.jdbc.url" value="jdbc:h2:tcp://localhost/~/test"/>
-            <property name="javax.persistence.jdbc.user" value="test"/>
-            <property name="javax.persistence.jdbc.password" value="12345"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL10Dialect"/>
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/news_manager_test"/>
+            <property name="javax.persistence.jdbc.user" value="news_manager"/>
+            <property name="javax.persistence.jdbc.password" value="news12345"/>
 
+            <property name="hibernate.default_schema" value="news_manager" />
             <property name="hibernate.show_sql" value="true" />
             <property name="hibernate.format_sql" value="true" />
 
